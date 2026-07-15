@@ -152,6 +152,53 @@ test("public avatar renderers escape CSS URL values and keep owner control bound
   assert.doesNotMatch(managementSource, /upload|signed upload|storage bucket|image generation|voice cloning|webrtc|microphone|camera capture|video/i);
 });
 
+test("Persona Profile edit route gates owner truth before mounting management", () => {
+  const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/edit/page.tsx", "utf8");
+
+  assert.match(pageSource, /data\.persona\.ownerUserId !== userId/);
+  assert.match(pageSource, /Persona Profile unavailable/);
+  assert.match(pageSource, /Station could not load this owner-only profile\. Return to Studio and try again\./);
+  assert.match(pageSource, /<PersonaManagement[\s\S]*accessToken=\{state\.accessToken\}/);
+  assert.doesNotMatch(pageSource, /ApiRequestError|error\.message|Persona not found|public serializer/i);
+});
+
+test("Persona Profile management exposes only accepted live mutation bodies", () => {
+  const managementSource = readFileSync("apps/web/components/studio/persona-management.tsx", "utf8");
+
+  assert.match(managementSource, /Profile facts/);
+  assert.match(managementSource, /Short description/);
+  assert.match(managementSource, /Long description/);
+  assert.match(managementSource, /Public description/);
+  assert.match(managementSource, /Save avatar URL/);
+  assert.match(managementSource, /Clear avatar URL/);
+  assert.match(managementSource, /Anonymous public chat alpha/);
+  assert.match(managementSource, /Save context handoff/);
+  assert.match(managementSource, /\{ avatarUrl: nextValue \}/);
+  assert.match(managementSource, /\{ publicAnonymousChatEnabled: nextEnabled \}/);
+  assert.match(managementSource, /\{ summary: handoffSummary\.trim\(\) \|\| undefined \}/);
+  assert.doesNotMatch(managementSource, /apiDelete|DELETE|delete persona|Delete persona/i);
+  assert.doesNotMatch(managementSource, /publicChatEnabled:|visibility:|provider:|name: currentPersona|longDescription:|shortDescription:/);
+  assert.doesNotMatch(managementSource, /apiPatch<[\s\S]*>\(\s*`\/personas\/\$\{personaId\}\/architecture`/i);
+  assert.doesNotMatch(managementSource, /Promise\.all\(|catch\(\(\) => \(\{ sessions: \[\] \}\)\)|catch\(\(\) => \(\{ graph: \{ nodes: \[\], edges: \[\] \} \}\)\)/);
+  assert.doesNotMatch(managementSource, /err instanceof Error|Error\.message|console\./);
+});
+
+test("Persona Profile route CSS is scoped, token based, responsive, and focus visible", () => {
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
+  const blockStart = cssSource.indexOf(".persona-profile-page");
+  assert.notEqual(blockStart, -1);
+  const routeCss = cssSource.slice(blockStart);
+
+  assert.match(routeCss, /\.persona-profile-page/);
+  assert.match(routeCss, /var\(--station-page-bg\)/);
+  assert.match(routeCss, /var\(--station-page-surface\)/);
+  assert.match(routeCss, /:focus-visible/);
+  assert.match(routeCss, /@media \(max-width: 820px\)/);
+  assert.match(routeCss, /grid-template-columns: 1fr/);
+  assert.match(routeCss, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.doesNotMatch(routeCss, /#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\(|clamp\(|vw|!important/);
+});
+
 test("public persona cross-owner linkbacks stay out of chat and context source builders", () => {
   const apiSource = readFileSync("apps/api/src/routes/personas.ts", "utf8");
   const pageSource = readFileSync("apps/web/app/personas/[publicSlug]/page.tsx", "utf8");

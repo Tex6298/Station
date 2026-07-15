@@ -1,57 +1,92 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { PersonaManagement } from "@/components/studio/persona-management";
 import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import type { Persona } from "@station/types/persona";
 
+type LoadState =
+  | { status: "loading" }
+  | { status: "unavailable" }
+  | { status: "ready"; persona: Persona; accessToken: string };
+
 export default function PersonaEditPage() {
   const { personaId } = useParams<{ personaId: string }>();
-  const [persona, setPersona] = useState<Persona | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
-    if (!personaId) return;
+    let mounted = true;
+    if (!personaId) {
+      setState({ status: "unavailable" });
+      return;
+    }
 
-    getSession().then(async (session) => {
-      if (!session) {
-        setLoading(false);
-        return;
-      }
+    getSession()
+      .then(async (session) => {
+        if (!mounted) return;
+        const accessToken = session?.accessToken ?? session?.access_token;
+        const userId = session?.user?.id;
+        if (!accessToken || !userId) {
+          setState({ status: "unavailable" });
+          return;
+        }
 
-      try {
-        const data = await apiGet<{ persona: Persona }>(`/personas/${personaId}`, session.access_token);
-        setPersona(data.persona);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not load persona management.");
-      } finally {
-        setLoading(false);
-      }
-    });
+        try {
+          const data = await apiGet<{ persona?: Persona }>(`/personas/${personaId}`, accessToken);
+          if (!data.persona?.ownerUserId || data.persona.ownerUserId !== userId) {
+            setState({ status: "unavailable" });
+            return;
+          }
+          setState({ status: "ready", persona: data.persona, accessToken });
+        } catch {
+          setState({ status: "unavailable" });
+        }
+      })
+      .catch(() => {
+        if (mounted) setState({ status: "unavailable" });
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, [personaId]);
 
-  if (loading) {
+  if (state.status === "loading") {
     return (
-      <main style={{ padding: 24 }}>
-        <div className="card" style={{ textAlign: "center", padding: "3rem", color: "#555" }}>
-          Loading persona management...
+      <main className="persona-profile-page">
+        <div className="persona-profile-shell">
+          <section className="persona-profile-unavailable" aria-busy="true">
+            Loading Persona Profile...
+          </section>
         </div>
       </main>
     );
   }
 
-  if (error || !persona) {
+  if (state.status === "unavailable") {
     return (
-      <main style={{ padding: 24 }}>
-        <div className="card" style={{ background: "#2d1515", borderColor: "#7d2e2e", color: "#eb5757" }}>
-          {error ?? "Persona not found."}
+      <main className="persona-profile-page">
+        <div className="persona-profile-shell">
+          <section className="persona-profile-unavailable">
+            <h1>Persona Profile unavailable</h1>
+            <p>Station could not load this owner-only profile. Return to Studio and try again.</p>
+            <Link className="persona-profile-button persona-profile-button-secondary" href="/studio">
+              Back to Studio
+            </Link>
+          </section>
         </div>
       </main>
     );
   }
 
-  return <PersonaManagement persona={persona} personaId={personaId} />;
+  return (
+    <PersonaManagement
+      persona={state.persona}
+      personaId={personaId}
+      accessToken={state.accessToken}
+    />
+  );
 }

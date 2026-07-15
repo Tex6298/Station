@@ -4,25 +4,26 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile implementation with DAEDALUS
+## Active lane - PR527E Persona Profile implementation ready for ARGUS
 
 ```text
-OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_IMPLEMENTATION
+READY_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
+Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: DAEDALUS implements the exact owner gate, static/live truth, independent states, bounded mutations/notices, Profile navigation copy, and route-scoped semantic presentation, then commits and wakes ARGUS
+Next: ARGUS hostile-reviews the exact implementation, reruns validation/rendered proof as needed, patches only inside the accepted allow-list if required, then wakes MIMIR with verdict
 ```
 
-DAEDALUS owns the exact ARGUS-approved implementation. The page may retain
-exactly three live mutation capabilities: avatar URL save/clear, eligible
-anonymous public chat alpha, and context handoff creation. Name, both
+DAEDALUS submitted the exact ARGUS-approved implementation for hostile review.
+The page retains exactly three live capability groups: avatar URL save/clear,
+eligible anonymous public chat alpha, and context handoff creation. Name, both
 descriptions, provider, visibility, public chat, public description,
 architecture, graph, archive, continuity, lifecycle, and Integrity history
-remain static facts, readback, or navigation. Failed secondary reads must no
-longer masquerade as authoritative empty states, action notices stay local and
-bounded, and non-owner public serialization must not mount owner controls.
+remain static facts, readback, or navigation. Failed secondary reads no longer
+masquerade as authoritative empty states, action notices stay local and
+bounded, and non-owner public serialization does not mount owner controls.
 
 The opening statement that no persona-delete path exists is corrected. An
 owner-filtered `DELETE /personas/:id` API route exists, but Persona Profile has
@@ -32,12 +33,23 @@ identity and boundary shaping. All other Studio navigation and every backend,
 schema, auth, tier, billing, provider, public, package, and hosted-runtime
 domain remain frozen.
 
-Read-only hosted orientation reproduced the defect across all nine
+Read-only hosted orientation reproduced the original defect across all nine
 viewport/theme cases on healthy shared API/web SHA `da105cf07`: Light title
 and support contrast measured about `1.06:1` and `1.96:1`, narrow desktop-grid
 minimums caused severe overlap at `390` and `375`, and no focus target met the
 explicit route focus criterion. No Persona Profile command or browser-side
-non-GET ran. This is pre-implementation defect evidence, not acceptance proof.
+non-GET ran. This remains pre-implementation defect evidence, not acceptance
+proof.
+
+Local implementation validation passed install, focused public-persona /
+navigation / lifecycle tests `41/41`, `test:writing` `35/35`, `test:studio-ui`
+`264/264`, `test:personas` `18/18`, `test:integrity` `3/3`,
+`test:persona-context` `12/12`, web/API typecheck, web lint, and
+`git diff --check`. Temporary local intercepted browser proof passed
+System/Light/Dark by desktop/`390`/`375`, owner-ready render, generic
+owner-mismatch unavailable state, zero overflow, and exactly the four allowed
+browser writes: avatar set, avatar clear, anonymous-chat toggle, and handoff
+create. The proof reached no hosted route and left no committed artifact.
 
 PR527D2 is closed as
 `CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.

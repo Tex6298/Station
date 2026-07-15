@@ -11,7 +11,6 @@ import type {
   PersonaLifecycleEvent,
 } from "@station/types/persona";
 import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
-import { getSession } from "@/lib/auth";
 import {
   handoffFreshnessCopy,
   handoffStatusLabel,
@@ -49,407 +48,395 @@ interface ArchitectureResponse {
   handoffs: PersonaHandoff[];
 }
 
-export function PersonaManagement({ persona, personaId }: { persona: Persona; personaId: string }) {
-  const [token, setToken] = useState<string | undefined>();
-  const [integrityHistory, setIntegrityHistory] = useState<IntegrityHistorySession[]>([]);
-  const [architecture, setArchitecture] = useState<ArchitectureResponse | null>(null);
-  const [memoryGraph, setMemoryGraph] = useState<MemoryGraph>({ nodes: [], edges: [] });
+type ReadState<T> =
+  | { status: "loading" }
+  | { status: "unavailable" }
+  | { status: "ready"; data: T };
+
+type Notice = { tone: "success" | "error" | "warning"; text: string } | null;
+
+const layerKeys: PersonaLayerKey[] = ["soul", "body", "faculty", "skill", "evolution"];
+
+export function PersonaManagement({
+  persona,
+  personaId,
+  accessToken,
+}: {
+  persona: Persona;
+  personaId: string;
+  accessToken: string;
+}) {
+  const [currentPersona, setCurrentPersona] = useState(persona);
+  const [architecture, setArchitecture] = useState<ReadState<ArchitectureResponse>>({ status: "loading" });
+  const [memoryGraph, setMemoryGraph] = useState<ReadState<MemoryGraph>>({ status: "loading" });
+  const [integrityHistory, setIntegrityHistory] = useState<ReadState<IntegrityHistorySession[]>>({ status: "loading" });
   const [handoffSummary, setHandoffSummary] = useState("");
   const [creatingHandoff, setCreatingHandoff] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [handoffNotice, setHandoffNotice] = useState<Notice>(null);
+  const [avatarNotice, setAvatarNotice] = useState<Notice>(null);
+  const [anonymousNotice, setAnonymousNotice] = useState<Notice>(null);
   const [avatarUrlInput, setAvatarUrlInput] = useState(persona.avatarUrl ?? "");
   const [savedAvatarUrl, setSavedAvatarUrl] = useState(persona.avatarUrl ?? null);
   const [savingAvatarUrl, setSavingAvatarUrl] = useState(false);
   const [anonymousChatEnabled, setAnonymousChatEnabled] = useState(Boolean(persona.publicAnonymousChatEnabled));
   const [savingAnonymousChat, setSavingAnonymousChat] = useState(false);
 
-  const continuity = (persona as Persona & { continuity?: PersonaContinuitySummary }).continuity;
-  const publicChatEnabled = Boolean(persona.publicChatEnabled);
+  const continuity = (currentPersona as Persona & { continuity?: PersonaContinuitySummary }).continuity;
+  const publicChatEnabled = Boolean(currentPersona.publicChatEnabled);
+  const publicPersona = currentPersona.visibility === "public";
 
   useEffect(() => {
     let mounted = true;
-    getSession().then(async (session) => {
-      if (!session || !mounted) return;
-      const accessToken = session.accessToken ?? session.access_token;
-      setToken(accessToken);
+    setArchitecture({ status: "loading" });
+    setMemoryGraph({ status: "loading" });
+    setIntegrityHistory({ status: "loading" });
 
-      const [historyData, architectureData, graphData] = await Promise.all([
-        apiGet<{ sessions: IntegrityHistorySession[] }>(`/integrity/history/${personaId}`, accessToken).catch(() => ({ sessions: [] })),
-        loadArchitecture(personaId, accessToken),
-        apiGet<{ graph: MemoryGraph }>(`/memory/persona/${personaId}/graph`, accessToken).catch(() => ({ graph: { nodes: [], edges: [] } })),
-      ]);
+    apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken)
+      .then((data) => {
+        if (mounted) setArchitecture({ status: "ready", data });
+      })
+      .catch(() => {
+        if (mounted) setArchitecture({ status: "unavailable" });
+      });
 
-      if (!mounted) return;
-      setIntegrityHistory(historyData.sessions ?? []);
-      setArchitecture(architectureData);
-      setMemoryGraph(graphData.graph);
-    });
+    apiGet<{ graph: MemoryGraph }>(`/memory/persona/${personaId}/graph`, accessToken)
+      .then((data) => {
+        if (mounted) setMemoryGraph({ status: "ready", data: data.graph });
+      })
+      .catch(() => {
+        if (mounted) setMemoryGraph({ status: "unavailable" });
+      });
+
+    apiGet<{ sessions: IntegrityHistorySession[] }>(`/integrity/history/${personaId}`, accessToken)
+      .then((data) => {
+        if (mounted) setIntegrityHistory({ status: "ready", data: data.sessions ?? [] });
+      })
+      .catch(() => {
+        if (mounted) setIntegrityHistory({ status: "unavailable" });
+      });
 
     return () => {
       mounted = false;
     };
-  }, [personaId]);
+  }, [accessToken, personaId]);
 
   const layerEntries = useMemo(() => {
-    if (!architecture?.profile) return [];
-    const keys: PersonaLayerKey[] = ["soul", "body", "faculty", "skill", "evolution"];
-    return keys.map((key) => ({ key, value: architecture.profile[key] }));
+    if (architecture.status !== "ready") return [];
+    return layerKeys.map((key) => ({ key, value: architecture.data.profile[key] }));
   }, [architecture]);
 
   const memoryRelationships = useMemo(
-    () => memoryGraphRelationshipReadbacks(memoryGraph, 5),
+    () => memoryGraph.status === "ready" ? memoryGraphRelationshipReadbacks(memoryGraph.data, 5) : [],
     [memoryGraph],
   );
 
   async function createHandoff() {
-    if (!token || creatingHandoff) return;
+    if (creatingHandoff) return;
     setCreatingHandoff(true);
-    setNotice(null);
+    setHandoffNotice(null);
 
     try {
       const response = await apiPost<{ handoff: PersonaHandoff }>(
         `/personas/${personaId}/handoffs`,
         { summary: handoffSummary.trim() || undefined },
-        token,
+        accessToken,
       );
-      const refreshed = await loadArchitecture(personaId, token);
-      setArchitecture((current) => refreshed ?? (current ? {
-        ...current,
-        handoffs: [response.handoff, ...current.handoffs],
-      } : current));
       setHandoffSummary("");
-      setNotice(refreshed ? "Handoff saved. Lifecycle readback refreshed." : "Handoff saved. Lifecycle refresh will appear after reload.");
-    } catch (err) {
-      setNotice(err instanceof Error ? err.message : "Could not save handoff.");
+      setArchitecture((current) => addHandoffToArchitecture(current, response.handoff));
+
+      try {
+        const refreshed = await apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken);
+        setArchitecture({ status: "ready", data: refreshed });
+        setHandoffNotice({ tone: "success", text: "Handoff saved. Recent history refreshed." });
+      } catch {
+        setHandoffNotice({ tone: "warning", text: "Handoff saved. Recent history could not be refreshed." });
+      }
+    } catch {
+      setHandoffNotice({ tone: "error", text: "Handoff was not saved. Review the summary and try again." });
     } finally {
       setCreatingHandoff(false);
     }
   }
 
   async function saveAvatarUrl(nextValue: string | null = avatarUrlInput) {
-    if (!token || savingAvatarUrl) return;
+    if (savingAvatarUrl) return;
     setSavingAvatarUrl(true);
-    setNotice(null);
+    setAvatarNotice(null);
 
     try {
       const response = await apiPatch<{ persona: Persona }>(
         `/personas/${personaId}`,
         { avatarUrl: nextValue },
-        token,
+        accessToken,
       );
+      setCurrentPersona(response.persona);
       const nextAvatarUrl = response.persona.avatarUrl ?? null;
       setSavedAvatarUrl(nextAvatarUrl);
       setAvatarUrlInput(nextAvatarUrl ?? "");
-      setNotice(nextAvatarUrl ? "Avatar URL saved." : "Avatar URL cleared.");
-    } catch (err) {
-      setNotice(err instanceof Error ? err.message : "Could not save avatar URL.");
+      setAvatarNotice({
+        tone: "success",
+        text: nextAvatarUrl ? "Avatar URL saved." : "Avatar URL cleared.",
+      });
+    } catch {
+      setAvatarNotice({ tone: "error", text: "Avatar URL was not saved. Check the URL and try again." });
     } finally {
       setSavingAvatarUrl(false);
     }
   }
 
   async function saveAnonymousChatEnabled(nextEnabled: boolean) {
-    if (!token || savingAnonymousChat) return;
+    if (savingAnonymousChat) return;
     setSavingAnonymousChat(true);
-    setNotice(null);
+    setAnonymousNotice(null);
 
     try {
       const response = await apiPatch<{ persona: Persona }>(
         `/personas/${personaId}`,
         { publicAnonymousChatEnabled: nextEnabled },
-        token,
+        accessToken,
       );
-      setAnonymousChatEnabled(Boolean(response.persona.publicAnonymousChatEnabled));
-      setNotice(Boolean(response.persona.publicAnonymousChatEnabled)
-        ? "Anonymous public chat alpha enabled."
-        : "Anonymous public chat alpha disabled.");
-    } catch (err) {
-      setNotice(err instanceof Error ? err.message : "Could not update anonymous public chat.");
+      setCurrentPersona(response.persona);
+      const enabled = Boolean(response.persona.publicAnonymousChatEnabled);
+      setAnonymousChatEnabled(enabled);
+      setAnonymousNotice({
+        tone: "success",
+        text: enabled ? "Anonymous public chat alpha enabled." : "Anonymous public chat alpha disabled.",
+      });
+    } catch {
+      setAnonymousNotice({
+        tone: "error",
+        text: "Anonymous public chat was not changed. Refresh the profile before trying again.",
+      });
     } finally {
       setSavingAnonymousChat(false);
     }
   }
 
   return (
-    <main style={{ minHeight: "calc(100vh - 52px)", background: "#0b0e14" }}>
-      <div style={{ maxWidth: 1180, margin: "0 auto", padding: "24px clamp(16px, 4vw, 32px) 48px" }}>
-        <header style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 20 }}>
-          <div>
-            <div style={{ color: "#93c5fd", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.12em", fontWeight: 800 }}>
-              Persona Management
-            </div>
-            <h1 style={{ margin: "8px 0 6px", color: "#f8fafc", fontSize: "clamp(30px, 5vw, 46px)", lineHeight: 1.05 }}>
-              {persona.name}
-            </h1>
-            <p style={{ margin: 0, color: "#a9b0bd", fontSize: 15, lineHeight: 1.6, maxWidth: 680 }}>
-              Manage identity, continuity, archive materials, public visibility, and integrity history for this persona.
+    <main className="persona-profile-page">
+      <div className="persona-profile-shell">
+        <header className="persona-profile-header">
+          <div className="persona-profile-heading">
+            <p className="persona-profile-eyebrow">Persona profile</p>
+            <h1>{currentPersona.name}</h1>
+            <p>
+              Review this persona&apos;s profile and continuity. On this page you can update the
+              avatar URL, change anonymous public chat when eligible, and save a context handoff.
             </p>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <Link href={`/studio/personas/${personaId}`} style={secondaryButton}>Back to chat</Link>
-            <Link href={`/studio/personas/${personaId}/calibration`} style={primaryButton}>Run integrity</Link>
-          </div>
+          <nav className="persona-profile-actions" aria-label="Persona profile destinations">
+            <Link className="persona-profile-button persona-profile-button-secondary" href={`/studio/personas/${personaId}`}>
+              Back to chat
+            </Link>
+            <Link className="persona-profile-button" href={`/studio/personas/${personaId}/calibration`}>
+              Open Integrity
+            </Link>
+          </nav>
         </header>
 
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.15fr) minmax(280px, 0.85fr)", gap: 18, alignItems: "start" }}>
-          <div style={{ display: "grid", gap: 18, minWidth: 0 }}>
-            <section style={panel}>
-              <SectionTitle title="Identity" />
-              <div style={{ display: "grid", gap: 12 }}>
-                <label style={fieldLabel}>
-                  Persona name
-                  <input value={persona.name} readOnly style={input} />
-                </label>
-                <label style={fieldLabel}>
-                  Description
-                  <textarea value={persona.longDescription ?? persona.shortDescription ?? ""} readOnly style={{ ...input, minHeight: 118, resize: "vertical" }} />
-                </label>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12 }}>
-                  <label style={fieldLabel}>
-                    Visibility
-                    <select value={persona.visibility} disabled style={input}>
-                      <option value="private">Private</option>
-                      <option value="public">Public</option>
-                    </select>
-                  </label>
-                  <label style={fieldLabel}>
-                    Provider
-                    <input value={persona.provider} readOnly style={input} />
-                  </label>
-                </div>
-                <div style={{ display: "grid", gap: 8 }}>
-                  <label style={fieldLabel}>
-                    Avatar URL
-                    <input
-                      value={avatarUrlInput}
-                      onChange={(event) => setAvatarUrlInput(event.target.value)}
-                      placeholder="https://example.com/avatar.png"
-                      style={input}
-                    />
-                  </label>
-                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                    <button
-                      type="button"
-                      onClick={() => saveAvatarUrl()}
-                      disabled={!token || savingAvatarUrl}
-                      style={{ ...primaryButton, minHeight: 36 }}
-                    >
-                      {savingAvatarUrl ? "Saving..." : "Save avatar URL"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => saveAvatarUrl(null)}
-                      disabled={!token || savingAvatarUrl || (!savedAvatarUrl && !avatarUrlInput.trim())}
-                      style={{ ...secondaryButton, minHeight: 36 }}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <p style={{ ...muted, margin: 0 }}>
-                    Use a public HTTPS image URL. Unsafe values are rejected before they reach public persona pages.
-                  </p>
-                </div>
-              </div>
+        <div className="persona-profile-grid">
+          <div className="persona-profile-column">
+            <section className="persona-profile-panel">
+              <SectionTitle
+                title="Profile facts"
+                support="Name, descriptions, provider, visibility, and public chat are read-only on this page."
+              />
+              <dl className="persona-profile-facts">
+                <Fact label="Name" value={currentPersona.name} />
+                <Fact label="Short description" value={currentPersona.shortDescription} />
+                <Fact label="Long description" value={currentPersona.longDescription} />
+                <Fact label="Provider" value={currentPersona.provider} />
+                <Fact label="Visibility" value={labelize(currentPersona.visibility)} />
+                <Fact label="Public chat" value={publicChatEnabled ? "Enabled" : "Disabled"} />
+              </dl>
             </section>
 
-            <section style={panel}>
-              <SectionTitle title="Layer Architecture" />
-              {layerEntries.length === 0 ? (
-                <EmptyState text="Layer profile will appear after the architecture endpoint finishes loading." />
-              ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10 }}>
+            <section className="persona-profile-panel">
+              <SectionTitle title="Avatar URL" support="Use a public HTTPS image URL. Unsafe values are rejected." />
+              <label className="persona-profile-field">
+                <span>Avatar URL</span>
+                <input
+                  value={avatarUrlInput}
+                  onChange={(event) => setAvatarUrlInput(event.target.value)}
+                  placeholder="https://example.com/avatar.png"
+                />
+              </label>
+              <div className="persona-profile-control-row">
+                <button type="button" onClick={() => saveAvatarUrl()} disabled={savingAvatarUrl}>
+                  {savingAvatarUrl ? "Saving..." : "Save avatar URL"}
+                </button>
+                <button
+                  type="button"
+                  className="persona-profile-button-secondary"
+                  onClick={() => saveAvatarUrl(null)}
+                  disabled={savingAvatarUrl || (!savedAvatarUrl && !avatarUrlInput.trim())}
+                >
+                  Clear avatar URL
+                </button>
+              </div>
+              <NoticeBlock notice={avatarNotice} />
+            </section>
+
+            <section className="persona-profile-panel">
+              <SectionTitle title="Layer architecture" support="Read-only layer summary." />
+              {architecture.status === "loading" ? <ReadStateMessage text="Loading layer architecture..." /> : null}
+              {architecture.status === "unavailable" ? (
+                <ReadStateMessage text="Layer architecture unavailable. Reload the page to try again." tone="warning" />
+              ) : null}
+              {architecture.status === "ready" ? (
+                <div className="persona-profile-layer-list">
                   {layerEntries.map((layer) => (
-                    <article key={layer.key} style={optionCard}>
-                      <span style={{ color: "#f8fafc", fontWeight: 800, textTransform: "capitalize" }}>{layer.key}</span>
-                      <span style={{ color: "#8ea0b8", fontSize: 12, lineHeight: 1.45 }}>{summarizeObject(layer.value)}</span>
-                    </article>
+                    <div className="persona-profile-layer-row" key={layer.key}>
+                      <span>{labelize(layer.key)}</span>
+                      <p>{summarizeObject(layer.value)}</p>
+                    </div>
                   ))}
                 </div>
-              )}
+              ) : null}
             </section>
 
-            <section style={panel}>
-              <SectionTitle title="Memory Graph" action="Open memory" href={`/studio/personas/${personaId}/memory`} />
-              <div style={metricGrid}>
-                <Metric label="Memory nodes" value={memoryGraph.nodes.length} />
-                <Metric label="Graph edges" value={memoryGraph.edges.length} />
-                <Metric label="Canon items" value={continuity?.canonCount ?? 0} />
-              </div>
-              <p style={{ ...muted, margin: "10px 0 0" }}>
-                {memoryGraphReadback(memoryGraph.nodes.length, memoryGraph.edges.length)}
-              </p>
-              <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {memoryGraph.nodes.length === 0 ? (
-                  <EmptyState text="No memory nodes yet. Add memory items to start building the graph." />
-                ) : memoryGraph.nodes.slice(0, 5).map((node) => {
-                  const readback = memoryGraphNodeReadback(node);
-                  return (
-                    <article key={node.id} style={listRow}>
-                      <span style={pinBox}>M</span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800, overflowWrap: "anywhere" }}>{readback.title}</div>
-                        <div style={muted}>{readback.detail}</div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-              <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
-                <div>
-                  <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>Relationships</div>
-                  <p style={{ ...muted, margin: "4px 0 0" }}>
-                    {memoryGraphRelationshipStateCopy(
-                      memoryGraph.nodes.length,
-                      memoryGraph.edges.length,
-                      memoryRelationships.length,
-                    )}
+            <section className="persona-profile-panel">
+              <SectionTitle title="Memory graph" />
+              {memoryGraph.status === "loading" ? <ReadStateMessage text="Loading memory graph..." /> : null}
+              {memoryGraph.status === "unavailable" ? (
+                <ReadStateMessage text="Memory graph unavailable. Reload the page to try again." tone="warning" />
+              ) : null}
+              {memoryGraph.status === "ready" ? (
+                <>
+                  <div className="persona-profile-metrics">
+                    <Metric label="Memory nodes" value={memoryGraph.data.nodes.length} />
+                    <Metric label="Graph edges" value={memoryGraph.data.edges.length} />
+                    <Metric label="Canon items" value={continuity?.canonCount ?? 0} />
+                  </div>
+                  <p className="persona-profile-muted">
+                    {memoryGraphReadback(memoryGraph.data.nodes.length, memoryGraph.data.edges.length)}
                   </p>
-                </div>
-                {memoryRelationships.length === 0 ? (
-                  <EmptyState text="Relationship rows will appear here after owner graph edges exist." />
-                ) : memoryRelationships.map((relationship) => (
-                  <article key={relationship.key} style={relationshipRow}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span style={memoryLabel}>{relationship.sourceLabel}</span>
-                        <span style={{ color: "#64748b", fontSize: 11, fontWeight: 800 }}>to</span>
-                        <span style={memoryLabel}>{relationship.targetLabel}</span>
+                  <div className="persona-profile-list">
+                    {memoryGraph.data.nodes.length === 0 ? (
+                      <ReadStateMessage text="No memory nodes yet." />
+                    ) : memoryGraph.data.nodes.slice(0, 5).map((node) => {
+                      const readback = memoryGraphNodeReadback(node);
+                      return (
+                        <div className="persona-profile-list-row" key={node.id}>
+                          <span className="persona-profile-mark">M</span>
+                          <div>
+                            <strong>{readback.title}</strong>
+                            <p>{readback.detail}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="persona-profile-relationships">
+                    <strong>Relationships</strong>
+                    <p>
+                      {memoryGraphRelationshipStateCopy(
+                        memoryGraph.data.nodes.length,
+                        memoryGraph.data.edges.length,
+                        memoryRelationships.length,
+                      )}
+                    </p>
+                    {memoryRelationships.map((relationship) => (
+                      <div className="persona-profile-relationship-row" key={relationship.key}>
+                        <span>{relationship.sourceLabel}</span>
+                        <span>{relationship.relationshipLabel}</span>
+                        <span>{relationship.targetLabel}</span>
+                        <span>{relationship.confidenceLabel}</span>
+                        {relationship.note ? <p>{relationship.note}</p> : null}
                       </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 7 }}>
-                        <span style={relationshipPill}>{relationship.relationshipLabel}</span>
-                        <span style={relationshipPill}>{relationship.confidenceLabel}</span>
-                      </div>
-                      {relationship.note ? <div style={{ ...muted, marginTop: 7 }}>{relationship.note}</div> : null}
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
-                <Link href={`/studio/personas/${personaId}/memory`} style={secondaryButton}>Add memory item</Link>
-                <Link href={`/studio/personas/${personaId}/canon`} style={secondaryButton}>Add canon item</Link>
-              </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </section>
 
-            <section style={panel}>
-              <SectionTitle title="Persona Archive" action="Open files" href={`/studio/personas/${personaId}/files`} />
-              <div style={metricGrid}>
+            <section className="persona-profile-panel">
+              <SectionTitle title="Archive and continuity" />
+              <div className="persona-profile-metrics">
                 <Metric label="Files" value={continuity?.archiveFileCount ?? 0} />
                 <Metric label="Chats" value={continuity?.archivedChatCount ?? 0} />
                 <Metric label="Continuity records" value={continuity?.continuityRecordCount ?? 0} />
               </div>
-              <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {archiveStatusRows(continuity).map((row) => (
-                  <article key={row.label} style={listRow}>
-                    <span style={pinBox}>A</span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{row.label}</div>
-                      <div style={muted}>{row.detail}</div>
-                    </div>
-                  </article>
-                ))}
+              <div className="persona-profile-link-row">
+                <Link href={`/studio/personas/${personaId}/memory`}>Open Memory</Link>
+                <Link href={`/studio/personas/${personaId}/canon`}>Open Canon</Link>
+                <Link href={`/studio/personas/${personaId}/files`}>Open Archive</Link>
+                <Link href={`/studio/personas/${personaId}/continuity`}>Open Continuity</Link>
               </div>
             </section>
           </div>
 
-          <aside style={{ display: "grid", gap: 18 }}>
-            <section style={panel}>
-              <SectionTitle title="Context Handoffs" />
-              <p style={{ ...muted, margin: "0 0 10px" }}>
-                {handoffFreshnessCopy(architecture?.handoffs.length ?? 0)}
-              </p>
-              <textarea
-                value={handoffSummary}
-                onChange={(event) => setHandoffSummary(event.target.value)}
-                placeholder="Summarize current context, pending tasks, emotional tone, or continuity anchors."
-                style={{ ...input, minHeight: 96, resize: "vertical", marginTop: 0 }}
-              />
-              <button type="button" onClick={createHandoff} disabled={!token || creatingHandoff} style={{ ...primaryButton, width: "100%", marginTop: 10 }}>
-                {creatingHandoff ? "Saving..." : "Save handoff"}
-              </button>
-              {notice ? <div style={{ ...muted, marginTop: 8 }}>{notice}</div> : null}
-              <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-                {(architecture?.handoffs ?? []).length === 0 ? (
-                  <EmptyState text="No handoffs yet." />
-                ) : architecture!.handoffs.slice(0, 4).map((handoff) => (
-                  <article key={handoff.id} style={listRow}>
-                    <span style={pinBox}>H</span>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 800 }}>{handoffStatusLabel(handoff.status)}</div>
-                      <div style={muted}>{handoffSummaryPreview(handoff, 140)}</div>
-                      <div style={{ ...muted, marginTop: 4 }}>{formatDate(handoff.createdAt)}</div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            <section style={panel}>
-              <SectionTitle title="Lifecycle" />
-              <div style={{ display: "grid", gap: 10 }}>
-                {(architecture?.lifecycleEvents ?? []).length === 0 ? (
-                  <EmptyState text="Lifecycle events will appear as the persona changes." />
-                ) : architecture!.lifecycleEvents.slice(0, 6).map((event) => {
-                  const readback = lifecycleEventReadback(event);
-
-                  return (
-                    <article key={event.id} style={listRow}>
-                      <span style={pinBox}>L</span>
-                      <div style={{ minWidth: 0 }}>
-                        <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{readback.label}</div>
-                        <div style={muted}>{readback.detail}</div>
-                        <div style={{ ...muted, marginTop: 4 }}>{formatDate(event.createdAt)}</div>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-
-            <section style={panel}>
-              <SectionTitle title="Integrity History" action="Start new" href={`/studio/personas/${personaId}/calibration`} />
-              <div style={{ display: "grid", gap: 10 }}>
-                {integrityHistory.length === 0 ? (
-                  <EmptyState text="No sessions yet. Your first Integrity Session will appear here once complete." />
-                ) : integrityHistory.slice(0, 5).map((session) => (
-                  <article key={session.id} style={listRow}>
-                    <span style={{ ...pinBox, color: "#facc15", borderColor: "#6b4e0c", background: "#2d2108" }}>I</span>
-                    <div>
-                      <div style={{ color: "#f8fafc", fontSize: 14, fontWeight: 800 }}>{session.session_type}</div>
-                      <div style={muted}>
-                        {session.status} - {(session.clusters_covered ?? []).join(", ") || "in progress"} - {acceptedCount(session)} accepted
-                      </div>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            <section style={panel}>
-              <SectionTitle title="Public Persona" />
-              <label style={toggleRow}>
-                <input type="checkbox" checked={persona.visibility === "public"} readOnly />
-                Enable public interaction
-              </label>
-              <label style={toggleRow}>
-                <input type="checkbox" checked={publicChatEnabled} readOnly />
-                Public chat enabled
-              </label>
-              <label style={toggleRow}>
+          <aside className="persona-profile-column">
+            <section className="persona-profile-panel">
+              <SectionTitle title="Public access" />
+              <dl className="persona-profile-facts">
+                <Fact label="Public description" value={currentPersona.shortDescription} />
+              </dl>
+              <label className="persona-profile-toggle">
                 <input
                   type="checkbox"
                   checked={anonymousChatEnabled}
-                  disabled={!token || !publicChatEnabled || persona.visibility !== "public" || savingAnonymousChat}
+                  disabled={!publicPersona || !publicChatEnabled || savingAnonymousChat}
                   onChange={(event) => saveAnonymousChatEnabled(event.currentTarget.checked)}
                 />
-                Anonymous public chat alpha
+                <span>Anonymous public chat alpha</span>
               </label>
-              <p style={{ ...muted, margin: "-4px 0 4px" }}>
-                Public chat remains the rollback switch; disabling it closes signed-in and anonymous public chat.
+              <p className="persona-profile-muted">
+                Available only when this persona is Public, public chat is enabled, and the
+                owner account and public route are eligible.
               </p>
-              <label style={fieldLabel}>
-                Public description
-                <textarea value={persona.shortDescription ?? ""} readOnly style={{ ...input, minHeight: 92 }} />
+              <NoticeBlock notice={anonymousNotice} />
+            </section>
+
+            <section className="persona-profile-panel">
+              <SectionTitle title="Context handoff" />
+              <label className="persona-profile-field">
+                <span>Context handoff</span>
+                <textarea
+                  value={handoffSummary}
+                  onChange={(event) => setHandoffSummary(event.target.value)}
+                  placeholder="Summarize current context."
+                />
               </label>
+              <button type="button" onClick={createHandoff} disabled={creatingHandoff}>
+                {creatingHandoff ? "Saving..." : "Save context handoff"}
+              </button>
+              <NoticeBlock notice={handoffNotice} />
+              <h3>Recent handoffs</h3>
+              <ArchitectureHandoffs state={architecture} />
+            </section>
+
+            <section className="persona-profile-panel">
+              <SectionTitle title="Lifecycle history" />
+              <LifecycleHistory state={architecture} />
+            </section>
+
+            <section className="persona-profile-panel">
+              <SectionTitle title="Integrity history" />
+              {integrityHistory.status === "loading" ? <ReadStateMessage text="Loading Integrity history..." /> : null}
+              {integrityHistory.status === "unavailable" ? (
+                <ReadStateMessage text="Integrity history unavailable. Reload the page to try again." tone="warning" />
+              ) : null}
+              {integrityHistory.status === "ready" ? (
+                <div className="persona-profile-list">
+                  {integrityHistory.data.length === 0 ? (
+                    <ReadStateMessage text="No Integrity sessions yet." />
+                  ) : integrityHistory.data.slice(0, 5).map((session) => (
+                    <div className="persona-profile-list-row" key={session.id}>
+                      <span className="persona-profile-mark">I</span>
+                      <div>
+                        <strong>{session.session_type}</strong>
+                        <p>
+                          {session.status} - {(session.clusters_covered ?? []).join(", ") || "in progress"} - {acceptedCount(session)} accepted
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+              <div className="persona-profile-link-row">
+                <Link href={`/studio/personas/${personaId}/calibration`}>Open Integrity</Link>
+              </div>
             </section>
           </aside>
         </div>
@@ -458,30 +445,126 @@ export function PersonaManagement({ persona, personaId }: { persona: Persona; pe
   );
 }
 
-function loadArchitecture(personaId: string, accessToken: string) {
-  return apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken).catch(() => null);
-}
-
-function SectionTitle({ title, action, href }: { title: string; action?: string; href?: string }) {
+function SectionTitle({ title, support }: { title: string; support?: string }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-      <h2 style={{ margin: 0, color: "#f8fafc", fontSize: 16 }}>{title}</h2>
-      {action && href ? <Link href={href} style={{ marginLeft: "auto", color: "#93c5fd", fontSize: 12, textDecoration: "none" }}>{action}</Link> : null}
+    <div className="persona-profile-section-title">
+      <h2>{title}</h2>
+      {support ? <p>{support}</p> : null}
     </div>
   );
 }
 
-function EmptyState({ text }: { text: string }) {
-  return <div style={{ ...muted, border: "1px solid #202938", borderRadius: 8, padding: 11, background: "#0d1420" }}>{text}</div>;
+function Fact({ label, value }: { label: string; value?: string | null | boolean }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{formatFact(value)}</dd>
+    </div>
+  );
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div style={{ border: "1px solid #202938", borderRadius: 8, background: "#0d1420", padding: 11 }}>
-      <div style={{ color: "#f8fafc", fontSize: 20, fontWeight: 900 }}>{value}</div>
-      <div style={muted}>{label}</div>
+    <div className="persona-profile-metric">
+      <strong>{value}</strong>
+      <span>{label}</span>
     </div>
   );
+}
+
+function ArchitectureHandoffs({ state }: { state: ReadState<ArchitectureResponse> }) {
+  if (state.status === "loading") return <ReadStateMessage text="Loading handoff history..." />;
+  if (state.status === "unavailable") {
+    return <ReadStateMessage text="Handoff history unavailable. Reload the page to try again." tone="warning" />;
+  }
+  if (state.data.handoffs.length === 0) return <ReadStateMessage text="No handoffs yet." />;
+  return (
+    <div className="persona-profile-list">
+      {state.data.handoffs.slice(0, 4).map((handoff) => (
+        <div className="persona-profile-list-row" key={handoff.id}>
+          <span className="persona-profile-mark">H</span>
+          <div>
+            <strong>{handoffStatusLabel(handoff.status)}</strong>
+            <p>{handoffSummaryPreview(handoff, 140)}</p>
+            <p>{formatDate(handoff.createdAt)}</p>
+          </div>
+        </div>
+      ))}
+      <p className="persona-profile-muted">{handoffFreshnessCopy(state.data.handoffs.length)}</p>
+    </div>
+  );
+}
+
+function LifecycleHistory({ state }: { state: ReadState<ArchitectureResponse> }) {
+  if (state.status === "loading") return <ReadStateMessage text="Loading lifecycle history..." />;
+  if (state.status === "unavailable") {
+    return <ReadStateMessage text="Lifecycle history unavailable. Reload the page to try again." tone="warning" />;
+  }
+  if (state.data.lifecycleEvents.length === 0) return <ReadStateMessage text="No lifecycle events yet." />;
+  return (
+    <div className="persona-profile-list">
+      {state.data.lifecycleEvents.slice(0, 6).map((event) => {
+        const readback = lifecycleEventReadback(event);
+        return (
+          <div className="persona-profile-list-row" key={event.id}>
+            <span className="persona-profile-mark">L</span>
+            <div>
+              <strong>{readback.label}</strong>
+              <p>{readback.detail}</p>
+              <p>{formatDate(event.createdAt)}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ReadStateMessage({ text, tone = "neutral" }: { text: string; tone?: "neutral" | "warning" }) {
+  return <p className={`persona-profile-state persona-profile-state-${tone}`}>{text}</p>;
+}
+
+function NoticeBlock({ notice }: { notice: Notice }) {
+  if (!notice) return null;
+  return <p className={`persona-profile-notice persona-profile-notice-${notice.tone}`}>{notice.text}</p>;
+}
+
+function addHandoffToArchitecture(
+  current: ReadState<ArchitectureResponse>,
+  handoff: PersonaHandoff,
+): ReadState<ArchitectureResponse> {
+  if (current.status !== "ready") {
+    return {
+      status: "ready",
+      data: {
+        profile: emptyLayerProfile(handoff.toPersonaId, handoff.ownerUserId),
+        lifecycleEvents: [],
+        handoffs: [handoff],
+      },
+    };
+  }
+  return {
+    status: "ready",
+    data: {
+      ...current.data,
+      handoffs: [handoff, ...current.data.handoffs],
+    },
+  };
+}
+
+function emptyLayerProfile(personaId: string, ownerUserId: string): PersonaLayerProfile {
+  const now = new Date().toISOString();
+  return {
+    personaId,
+    ownerUserId,
+    soul: {},
+    body: {},
+    faculty: {},
+    skill: {},
+    evolution: {},
+    createdAt: now,
+    updatedAt: now,
+  };
 }
 
 function acceptedCount(session: IntegrityHistorySession) {
@@ -493,7 +576,6 @@ function acceptedCount(session: IntegrityHistorySession) {
 function summarizeObject(value: Record<string, unknown>) {
   const entries = Object.entries(value);
   if (entries.length === 0) return "No fields configured yet.";
-
   return entries.slice(0, 3)
     .map(([key, entry]) => `${labelize(key)}: ${formatValue(entry)}`)
     .join(" / ");
@@ -503,7 +585,13 @@ function formatValue(value: unknown): string {
   if (value === null || value === undefined || value === "") return "unset";
   if (Array.isArray(value)) return value.length === 0 ? "none" : `${value.length} entries`;
   if (typeof value === "object") return `${Object.keys(value as Record<string, unknown>).length} fields`;
-  return String(value).slice(0, 48);
+  return String(value).slice(0, 80);
+}
+
+function formatFact(value?: string | null | boolean) {
+  if (typeof value === "boolean") return value ? "Enabled" : "Disabled";
+  const text = String(value ?? "").trim();
+  return text || "Not set";
 }
 
 function labelize(value: string) {
@@ -513,141 +601,3 @@ function labelize(value: string) {
 function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
-
-function archiveStatusRows(continuity?: PersonaContinuitySummary) {
-  return [
-    { label: "Memory", detail: `${continuity?.memoryCount ?? 0} memory items available for retrieval.` },
-    { label: "Continuity candidates", detail: `${continuity?.continuityCandidateCount ?? 0} candidates waiting for review.` },
-    { label: "Integrity sessions", detail: `${continuity?.integritySessionCount ?? 0} sessions linked to this persona.` },
-  ];
-}
-
-const panel = {
-  border: "1px solid #263244",
-  background: "#101622",
-  borderRadius: 8,
-  padding: 16,
-};
-
-const input = {
-  width: "100%",
-  border: "1px solid #334155",
-  borderRadius: 8,
-  background: "#0d1420",
-  color: "#f8fafc",
-  padding: "10px 11px",
-  marginTop: 7,
-};
-
-const fieldLabel = {
-  display: "block",
-  color: "#9ca3af",
-  fontSize: 12,
-  fontWeight: 700,
-};
-
-const optionCard = {
-  display: "grid",
-  gap: 6,
-  textAlign: "left" as const,
-  border: "1px solid #263244",
-  borderRadius: 8,
-  background: "#0d1420",
-  padding: 12,
-};
-
-const listRow = {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-  border: "1px solid #202938",
-  borderRadius: 8,
-  background: "#0d1420",
-  padding: 11,
-};
-
-const relationshipRow = {
-  border: "1px solid #202938",
-  borderRadius: 8,
-  background: "#0d1420",
-  minWidth: 0,
-  padding: 11,
-};
-
-const memoryLabel = {
-  color: "#f8fafc",
-  fontSize: 12,
-  fontWeight: 800,
-  maxWidth: "100%",
-  overflowWrap: "anywhere" as const,
-};
-
-const relationshipPill = {
-  border: "1px solid #334155",
-  borderRadius: 6,
-  color: "#a9b0bd",
-  fontSize: 10,
-  fontWeight: 800,
-  maxWidth: "100%",
-  overflowWrap: "anywhere" as const,
-  padding: "3px 6px",
-};
-
-const muted = {
-  color: "#8ea0b8",
-  fontSize: 12,
-  lineHeight: 1.4,
-  overflowWrap: "anywhere" as const,
-};
-
-const pinBox = {
-  width: 26,
-  height: 26,
-  borderRadius: 7,
-  border: "1px solid #334155",
-  background: "#101827",
-  color: "#bfdbfe",
-  display: "grid",
-  placeItems: "center",
-  fontSize: 11,
-  fontWeight: 800,
-  flex: "0 0 auto",
-};
-
-const metricGrid = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
-  gap: 10,
-};
-
-const primaryButton = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  minHeight: 40,
-  border: "1px solid #2563eb",
-  borderRadius: 8,
-  background: "#2563eb",
-  color: "#fff",
-  padding: "0 14px",
-  fontSize: 14,
-  fontWeight: 800,
-  textDecoration: "none",
-  cursor: "pointer",
-};
-
-const secondaryButton = {
-  ...primaryButton,
-  background: "#111827",
-  borderColor: "#334155",
-  color: "#d1d5db",
-};
-
-const toggleRow = {
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  color: "#d1d5db",
-  fontSize: 13,
-  marginBottom: 12,
-};

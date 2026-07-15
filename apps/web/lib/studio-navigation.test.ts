@@ -105,8 +105,25 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.detail, "Review what carries forward");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.detail, "Review continuity suggestions");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Timeline")?.detail, "Trace the relationship");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Profile")?.detail, "Review profile facts and limited controls");
   assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
   assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);
+});
+
+test("Studio route context frames Persona Profile as facts and limited controls", () => {
+  const context = studioRouteContext(
+    "/studio/personas/persona-1/edit",
+    [{ id: "persona-1", name: "Ariadne" }],
+  );
+
+  assert.equal(context.label, "Ariadne / Profile");
+  assert.equal(context.detail, "Profile facts and limited owner controls");
+  assert.equal(
+    context.state,
+    "Name, descriptions, provider, visibility, and public chat are read-only here. Avatar URL, eligible anonymous chat, and handoffs are live.",
+  );
+  assert.equal(context.nextAction.label, "Back to chat");
+  assert.equal(context.nextAction.href, "/studio/personas/persona-1");
 });
 
 test("Studio persona page renders companion shortcuts without broad companion drift", () => {

@@ -121,8 +121,8 @@ const personaWorkspaceAuxiliarySpecs = [
   {
     label: "Profile",
     suffix: "/edit",
-    detail: "Identity, boundaries, and public controls",
-    state: "Profile changes remain owner-controlled and do not publish private continuity.",
+    detail: "Profile facts and limited owner controls",
+    state: "Name, descriptions, provider, visibility, and public chat are read-only here. Avatar URL, eligible anonymous chat, and handoffs are live.",
     nextActionLabel: "Back to chat",
     nextActionSuffix: "",
   },
@@ -283,7 +283,7 @@ export function studioPersonaCompanionShortcuts(personaId: string): StudioPerson
     { label: "Memory", href: `${base}/memory`, detail: "Review what carries forward" },
     { label: "Inbox", href: `${base}/memory-inbox`, detail: "Review continuity suggestions" },
     { label: "Timeline", href: `${base}/continuity`, detail: "Trace the relationship" },
-    { label: "Profile", href: `${base}/edit`, detail: "Shape identity and boundaries" },
+    { label: "Profile", href: `${base}/edit`, detail: "Review profile facts and limited controls" },
     { label: "Integrity", href: `${base}/calibration`, detail: "Check alignment" },
   ];
 }

@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Persona Profile Truth And Theme Implementation Submitted
+
+DAEDALUS submitted the implementation for ARGUS review on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md`
+
+```text
+READY_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_FOR_ARGUS
+```
+
+Validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/persona-lifecycle-ui.test.ts` | Pass, `41/41` |
+| `npx --yes pnpm@10.32.1 test:writing` | Pass, `35/35` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `264/264` |
+| `npx --yes pnpm@10.32.1 test:personas` | Pass, `18/18` |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass, `3/3` |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass, `12/12` |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass |
+| `git diff --check` | Pass |
+
+Temporary local intercepted browser proof served Next at `127.0.0.1:3157`
+with API calls intercepted at `127.0.0.1:4999`. System/Light/Dark by desktop,
+`390`, and `375` passed with zero overflow. Owner-ready render,
+owner-mismatch generic unavailable state, and exactly four allowed writes
+passed: avatar set, avatar clear, anonymous public chat alpha toggle, and
+handoff create. No hosted route was reached and no screenshots, cookies,
+tokens, headers, ids, or proof artifacts were committed.
+
+The local Next dev server emitted the existing unrelated autoprefixer warning
+for `globals.css` line `740` about `end` value support; the browser proof
+filtered only that known dev warning after `@station/web lint` passed.
+
 ## PR527E Persona Profile Truth And Theme Implementation Opened
 
 MIMIR routed the accepted implementation to DAEDALUS on 2026-07-15:
