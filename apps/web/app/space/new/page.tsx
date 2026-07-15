@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   SPACE_LAYOUT_OPTIONS,
@@ -9,7 +10,12 @@ import {
   type SpaceThemeId,
 } from "@station/config/space-presentation";
 import { getSession } from "@/lib/auth";
-import { apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiGet, apiPost, getBillingStatus } from "@/lib/api-client";
+import {
+  deriveSpaceCreateAccess,
+  staleSpaceCreateCopy,
+  type SpaceCreateAccess,
+} from "@/lib/space-create-entitlement";
 
 interface NewSpaceForm {
   title: string;
@@ -30,15 +36,48 @@ const initialForm: NewSpaceForm = {
   tagline: "",
   theme: "atlas",
   layout: "editorial",
-  isPublic: true,
+  isPublic: false,
 };
+
+type GateState =
+  | { status: "loading" }
+  | SpaceCreateAccess;
 
 export default function NewSpacePage() {
   const router = useRouter();
   const [form, setForm] = useState<NewSpaceForm>(initialForm);
   const [slugEdited, setSlugEdited] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [gate, setGate] = useState<GateState>({ status: "loading" });
+  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [staleRetryMessage, setStaleRetryMessage] = useState<string | null>(null);
+
+  const runPreflight = useCallback(async () => {
+    setGate({ status: "loading" });
+    try {
+      const session = await getSession();
+      if (!session) {
+        router.push(`/login?redirect=${encodeURIComponent("/space/new")}`);
+        return;
+      }
+
+      setToken(session.accessToken);
+      const [billing, spaces] = await Promise.all([
+        getBillingStatus(session.accessToken),
+        apiGet<unknown>("/spaces", session.accessToken),
+      ]);
+      setGate(deriveSpaceCreateAccess({ user: session.user, billing, spaces }));
+    } catch {
+      setGate({ status: "unverifiable" });
+    } finally {
+      setSubmitting(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    void runPreflight();
+  }, [runPreflight]);
 
   function set<K extends keyof NewSpaceForm>(field: K, value: NewSpaceForm[K]) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -53,6 +92,7 @@ export default function NewSpacePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (gate.status !== "allowed" || submitting || !token) return;
     if (!form.title.trim() || !form.slug.trim()) {
       setError("Title and slug are required.");
       return;
@@ -60,13 +100,8 @@ export default function NewSpacePage() {
 
     setSubmitting(true);
     setError(null);
+    setStaleRetryMessage(null);
     try {
-      const session = await getSession();
-      if (!session) {
-        router.push("/login");
-        return;
-      }
-
       const { space } = await apiPost<{ space: { slug: string } }>(
         "/spaces",
         {
@@ -75,26 +110,89 @@ export default function NewSpacePage() {
           longDescription: form.longDescription || undefined,
           tagline: form.tagline || undefined,
         },
-        session.access_token
+        token
       );
       router.push(`/space/${space.slug}`);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not create Space.");
+      if (e instanceof ApiRequestError && e.status === 403) {
+        setError(staleSpaceCreateCopy());
+        setStaleRetryMessage("A fresh access check is running.");
+        await runPreflight();
+        return;
+      }
+      setError("Could not create Space.");
       setSubmitting(false);
     }
   }
 
+  if (gate.status === "loading") {
+    return (
+      <main className="container space-create-page">
+        <SpaceAccessNotice
+          title="Checking Space access"
+          body="Station is confirming your currently verified tier and owner Space count before opening the builder."
+        />
+      </main>
+    );
+  }
+
+  if (gate.status === "below-tier") {
+    return (
+      <main className="container space-create-page">
+        <SpaceAccessNotice
+          title="Creator tier required"
+          body="Space creation is not available for this account at its currently verified tier. No Space was created. Review plan details or return to your existing Spaces."
+          actions={[
+            { label: "Review plan details", href: "/billing" },
+            { label: "View My Spaces", href: "/space" },
+          ]}
+        />
+      </main>
+    );
+  }
+
+  if (gate.status === "limit-reached") {
+    return (
+      <main className="container space-create-page">
+        <SpaceAccessNotice
+          title="Space limit reached"
+          body={`Your currently verified plan allows ${gate.limitLabel}, and you already have ${gate.countLabel}. No Space was created. Manage an existing Space or review plan details before trying again.`}
+          actions={[
+            { label: "Review plan details", href: "/billing" },
+            { label: "View My Spaces", href: "/space" },
+          ]}
+        />
+      </main>
+    );
+  }
+
+  if (gate.status === "unverifiable") {
+    return (
+      <main className="container space-create-page">
+        <SpaceAccessNotice
+          title="Could not check Space access"
+          body="Station could not confirm your currently verified tier and owner Space count. Retry before opening the builder. No Space was created."
+          actions={[
+            { label: "Retry access check", onClick: runPreflight },
+            { label: "View My Spaces", href: "/space" },
+          ]}
+        />
+      </main>
+    );
+  }
+
   return (
-    <main className="container space-builder-page">
+    <main className="container space-create-page space-builder-page">
       <div className="space-builder-heading">
         <div>
-          <div className="kicker">Public identity</div>
+          <div className="kicker">Owner Space</div>
           <h1>Create a Space</h1>
-          <p>Your authored public home for works, personas, collections, and identity.</p>
+          <p>Create privately by default, then choose when this Space is ready for public readback.</p>
         </div>
       </div>
 
       {error && <div className="space-form-error">{error}</div>}
+      {staleRetryMessage && <div className="space-create-inline-status">{staleRetryMessage}</div>}
 
       <form onSubmit={handleSubmit} className="space-builder-grid">
         <section className="space-builder-panel">
@@ -157,27 +255,64 @@ export default function NewSpacePage() {
           </Field>
 
           <Field label="Visibility">
-            <div className="space-segmented-control">
-              <button type="button" data-active={form.isPublic} onClick={() => set("isPublic", true)}>Public</button>
-              <button type="button" data-active={!form.isPublic} onClick={() => set("isPublic", false)}>Private</button>
+            <div className="space-segmented-control" role="group" aria-label="Space visibility">
+              <button type="button" aria-pressed={!form.isPublic} data-active={!form.isPublic} onClick={() => set("isPublic", false)}>
+                Private
+              </button>
+              <button type="button" aria-pressed={form.isPublic} data-active={form.isPublic} onClick={() => set("isPublic", true)}>
+                Public
+              </button>
             </div>
+            <p className="space-create-visibility-copy">
+              {form.isPublic
+                ? "Public makes this Space and its published pages readable outside your private owner workspace as soon as creation succeeds."
+                : "Private keeps this Space out of public readback after creation. Review it before choosing to make it public."}
+            </p>
           </Field>
 
-          <div className={`space-mini-preview space-theme-${form.theme}`}>
-            <span>{SPACE_LAYOUT_OPTIONS.find((option) => option.id === form.layout)?.label ?? "Editorial"}</span>
+          <div className={`space-mini-preview space-theme-${form.theme}`} data-visibility={form.isPublic ? "public" : "private"}>
+            <span>{form.isPublic ? "Public preview" : "Private draft"}</span>
             <h2>{form.title || "Untitled Space"}</h2>
-            <p>{form.tagline || form.shortDescription || "Your public surface starts here."}</p>
+            <p>{form.tagline || form.shortDescription || (form.isPublic ? "Your public surface starts here." : "This Space stays out of public readback after creation.")}</p>
           </div>
 
           <div className="space-form-actions">
             <button type="button" className="button" onClick={() => router.back()}>Cancel</button>
-            <button type="submit" className="button primary" disabled={submitting}>
+            <button type="submit" className="button primary" disabled={submitting || gate.status !== "allowed"}>
               {submitting ? "Creating..." : "Create Space"}
             </button>
           </div>
         </aside>
       </form>
     </main>
+  );
+}
+
+function SpaceAccessNotice({
+  title,
+  body,
+  actions = [],
+}: {
+  title: string;
+  body: string;
+  actions?: Array<{ label: string; href: string } | { label: string; onClick: () => void | Promise<void> }>;
+}) {
+  return (
+    <section className="space-create-notice" aria-labelledby="space-create-notice-title">
+      <h1 id="space-create-notice-title">{title}</h1>
+      <p>{body}</p>
+      {actions.length > 0 && (
+        <div className="space-create-actions">
+          {actions.map((action) =>
+            "href" in action ? (
+              <Link key={action.label} href={action.href}>{action.label}</Link>
+            ) : (
+              <button key={action.label} type="button" onClick={action.onClick}>{action.label}</button>
+            )
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 

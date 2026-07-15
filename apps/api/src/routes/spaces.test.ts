@@ -23,6 +23,36 @@ class InMemorySupabase {
         avatar_url: null,
         bio: "Researcher and archivist.",
       },
+      {
+        id: "private-user",
+        email: "private@example.test",
+        tier: "private",
+        is_admin: false,
+        username: "private",
+        display_name: "Private User",
+        avatar_url: null,
+        bio: null,
+      },
+      {
+        id: "private-admin",
+        email: "private-admin@example.test",
+        tier: "private",
+        is_admin: true,
+        username: "private-admin",
+        display_name: "Private Admin",
+        avatar_url: null,
+        bio: null,
+      },
+      {
+        id: "creator-admin",
+        email: "creator-admin@example.test",
+        tier: "creator",
+        is_admin: true,
+        username: "creator-admin",
+        display_name: "Creator Admin",
+        avatar_url: null,
+        bio: null,
+      },
     ],
     spaces: [],
     space_pages: [],
@@ -35,6 +65,9 @@ class InMemorySupabase {
   private forcedFailures: Array<{ table: string; operation: string; message: string }> = [];
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
+    ["private-token", { id: "private-user", email: "private@example.test" }],
+    ["private-admin-token", { id: "private-admin", email: "private-admin@example.test" }],
+    ["creator-admin-token", { id: "creator-admin", email: "creator-admin@example.test" }],
   ]);
 
   client = {
@@ -683,6 +716,145 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
     });
     assert.equal(ownerManage.status, 200);
     assert.equal(ownerManage.body.space.presentation.theme, "signal");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Space create visibility defaults Private and preserves explicit owner choices", async () => {
+  const cases = [
+    { name: "omitted", body: {}, expected: false },
+    { name: "explicit public", body: { isPublic: true }, expected: true },
+    { name: "explicit private", body: { isPublic: false }, expected: false },
+  ];
+
+  for (const testCase of cases) {
+    const db = new InMemorySupabase();
+    setSupabaseAdminForTests(db.client as any);
+    const app = createSpacesApp();
+
+    try {
+      const response = await requestJson(app, "POST", "/spaces", {
+        token: "owner-token",
+        body: {
+          title: `Visibility ${testCase.name}`,
+          slug: `visibility-${testCase.name.replace(/\s+/g, "-")}`,
+          ...testCase.body,
+        },
+      });
+
+      assert.equal(response.status, 201, testCase.name);
+      assert.equal(db.tables.spaces[0].is_public, testCase.expected, testCase.name);
+      assert.equal(response.body.space.is_public, testCase.expected, testCase.name);
+      assert.equal(db.tables.space_pages.length, 4, testCase.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("Space PATCH omission preserves existing visibility", async () => {
+  const db = new InMemorySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createSpacesApp();
+
+  try {
+    const created = await requestJson(app, "POST", "/spaces", {
+      token: "owner-token",
+      body: {
+        title: "Patch Visibility",
+        slug: "patch-visibility",
+        isPublic: true,
+      },
+    });
+
+    assert.equal(created.status, 201);
+    const updated = await requestJson(app, "PATCH", `/spaces/${created.body.space.id}`, {
+      token: "owner-token",
+      body: { title: "Patch Visibility Updated" },
+    });
+
+    assert.equal(updated.status, 200);
+    assert.equal(updated.body.space.is_public, true);
+    assert.equal(db.tables.spaces[0].is_public, true);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Space create denies below-tier and finite-limit writes before inserting pages", async () => {
+  const cases = [
+    {
+      name: "below creator",
+      token: "private-token",
+      configure: (_db: InMemorySupabase) => undefined,
+      expectedError: /creator/,
+    },
+    {
+      name: "admin below creator",
+      token: "private-admin-token",
+      configure: (_db: InMemorySupabase) => undefined,
+      expectedError: /creator/,
+    },
+    {
+      name: "creator at finite limit",
+      token: "owner-token",
+      configure: (db: InMemorySupabase) => addSpaceFixture(db, { id: "existing-space", slug: "existing-space" }),
+      expectedError: /Space limit/,
+    },
+  ];
+
+  for (const testCase of cases) {
+    const db = new InMemorySupabase();
+    testCase.configure(db);
+    const initialSpaces = db.tables.spaces.length;
+    const initialPages = db.tables.space_pages.length;
+    setSupabaseAdminForTests(db.client as any);
+    const app = createSpacesApp();
+
+    try {
+      const response = await requestJson(app, "POST", "/spaces", {
+        token: testCase.token,
+        body: {
+          title: `Denied ${testCase.name}`,
+          slug: `denied-${testCase.name.replace(/\s+/g, "-")}`,
+        },
+      });
+
+      assert.equal(response.status, 403, testCase.name);
+      assert.match(response.body.error, testCase.expectedError, testCase.name);
+      assert.equal(db.tables.spaces.length, initialSpaces, testCase.name);
+      assert.equal(db.tables.space_pages.length, initialPages, testCase.name);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+});
+
+test("Space create lets Creator admins bypass count only after the tier guard", async () => {
+  const db = new InMemorySupabase();
+  addSpaceFixture(db, {
+    id: "creator-admin-existing",
+    owner_user_id: "creator-admin",
+    slug: "creator-admin-existing",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createSpacesApp();
+
+  try {
+    const response = await requestJson(app, "POST", "/spaces", {
+      token: "creator-admin-token",
+      body: {
+        title: "Creator Admin New",
+        slug: "creator-admin-new",
+      },
+    });
+
+    assert.equal(response.status, 201);
+    assert.equal(response.body.space.owner_user_id, "creator-admin");
+    assert.equal(response.body.space.is_public, false);
+    assert.equal(db.tables.spaces.filter((space) => space.owner_user_id === "creator-admin").length, 2);
+    assert.equal(db.tables.space_pages.length, 4);
   } finally {
     setSupabaseAdminForTests(null);
   }

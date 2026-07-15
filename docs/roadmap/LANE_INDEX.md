@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527B | Space Entitlement And Visibility Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS | Preflight accepted as `ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARIES`; MIMIR must wake DAEDALUS with the exact existing-read fail-closed gate, Private web/API defaults, stale-403 behavior, allow-list, and proof contract. No implementation or hosted lifecycle is accepted yet. | `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md` |
+| PR527B | Space Entitlement And Visibility Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS | `REVIEW_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR`; DAEDALUS implemented the existing-read fail-closed gate, Private web/API defaults, stale-403 behavior, focused/API/browser proof, and ARGUS wake. No hosted lifecycle is accepted yet. | `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_DAEDALUS_RESULT.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

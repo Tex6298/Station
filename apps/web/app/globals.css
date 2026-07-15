@@ -1752,6 +1752,86 @@ html, body {
   max-width: 1100px;
 }
 
+.space-create-page {
+  color: var(--station-frame-text);
+}
+
+.space-create-page .space-builder-heading p {
+  color: var(--station-frame-muted);
+}
+
+.space-create-page .space-form-field > span {
+  color: var(--station-frame-text);
+}
+
+.space-create-page .space-form-field small,
+.space-create-visibility-copy {
+  color: var(--station-frame-muted);
+}
+
+.space-create-notice {
+  max-width: 720px;
+  padding: 24px 0 48px;
+}
+
+.space-create-notice h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.space-create-notice p,
+.space-create-visibility-copy {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.space-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.space-create-actions a,
+.space-create-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  border: 1px solid var(--station-frame-border);
+  border-radius: 8px;
+  background: var(--station-frame-soft);
+  color: var(--station-frame-active);
+  padding: 0 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.space-create-actions a:focus-visible,
+.space-create-actions button:focus-visible {
+  outline: 2px solid var(--station-frame-active);
+  outline-offset: 2px;
+}
+
+.space-create-inline-status {
+  border: 1px solid var(--station-frame-border);
+  border-radius: 8px;
+  background: var(--station-frame-soft);
+  color: var(--station-frame-text);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.space-create-visibility-copy {
+  margin-top: 0.55rem;
+}
+
 .space-builder-heading {
   display: flex;
   justify-content: space-between;

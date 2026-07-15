@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527B Space Entitlement And Visibility Repair Implemented For Review
+
+DAEDALUS completed the bounded implementation on 2026-07-15:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_DAEDALUS_RESULT.md`
+
+Result: `IMPLEMENT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_COMPLETE_AWAITING_ARGUS_REVIEW`.
+
+- `/space/new` now restores session truth, reads billing status and owner
+  Spaces, and renders no builder until fresh current truth passes.
+- Loading, read failure, malformed/conflicting truth, below-tier, and at-limit
+  states expose no form or Create command.
+- The web builder defaults Private; Public requires explicit owner selection.
+- Omitted API create visibility defaults Private; explicit `true` and `false`
+  remain honored; PATCH omission preserves existing visibility.
+- Stale create `403` uses bounded copy, preserves form entries, reruns the same
+  preflight, and never automatically replays POST.
+
+Validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/space-create-entitlement.test.ts` | Pass, 4 tests |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, 10 tests |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, 16 tests |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, 22 tests |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, 262 tests |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass |
+| Temporary Playwright proof against local web with intercepted API | Pass, 8 proof groups |
+
+Temporary browser proof created no real Space. It covered signed-out redirect,
+loading, failed preflight, below-tier, at-limit, entitled Private and explicit
+Public payloads, stale `403` retained entries and no auto-retry, plus
+System/Light/Dark desktop, `390px`, and `375px` fit for unavailable and
+entitled states.
+
+No hosted proof is claimed here. PR527B awaits ARGUS review; J07 remains open
+until the accepted hosted proof chain is complete.
+
 ## PR527B Space Entitlement And Visibility Preflight Accepted
 
 ARGUS accepted the exact boundary on 2026-07-15:

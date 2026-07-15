@@ -30,7 +30,7 @@ const createSpaceSchema = z.object({
   tagline: z.string().max(160).optional(),
   theme: spaceThemeSchema.optional(),
   layout: spaceLayoutSchema.optional(),
-  isPublic: z.boolean().default(true),
+  isPublic: z.boolean().default(false),
   commentsDefaultEnabled: z.boolean().default(true),
 });
 
