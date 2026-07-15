@@ -25,14 +25,14 @@ Result: `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES`.
   source, and unrelated routes unchanged.
 
 The inherited navigation/auth baseline passes `24/24` focused tests before
-implementation. DAEDALUS must add exact Notes/navigation coverage, include it
-in `test:studio-ui`, and pass the full Studio and auth suites, web typecheck,
-web lint, whitespace, changed-path, secret, and scope scans. After ARGUS
-implementation review, ARIADNE must prove the exact accepted SHA signed out and
-as replay owner in System, Light, and Dark at `1440x900`, `390x844`, and
-`375x812`, including both real destinations, route-context truth, navigation
-removal, no former controls/seeds, no mutation, and no fixed-dark or overflow
-regression.
+implementation. DAEDALUS now owns the patch and must add exact Notes/navigation
+coverage, include it in `test:studio-ui`, and pass the full Studio and auth
+suites, web typecheck, web lint, whitespace, changed-path, secret, and scope
+scans. After ARGUS implementation review, ARIADNE must prove the exact accepted
+SHA signed out and as replay owner in System, Light, and Dark at `1440x900`,
+`390x844`, and `375x812`, including both real destinations, route-context
+truth, navigation removal, no former controls/seeds, no mutation, and no
+fixed-dark or overflow regression.
 
 No PR527A implementation is accepted yet. `/studio/notes` remains
 `FAIL_PRODUCT` until ARGUS accepts the patch and ARIADNE passes the hosted
