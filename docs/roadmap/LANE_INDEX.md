@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527A | Notes Truth Repair Boundary Preflight | MIMIR -> ARGUS -> MIMIR | `OPEN_PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT`; lock the route-only unavailable-state repair before DAEDALUS removes seeded/local private-writing loss and inert commands. | `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS.md` |
+| PR527A | Notes Truth Repair | MIMIR / A1 | ARGUS accepted `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES`; MIMIR should wake DAEDALUS with the exact route-only allow-list, truthful former-page-memory disclosure, Archive non-equivalence rule, and local/hosted gates. | `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527A preflight | Notes Truth Repair Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES`; remove the advertised faux editor, retain the owner-gated deep link, disclose page-memory loss, keep Archive separate, and require exact local plus hosted proof. | `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md` |
 | PR527 inventory | UI Product Completeness Hosted Journey Inventory | MIMIR -> ARIADNE -> MIMIR | Complete as `PR527_INVENTORY_COMPLETE_CORRECTIONS_REQUIRED`; 2 pass, 4 fail, 6 exact blockers, 1 truthful tier-unavailable, with PR527A ranked first. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | PR525 visual-foundation closeout | Discern-Informed Visual Foundation | MIMIR -> ARIADNE / DAEDALUS / ARGUS -> MIMIR | Closed as `CLOSE_PR525_VISUAL_FOUNDATION_ACCEPTED_PRODUCT_UI_INTEGRATION_REMAINS_OPEN`; visual translation, deliberate deviations, review corrections, and light/dual-theme hosted evidence remain accepted, while PR527 supersedes the overall-completion claim. | `docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md` |
 | PR525H hosted rehearsal | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> ARIADNE -> MIMIR | Passed as `PASS_PR525H_HOSTED_DUAL_THEME_REHEARSAL`; exact-SHA System/Light/Dark public/private proof passes at all three viewports with no blocker or hosted mutation. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_HOSTED_REHEARSAL_RESULT.md` |

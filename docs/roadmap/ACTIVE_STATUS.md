@@ -4,12 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527A Notes truth boundary preflight
+## Active lane - PR527A Notes truth repair handoff
 
 ```text
-OPEN_PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT
+ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES
 Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS.md
+Source: docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
+Next: MIMIR wakes DAEDALUS with the accepted route-only allow-list and gates
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -19,12 +20,19 @@ Station is not product-journey complete.
 
 The first correction is `/studio/notes`. Its local-only editor silently loses
 private writing on refresh, restores seeded faux notes, does not filter search,
-and presents nine inert commands. ARGUS now owns the boundary preflight for a
-route-only truth repair: remove the unsupported editor and general navigation
-promise, retain the owner-gated deep link, show one exact unavailable state,
-and link only to real Global Archive and Studio destinations. If accepted,
-MIMIR wakes DAEDALUS for the bounded patch, then ARGUS review and ARIADNE hosted
-rehearsal.
+and presents nine inert commands. ARGUS accepts a route-only truth repair:
+remove the unsupported editor and general navigation promise, retain the
+owner-gated deep link, disclose that the former scratchpad created no durable
+Notes record, and link only to real Global Archive and Studio destinations.
+Global Archive must remain explicitly separate from Notes storage.
+
+The exact component/navigation/CSS/test/docs allow-list is locked. The page,
+layout, middleware, auth helper, APIs, schema, Archive contract, dependencies,
+providers, queues, billing, hosted runtime, Discern source, and unrelated
+routes remain frozen. MIMIR should now wake DAEDALUS for the bounded patch,
+followed by ARGUS hostile review and ARIADNE's exact-SHA nine-case
+System/Light/Dark hosted rehearsal. `/studio/notes` remains `FAIL_PRODUCT` until
+both implementation acceptance and hosted proof pass.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

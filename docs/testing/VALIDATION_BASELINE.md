@@ -4,24 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527A Notes Truth Boundary Preflight Open
+## PR527A Notes Truth Boundary Accepted
 
-ARIADNE completed the PR527 hosted inventory at `745ff4ca`:
+ARGUS completed the route-only preflight on 2026-07-15:
 
-- `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md`
+- `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md`
 
-Result: `PR527_INVENTORY_COMPLETE_CORRECTIONS_REQUIRED`.
+Result: `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES`.
 
-- 2 principal journeys pass;
-- 4 fail product truth;
-- 6 have exact hosted or safe-fixture blockers;
-- 1 is truthfully unavailable to the replay owner's tier.
+- Remove Notes from the general Studio workspace inventory while retaining the
+  existing owner-gated `/studio/notes` deep link.
+- Replace the seeded, page-memory editor and dead controls with one static
+  unavailable state and exactly two real links.
+- State that current Station does not save Notes on this route and that the
+  former scratchpad created no durable Notes record.
+- Describe Global Archive as separate existing owner-only preserved source
+  material, never Notes storage or a destination that receives route text.
+- Keep the page route, Studio layout, auth/middleware, APIs, schema, Archive
+  contract, dependencies, providers, queues, billing, hosted runtime, Discern
+  source, and unrelated routes unchanged.
 
-PR527A now sends `/studio/notes` through ARGUS boundary preflight before a
-route-only truth repair. The hosted inventory proved that the current local
-editor silently loses private writing, restores seeded faux notes, and exposes
-nine inert commands. No PR527A implementation or validation result is accepted
-yet.
+The inherited navigation/auth baseline passes `24/24` focused tests before
+implementation. DAEDALUS must add exact Notes/navigation coverage, include it
+in `test:studio-ui`, and pass the full Studio and auth suites, web typecheck,
+web lint, whitespace, changed-path, secret, and scope scans. After ARGUS
+implementation review, ARIADNE must prove the exact accepted SHA signed out and
+as replay owner in System, Light, and Dark at `1440x900`, `390x844`, and
+`375x812`, including both real destinations, route-context truth, navigation
+removal, no former controls/seeds, no mutation, and no fixed-dark or overflow
+regression.
+
+No PR527A implementation is accepted yet. `/studio/notes` remains
+`FAIL_PRODUCT` until ARGUS accepts the patch and ARIADNE passes the hosted
+rehearsal; only then may it become `TRUTHFULLY_UNAVAILABLE`.
 
 ## PR527 UI Product Completeness Definition
 
