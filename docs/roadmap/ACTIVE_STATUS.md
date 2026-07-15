@@ -4,15 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2 migration 083 blocked in ARGUS review
+## Active lane - PR527D2A trusted activity repair with DAEDALUS
 
 ```text
-BLOCK_PR527D2_UNTRUSTED_COMMENT_TIMESTAMP_CAN_PIN_FOREIGN_THREAD_ACTIVITY
+OPEN_PR527D2A_TRUSTED_INSERT_TIME_AND_FUNCTION_OWNER_GUARD
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md
+Source: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS.md
 Implementation: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
 Review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
-Next: MIMIR returns the same locked lane to DAEDALUS for trusted insert-time activity, fail-closed function-owner enforcement, and exact static assertions
+Next: DAEDALUS applies only the trusted insert-time, fail-closed function-owner, and exact static-assertion correction, then commits and wakes ARGUS before any hosted mutation
 ```
 
 ARGUS executed the exact migration in a disposable local PostgreSQL harness.
@@ -26,10 +26,12 @@ time.
 The migration also assumes without enforcing that its executor is the owner
 of both tables, and the focused static test does not actually assert every
 fixed-search-path, helper-revocation, or full-reconciliation claim in the
-DAEDALUS result. The same narrow lane must use trusted database time only for
-actual inserts, enforce function ownership fail-closed, and lock those clauses
-in tests. Required local suites still pass `51/51`, `4/4`, and `9/9`, with API
-typecheck and diff check passing; those results do not override the blocker.
+DAEDALUS result. PR527D2A returns only those three corrections to DAEDALUS:
+trusted statement time for an actual insert, no update-driven activity replay,
+fail-closed function ownership, and exact static assertions. Required local
+suites still pass `51/51`, `4/4`, and `9/9`, with API typecheck and diff check
+passing; those results do not override the block until ARGUS reruns the
+adversarial executable proof.
 
 ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
 live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,

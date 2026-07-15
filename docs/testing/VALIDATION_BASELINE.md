@@ -4,6 +4,22 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2A Trusted Activity Repair Opened
+
+MIMIR returned the same locked migration `083` lane to DAEDALUS on 2026-07-15:
+
+- `docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS.md`
+
+The correction is limited to trusted database time for actual visible inserts,
+no update-driven activity replay, fail-closed function/table ownership, and
+exact static assertions for those rules plus search paths, helper revocations,
+full reconciliation, and the secure rollback grant floor. The accepted count
+contract and all other PR527D2 boundaries remain frozen.
+
+No hosted migration, backfill, counter repair, RPC invocation, or product
+write is authorized before DAEDALUS returns the correction to ARGUS and ARGUS
+reruns the adversarial executable proof.
+
 ## PR527D2 Migration 083 Blocked In ARGUS Review
 
 ARGUS completed the local implementation review on 2026-07-15:
