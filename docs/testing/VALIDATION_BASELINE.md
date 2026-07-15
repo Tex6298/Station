@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2 Reply Count Truth Boundary Accepted
+
+ARGUS completed the read-only preflight on 2026-07-15:
+
+- `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_WITH_TRANSACTIONAL_RECONCILIATION
+```
+
+Sanitized hosted reads prove the sole live mismatch is stored `1` versus
+total/active/viewer-visible `2/2/2`, with hidden/removed/flagged `0/0/0`.
+The other five anonymous-readable and all other live threads match. One
+inaccessible removed standalone thread is also overcounted. Hosted totals are
+`12` threads and `7` comments, all `7` comments attached to threads.
+
+Catalog readback proves zero reply-count trigger, no nonnegative invariant, a
+blind security-definer increment executable by anon/authenticated, and direct
+authenticated author privilege over the counter. The accepted implementation
+is migration `083`: database-trigger-owned active/non-hidden reply count, all-
+thread transactional reconciliation, hot-score repair, direct-write guard,
+nonnegative check, and a service-role-only no-write compatibility shim. ARGUS
+performed zero hosted writes and retained no raw row or secret material.
+
+Preflight validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `50/50` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+
 ## PR527D Closed; PR527D2 Reply Count Truth Preflight Opened
 
 MIMIR closed PR527D on 2026-07-15 as:
