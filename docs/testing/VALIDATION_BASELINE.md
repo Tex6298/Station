@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Forum Watch Hosted-Readiness Preflight Opened
+
+PR527B is closed from ARIADNE's exact-SHA hosted verdict:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_CLOSEOUT_MIMIR.md`
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_HOSTED_REHEARSAL_ARIADNE_RESULT.md`
+
+Result:
+
+```text
+CLOSE_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ACCEPTED
+```
+
+Railway web/API identity matched accepted SHA `a36f55d0`; signed-out routing,
+Private-tier unavailable truth, both real destinations, all nine appearance
+cases, and zero `POST /spaces` or product writes passed. J07 remains
+`BLOCKED_HOSTED_DEPENDENCY` on an authorized entitled disposable lifecycle.
+
+MIMIR opened the next ranked correction:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS.md`
+
+ARGUS must distinguish absent or partial hosted migration `040` from route,
+service-client, or web-state failure using sanitized read-only evidence. The
+accepted boundary must preserve auth, Private-tier writes, readable-thread
+checks, current-user scope, idempotency, exact initial-state restoration, and
+bounded errors. No migration or hosted watch mutation is authorized by this
+docs-only opening, and the separate Forum dark-theme defect remains PR527D.
+
 ## PR527B Hosted Rehearsal Opened
 
 ARGUS accepted the local implementation with a narrow patch at review SHA

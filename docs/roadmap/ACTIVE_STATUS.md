@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527B Space entitlement and visibility hosted rehearsal
+## Active lane - PR527C Forum Watch hosted-readiness preflight
 
 ```text
-REHEARSE_PR527B_SPACE_ENTITLEMENT_VISIBILITY_ON_HOSTED
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
-Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md
-Next: ARIADNE proves the exact accepted SHA a36f55d0 with zero hosted writes
+OPEN_PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS.md
+Next: ARGUS diagnoses hosted schema/ownership truth before any repair
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -27,28 +27,23 @@ product writes, page errors, unclassified console errors, or horizontal
 overflow. This removes the deceptive page-memory editor and does not claim a
 working Notes feature.
 
-ARGUS accepts PR527B after a narrow review patch. `/space/new` now fails closed
-until restored owner, canonical tier/limit, and owner-Space count truth agree;
-Creator-tier-before-count/admin order matches shared server permission logic.
-The entitled builder and omitted API visibility default Private, explicit
-Public remains owner-selected, PATCH omission is stable, denied API cases
-insert no Space/pages, and stale `403` rechecks preserve entries without
-automatic POST replay or response-detail disclosure.
+PR527B is closed as
+`CLOSE_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ACCEPTED`. Railway web and
+API reported exact accepted SHA `a36f55d0`; signed-out routing, Private-tier
+unavailable truth, both owner-safe destinations, all nine appearance cases,
+and zero `POST /spaces` or product writes passed. The builder now fails closed,
+defaults entitled creation to Private, preserves explicit Public, and never
+blindly retries a stale denied POST. J07 remains `BLOCKED_HOSTED_DEPENDENCY` on
+a separately authorized entitled disposable lifecycle and cleanup contract.
 
-ARGUS also corrected stale in-progress/completed copy, fixed-dark create-only
-controls, invalid multi-control labels, and inherited public theme claims in
-the Private form. Focused entitlement `5/5`, Space `11/11`, billing `16/16`,
-auth `22/22`, Studio `262/262`, web/API typecheck, web lint, scope/secret
-checks, and an independent `26/26` browser proof pass. All browser POSTs were
-intercepted synthetic requests; no real Space or database write occurred.
-
-ARIADNE now owns the exact-SHA hosted replay-owner proof. It must remain
-negative and no-write: signed-out redirect, Private-tier unavailable truth,
-exact Billing/My Spaces destinations, nine System/Light/Dark viewport cases,
-and zero `POST /spaces` or product mutation. PR527B does not claim the full J07
-create/edit/public/cleanup journey; after a hosted pass J07 remains
-`BLOCKED_HOSTED_DEPENDENCY` until an entitled disposable lifecycle and cleanup
-are separately accepted and proved.
+PR527C is the next ranked correction. ARIADNE's J09 rehearsal found that the
+visible paid-tier Forum Watch command returns stable `500` failures for load,
+write, and cleanup. Local routes/tests and migration `040` define an
+owner-scoped durable contract, making hosted schema drift the leading but
+unproven hypothesis. ARGUS must inspect table, constraints, trigger, RLS,
+policies, migration ledger, route ownership, and exact proof boundaries before
+DAEDALUS applies a migration or changes code. The separate dark Forum thread
+readability defect remains PR527D and is not part of this preflight.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

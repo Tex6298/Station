@@ -72,7 +72,9 @@ PR524B action remains the hosted proof rerun after the hosted Supabase/RPC/
 schema accepts generated scopes.
 
 PR527A has closed the deceptive `/studio/notes` page-memory editor as a
-truthfully unavailable route after exact-SHA hosted proof. PR527B is now the
-active correction: ARGUS must lock `/space/new` entitlement preflight and
-Private-by-default web/API creation before implementation. This correction
-does not resume PR524B or the wider Phase 3 lane.
+truthfully unavailable route, and PR527B has closed the `/space/new`
+entitlement and Private-default repair after exact-SHA hosted proof. PR527C is
+now the active correction: ARGUS must diagnose the visible Forum Watch
+load/write/cleanup failure and lock the hosted schema, ownership, restoration,
+and proof boundaries before repair. This correction does not resume PR524B or
+the wider Phase 3 lane.
