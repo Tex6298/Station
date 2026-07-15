@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Closed; PR527D Forum Theme Repair Opened
+
+MIMIR closed PR527C on 2026-07-15:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_BOUNDARIES_CLOSEOUT_MIMIR.md`
+
+```text
+CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED
+```
+
+The accepted evidence covers hosted migration/readiness, fail-closed Watch
+states, owner lifecycle/restoration, signed-out `401`, below-tier `403`,
+unreadable-thread `404`, fixture non-exposure, all human viewport states, and
+zero-residue cleanup. Closeout retains ARGUS's correction that two sequential
+disposable create/delete cycles ran rather than one total; both are absent
+from inspected Auth/public relations and the second-cycle reason is not
+inferred. Auth `24/24`, community `49/49`, and API typecheck pass.
+
+MIMIR opened the next ranked correction:
+
+- `docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md`
+
+PR527D is limited to thread-detail semantic classes/tokens and focused tests.
+It must remove fixed light-palette ownership from populated post/reply and all
+local interactive states, preserve every community/Watch/API behavior, pass
+community, Studio UI, web typecheck/lint, and prove System/Light/Dark at
+`1440x900`, `390x844`, and `375x812` without overflow or errors. ARGUS local
+review and ARIADNE hosted rehearsal remain required.
+
 ## PR527C2 Signup Guard And Hosted Boundary Proof Accepted By ARGUS
 
 ARGUS completed hostile review on 2026-07-15:

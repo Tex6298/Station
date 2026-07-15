@@ -4,15 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C2 accepted; PR527C ready for MIMIR closeout
+## Active lane - PR527D Forum thread semantic theme repair with DAEDALUS
 
 ```text
-ACCEPT_PR527C2_SIGNUP_GUARD_AND_BOUNDARY_PROOF_WITH_ARGUS_EVIDENCE_CORRECTION
-PR527C disposition: CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_ARGUS_RESULT.md
-Next: MIMIR should close PR527C with ARGUS's evidence correction retained and choose the next roadmap lane
+OPEN_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_DAEDALUS.md
+Next: DAEDALUS replaces fixed thread-detail palette ownership with existing semantic theme tokens, proves the nine-case local render matrix, and wakes ARGUS
 ```
+
+PR527C is closed as
+`CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED`.
+Migration/readiness, fail-closed UI, owner Watch lifecycle, signed-out `401`,
+Visitor PUT/DELETE `403`, removed-thread GET/PUT/DELETE `404`, non-exposure,
+three-viewport human states, and cleanup all pass. ARGUS's correction is
+retained: two sequential disposable create/delete cycles ran, not one total;
+both are independently zero-residue and their second-cycle reason is not
+inferred.
+
+PR527D is the next ranked PR527 correction. It is confined to the populated
+Forum thread-detail presentation, shared semantic tokens, and focused tests.
+All PR527C behavior, community actions, routes, data, auth, API, database,
+global preference behavior, and unrelated surfaces remain frozen. Local
+implementation requires System/Light/Dark at `1440`, `390`, and `375`; ARGUS
+review and then ARIADNE hosted rehearsal remain required.
 
 ARGUS accepts DAEDALUS's narrow UTF-8 signup password byte guard. Independent
 reruns pass auth `24/24`, community `49/49`, and API typecheck. The schema
