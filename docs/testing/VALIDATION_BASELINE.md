@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Closed; PR527F Settings Preflight Opened
+
+MIMIR closed PR527E on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md`
+
+```text
+CLOSE_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ACCEPTED
+```
+
+The final hosted rerun is recorded at:
+
+- `docs/roadmap/PR527E2_PERSONA_PROFILE_HOSTED_BLOCKER_RERUN_RESULT.md`
+
+All `18` deployed placeholder samples pass with opacity `1`, Light minimum
+`5.35:1`, and System/Dark `7.53:1`. Focus, field dimensions, clipping, and
+overflow pass. The correct persona Archive route sends exactly one credential
+metadata GET at `200`, renders safe missing/setup-disabled truth, and retains
+migration ledger `062/063` at `1/1` plus credential/OAuth rows at `0/0`.
+Failed responses, page errors, unclassified console errors, unknown calls, and
+hosted product writes are zero.
+
+The next ranked boundary preflight is:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS.md`
+
+ARGUS must inspect current Settings rather than stale inventory assumptions.
+The preferred narrow capability is one owner Forum reply preference only if
+its authoritative persisted state gates future `thread_comment` notification
+creation and survives refresh. A checkbox-only persistence claim is forbidden.
+
 ## PR527E1 And PR484J-N1 Repairs Accepted By ARGUS
 
 ARGUS accepted both bounded repairs on 2026-07-15:

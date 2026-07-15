@@ -4,27 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E2 bounded hosted blocker rerun
+## Active lane - PR527F Settings Persistence Truth preflight
 
 ```text
-ACCEPT_PR527E1_AND_PR484J_N1_REPAIRS_PENDING_BOUNDED_HOSTED_RERUN
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
-Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
-Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
-ARGUS result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md
-Hosted rehearsal: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_ARIADNE.md
-Hosted result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_RESULT.md
-Placeholder repair: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS.md
-Placeholder result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
-Placeholder ARGUS result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_ARGUS_RESULT.md
-Archive schema/read unblock: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md
-Archive schema/read result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS_RESULT.md
-Archive schema/read ARGUS result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_ARGUS_RESULT.md
-Bounded hosted rerun: docs/roadmap/PR527E2_PERSONA_PROFILE_HOSTED_BLOCKER_RERUN_ARIADNE.md
-Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: ARIADNE reruns only the 18 placeholder samples and correct persona Archive credentials-read gate, then wakes MIMIR
+OPEN_PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS.md
+Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
+Next: ARGUS maps current Settings, notification creation, schema, and hosted truth and returns one bounded implementation-ready verdict
 ```
+
+PR527E is closed as
+`CLOSE_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ACCEPTED`. ARIADNE's final
+PR527E2 rerun passed all `18` deployed placeholders with opacity `1` and a
+`5.35:1` minimum, stable focus/geometry, and zero overflow. The correct persona
+Archive route issued exactly one credentials GET at `200`, rendered safe
+missing/setup-disabled metadata, retained migration ledger `062/063` at `1/1`
+and credential/OAuth rows at `0/0`, and produced zero failed responses, errors,
+unknown calls, or product writes.
+
+PR527F now opens ranked correction six. Current Settings already marks Profile,
+Privacy, account deletion, and five notification rows unavailable, so ARGUS
+must inspect current rather than stale inventory wording. The preferred bounded
+candidate is one real owner Forum reply preference that defaults enabled,
+persists with refresh readback, and gates future `thread_comment` notification
+creation. A saved checkbox that does not affect delivery is explicitly
+unacceptable.
 
 ARIADNE passed signed-out protection, exact owner/static/live truth, independent
 secondary readbacks, absence of delete/broader edit, all six keyboard routes,
