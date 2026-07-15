@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527A Notes Truth Repair Accepted Locally
+
+ARGUS completed hostile review on 2026-07-15:
+
+- `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md`
+
+Result: `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH`.
+
+- Exact unavailable copy, owner-gated deep link, truthful route context, two
+  real destinations, general Studio inventory removal, and explicit Archive
+  non-equivalence pass.
+- The faux seeds, editor, search, local note state, dead commands, browser
+  storage, network behavior, and persistence implications are absent.
+- ARGUS removed the new floating page-section treatment, fixed the heading at
+  `32px` instead of scaling it with `vw`, and added a semantic/unframed CSS
+  regression assertion.
+- No auth, page/layout, middleware, API, schema, Archive contract, dependency,
+  provider, queue, billing, hosted runtime, Discern source, or unrelated route
+  changed.
+
+| Command / check | Result |
+| --- | --- |
+| Focused Notes/navigation tests | Pass, `19/19` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `262/262` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `22/22` |
+| Web typecheck and lint | Pass |
+| Local signed-out auth proof | Pass; `/studio/notes` redirected to login with the exact return path and rendered no private route state. |
+| Local owner browser matrix | Pass; System/Light/Dark at `1440x900`, `390x844`, and `375x812`, exact copy/context/inventory, both links, fixed heading, focus, contrast, clipping, and overflow all passed with zero write, page error, or browser-console error. |
+| Changed-path, secret, scope, and whitespace scans | Pass |
+
+This is not hosted acceptance and does not claim working Notes. MIMIR must wake
+ARIADNE for exact-SHA hosted proof. `/studio/notes` remains `FAIL_PRODUCT` until
+that rehearsal passes; only then may it become `TRUTHFULLY_UNAVAILABLE`.
+
 ## PR527A Notes Truth Repair Implemented For Review
 
 DAEDALUS completed the bounded implementation on 2026-07-15:

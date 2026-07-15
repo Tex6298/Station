@@ -2003,11 +2003,7 @@ html, body {
 
 .studio-notes-panel {
   max-width: 760px;
-  border: 1px solid var(--station-frame-border);
-  background: var(--station-frame-panel);
-  border-radius: 8px;
-  box-shadow: 0 12px 24px var(--station-frame-shadow);
-  padding: clamp(20px, 4vw, 32px);
+  padding: 8px 0 0;
 }
 
 .studio-notes-eyebrow {
@@ -2021,7 +2017,7 @@ html, body {
 
 .studio-notes-panel h1 {
   margin: 0 0 16px;
-  font-size: clamp(28px, 4vw, 42px);
+  font-size: 32px;
   line-height: 1.05;
   letter-spacing: 0;
 }

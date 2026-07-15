@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527A Notes truth repair review
+## Active lane - PR527A Notes truth repair hosted handoff
 
 ```text
-REVIEW_PR527A_NOTES_TRUTH_REPAIR
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
-Source: docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_DAEDALUS_RESULT.md
-Next: ARGUS hostile-reviews the route-only implementation and wakes MIMIR if accepted or DAEDALUS if fixes are needed
+ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md
+Next: MIMIR wakes ARIADNE for the exact-SHA hosted Notes truth rehearsal
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -34,13 +34,19 @@ durable record, keeps Global Archive separate from Notes storage, links only to
 Global Archive and Studio, removes Notes from the general Studio inventory, and
 retains the owner-gated deep-link context.
 
-The exact component/navigation/CSS/test/docs allow-list remains locked. The
-page, layout, middleware, auth helper, APIs, schema, Archive contract,
+ARGUS accepts the implementation after a narrow CSS/test patch. The review
+removed the floating page-section treatment, replaced viewport-scaled heading
+text with a stable `32px`, and locked those semantic/unframed rules in the
+focused test. Exact copy, owner/auth boundary, two destinations, inventory
+removal, Archive non-equivalence, focused `19/19`, Studio `262/262`, auth
+`22/22`, typecheck, lint, and an independent nine-case browser matrix pass.
+
+The page, layout, middleware, auth helper, APIs, schema, Archive contract,
 dependencies, providers, queues, billing, hosted runtime, Discern source, and
-unrelated routes remain frozen. ARGUS now owns hostile review. If accepted,
-ARIADNE's exact-SHA nine-case System/Light/Dark hosted rehearsal follows.
-`/studio/notes` remains `FAIL_PRODUCT` until both implementation acceptance and
-hosted proof pass.
+unrelated routes remain frozen. MIMIR should now wake ARIADNE for the exact-SHA
+System/Light/Dark hosted rehearsal. `/studio/notes` remains `FAIL_PRODUCT`
+until that proof passes; only then may it be classified
+`TRUTHFULLY_UNAVAILABLE`, not as a working Notes feature.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

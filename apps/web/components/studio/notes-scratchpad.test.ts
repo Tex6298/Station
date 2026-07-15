@@ -9,6 +9,7 @@ test("Notes unavailable page renders exact truth copy and two real links", () =>
   const middlewareSource = readFileSync("apps/web/middleware.ts", "utf8");
   const authRoutesSource = readFileSync("apps/web/lib/auth-routes.ts", "utf8");
   const packageSource = readFileSync("package.json", "utf8");
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
 
   assert.match(componentSource, /Owner-only Studio/);
   assert.match(componentSource, /<h1 id="studio-notes-title">Notes unavailable<\/h1>/);
@@ -46,4 +47,18 @@ test("Notes unavailable page renders exact truth copy and two real links", () =>
   assert.match(authRoutesSource, /if \(first === "studio"\) return true/);
   assert.match(middlewareSource, /\/studio\/:path\*/);
   assert.match(packageSource, /apps\/web\/components\/studio\/notes-scratchpad\.test\.ts/);
+
+  const notesCss = cssSource.slice(
+    cssSource.indexOf(".studio-notes-unavailable"),
+    cssSource.indexOf(".studio-frame-header", cssSource.indexOf(".studio-notes-unavailable")),
+  );
+  const panelRule = notesCss.match(/\.studio-notes-panel\s*\{([^}]*)\}/)?.[1] ?? "";
+  const headingRule = notesCss.match(/\.studio-notes-panel h1\s*\{([^}]*)\}/)?.[1] ?? "";
+
+  assert.match(notesCss, /var\(--station-frame-canvas\)/);
+  assert.match(notesCss, /var\(--station-frame-text\)/);
+  assert.doesNotMatch(notesCss, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i);
+  assert.doesNotMatch(panelRule, /(?:^|\s)(?:border|background|border-radius|box-shadow)\s*:/);
+  assert.match(headingRule, /font-size:\s*32px/);
+  assert.doesNotMatch(headingRule, /clamp\(|vw/);
 });
