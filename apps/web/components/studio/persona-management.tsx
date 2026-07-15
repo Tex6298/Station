@@ -72,6 +72,7 @@ export function PersonaManagement({
   const [integrityHistory, setIntegrityHistory] = useState<ReadState<IntegrityHistorySession[]>>({ status: "loading" });
   const [handoffSummary, setHandoffSummary] = useState("");
   const [creatingHandoff, setCreatingHandoff] = useState(false);
+  const [confirmedHandoffs, setConfirmedHandoffs] = useState<PersonaHandoff[]>([]);
   const [handoffNotice, setHandoffNotice] = useState<Notice>(null);
   const [avatarNotice, setAvatarNotice] = useState<Notice>(null);
   const [anonymousNotice, setAnonymousNotice] = useState<Notice>(null);
@@ -91,25 +92,34 @@ export function PersonaManagement({
     setMemoryGraph({ status: "loading" });
     setIntegrityHistory({ status: "loading" });
 
-    apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken)
+    apiGet<unknown>(`/personas/${personaId}/architecture`, accessToken)
       .then((data) => {
-        if (mounted) setArchitecture({ status: "ready", data });
+        if (!mounted) return;
+        setArchitecture(isArchitectureResponse(data, personaId, persona.ownerUserId)
+          ? { status: "ready", data }
+          : { status: "unavailable" });
       })
       .catch(() => {
         if (mounted) setArchitecture({ status: "unavailable" });
       });
 
-    apiGet<{ graph: MemoryGraph }>(`/memory/persona/${personaId}/graph`, accessToken)
+    apiGet<{ graph?: unknown }>(`/memory/persona/${personaId}/graph`, accessToken)
       .then((data) => {
-        if (mounted) setMemoryGraph({ status: "ready", data: data.graph });
+        if (!mounted) return;
+        setMemoryGraph(isMemoryGraph(data.graph, personaId)
+          ? { status: "ready", data: data.graph }
+          : { status: "unavailable" });
       })
       .catch(() => {
         if (mounted) setMemoryGraph({ status: "unavailable" });
       });
 
-    apiGet<{ sessions: IntegrityHistorySession[] }>(`/integrity/history/${personaId}`, accessToken)
+    apiGet<{ sessions?: unknown }>(`/integrity/history/${personaId}`, accessToken)
       .then((data) => {
-        if (mounted) setIntegrityHistory({ status: "ready", data: data.sessions ?? [] });
+        if (!mounted) return;
+        setIntegrityHistory(isIntegrityHistory(data.sessions, personaId, persona.ownerUserId)
+          ? { status: "ready", data: data.sessions }
+          : { status: "unavailable" });
       })
       .catch(() => {
         if (mounted) setIntegrityHistory({ status: "unavailable" });
@@ -118,7 +128,7 @@ export function PersonaManagement({
     return () => {
       mounted = false;
     };
-  }, [accessToken, personaId]);
+  }, [accessToken, persona.ownerUserId, personaId]);
 
   const layerEntries = useMemo(() => {
     if (architecture.status !== "ready") return [];
@@ -136,16 +146,24 @@ export function PersonaManagement({
     setHandoffNotice(null);
 
     try {
-      const response = await apiPost<{ handoff: PersonaHandoff }>(
+      const response = await apiPost<{ handoff?: unknown }>(
         `/personas/${personaId}/handoffs`,
         { summary: handoffSummary.trim() || undefined },
         accessToken,
       );
+      if (!isPersonaHandoff(response.handoff, personaId, persona.ownerUserId)) {
+        throw new Error("Invalid handoff readback.");
+      }
+      const handoff = response.handoff;
       setHandoffSummary("");
-      setArchitecture((current) => addHandoffToArchitecture(current, response.handoff));
+      setConfirmedHandoffs((current) => prependHandoff(current, handoff));
+      setArchitecture((current) => addHandoffToReadyArchitecture(current, handoff));
 
       try {
-        const refreshed = await apiGet<ArchitectureResponse>(`/personas/${personaId}/architecture`, accessToken);
+        const refreshed = await apiGet<unknown>(`/personas/${personaId}/architecture`, accessToken);
+        if (!isArchitectureResponse(refreshed, personaId, persona.ownerUserId)) {
+          throw new Error("Invalid architecture readback.");
+        }
         setArchitecture({ status: "ready", data: refreshed });
         setHandoffNotice({ tone: "success", text: "Handoff saved. Recent history refreshed." });
       } catch {
@@ -164,13 +182,17 @@ export function PersonaManagement({
     setAvatarNotice(null);
 
     try {
-      const response = await apiPatch<{ persona: Persona }>(
+      const response = await apiPatch<{ persona?: unknown }>(
         `/personas/${personaId}`,
         { avatarUrl: nextValue },
         accessToken,
       );
-      setCurrentPersona(response.persona);
-      const nextAvatarUrl = response.persona.avatarUrl ?? null;
+      const personaReadback = response.persona;
+      if (!isPersonaReadback(personaReadback, personaId, persona.ownerUserId)) {
+        throw new Error("Invalid persona readback.");
+      }
+      setCurrentPersona((current) => ({ ...current, ...personaReadback }));
+      const nextAvatarUrl = personaReadback.avatarUrl ?? null;
       setSavedAvatarUrl(nextAvatarUrl);
       setAvatarUrlInput(nextAvatarUrl ?? "");
       setAvatarNotice({
@@ -190,13 +212,17 @@ export function PersonaManagement({
     setAnonymousNotice(null);
 
     try {
-      const response = await apiPatch<{ persona: Persona }>(
+      const response = await apiPatch<{ persona?: unknown }>(
         `/personas/${personaId}`,
         { publicAnonymousChatEnabled: nextEnabled },
         accessToken,
       );
-      setCurrentPersona(response.persona);
-      const enabled = Boolean(response.persona.publicAnonymousChatEnabled);
+      const personaReadback = response.persona;
+      if (!isPersonaReadback(personaReadback, personaId, persona.ownerUserId)) {
+        throw new Error("Invalid persona readback.");
+      }
+      setCurrentPersona((current) => ({ ...current, ...personaReadback }));
+      const enabled = Boolean(personaReadback.publicAnonymousChatEnabled);
       setAnonymousChatEnabled(enabled);
       setAnonymousNotice({
         tone: "success",
@@ -262,7 +288,12 @@ export function PersonaManagement({
                 />
               </label>
               <div className="persona-profile-control-row">
-                <button type="button" onClick={() => saveAvatarUrl()} disabled={savingAvatarUrl}>
+                <button
+                  type="button"
+                  className="persona-profile-save-avatar"
+                  onClick={() => saveAvatarUrl()}
+                  disabled={savingAvatarUrl}
+                >
                   {savingAvatarUrl ? "Saving..." : "Save avatar URL"}
                 </button>
                 <button
@@ -398,12 +429,17 @@ export function PersonaManagement({
                   placeholder="Summarize current context."
                 />
               </label>
-              <button type="button" onClick={createHandoff} disabled={creatingHandoff}>
+              <button
+                type="button"
+                className="persona-profile-save-handoff"
+                onClick={createHandoff}
+                disabled={creatingHandoff}
+              >
                 {creatingHandoff ? "Saving..." : "Save context handoff"}
               </button>
               <NoticeBlock notice={handoffNotice} />
               <h3>Recent handoffs</h3>
-              <ArchitectureHandoffs state={architecture} />
+              <ArchitectureHandoffs confirmedHandoffs={confirmedHandoffs} state={architecture} />
             </section>
 
             <section className="persona-profile-panel">
@@ -472,27 +508,70 @@ function Metric({ label, value }: { label: string; value: number }) {
   );
 }
 
-function ArchitectureHandoffs({ state }: { state: ReadState<ArchitectureResponse> }) {
-  if (state.status === "loading") return <ReadStateMessage text="Loading handoff history..." />;
-  if (state.status === "unavailable") {
-    return <ReadStateMessage text="Handoff history unavailable. Reload the page to try again." tone="warning" />;
-  }
-  if (state.data.handoffs.length === 0) return <ReadStateMessage text="No handoffs yet." />;
-  return (
-    <div className="persona-profile-list">
-      {state.data.handoffs.slice(0, 4).map((handoff) => (
-        <div className="persona-profile-list-row" key={handoff.id}>
-          <span className="persona-profile-mark">H</span>
-          <div>
-            <strong>{handoffStatusLabel(handoff.status)}</strong>
-            <p>{handoffSummaryPreview(handoff, 140)}</p>
-            <p>{formatDate(handoff.createdAt)}</p>
-          </div>
-        </div>
-      ))}
-      <p className="persona-profile-muted">{handoffFreshnessCopy(state.data.handoffs.length)}</p>
-    </div>
+function ArchitectureHandoffs({
+  confirmedHandoffs,
+  state,
+}: {
+  confirmedHandoffs: PersonaHandoff[];
+  state: ReadState<ArchitectureResponse>;
+}) {
+  const handoffs = mergeHandoffs(
+    confirmedHandoffs,
+    state.status === "ready" ? state.data.handoffs : [],
   );
+  return (
+    <>
+      {state.status === "loading" ? <ReadStateMessage text="Loading handoff history..." /> : null}
+      {state.status === "unavailable" ? (
+        <ReadStateMessage text="Handoff history unavailable. Reload the page to try again." tone="warning" />
+      ) : null}
+      {state.status === "ready" && handoffs.length === 0 ? <ReadStateMessage text="No handoffs yet." /> : null}
+      {handoffs.length > 0 ? (
+        <div className="persona-profile-list">
+          {handoffs.slice(0, 4).map((handoff) => (
+            <div className="persona-profile-list-row" key={handoff.id}>
+              <span className="persona-profile-mark">H</span>
+              <div>
+                <strong>{handoffStatusLabel(handoff.status)}</strong>
+                <p>{handoffSummaryPreview(handoff, 140)}</p>
+                <p>{formatDate(handoff.createdAt)}</p>
+              </div>
+            </div>
+          ))}
+          {state.status === "ready" ? (
+            <p className="persona-profile-muted">{handoffFreshnessCopy(handoffs.length)}</p>
+          ) : null}
+        </div>
+      ) : null}
+    </>
+  );
+}
+
+function mergeHandoffs(...groups: PersonaHandoff[][]) {
+  const seen = new Set<string>();
+  return groups.flat().filter((handoff) => {
+    if (seen.has(handoff.id)) return false;
+    seen.add(handoff.id);
+    return true;
+  });
+}
+
+function prependHandoff(current: PersonaHandoff[], handoff: PersonaHandoff) {
+  return mergeHandoffs([handoff], current);
+}
+
+function addHandoffToReadyArchitecture(
+  current: ReadState<ArchitectureResponse>,
+  handoff: PersonaHandoff,
+): ReadState<ArchitectureResponse> {
+  if (current.status !== "ready") return current;
+  return {
+    status: "ready",
+    data: {
+      ...current.data,
+      handoffs: prependHandoff(current.data.handoffs, handoff),
+    },
+  };
 }
 
 function LifecycleHistory({ state }: { state: ReadState<ArchitectureResponse> }) {
@@ -526,45 +605,159 @@ function ReadStateMessage({ text, tone = "neutral" }: { text: string; tone?: "ne
 
 function NoticeBlock({ notice }: { notice: Notice }) {
   if (!notice) return null;
-  return <p className={`persona-profile-notice persona-profile-notice-${notice.tone}`}>{notice.text}</p>;
+  return (
+    <p
+      className={`persona-profile-notice persona-profile-notice-${notice.tone}`}
+      role={notice.tone === "error" ? "alert" : "status"}
+    >
+      {notice.text}
+    </p>
+  );
 }
 
-function addHandoffToArchitecture(
-  current: ReadState<ArchitectureResponse>,
-  handoff: PersonaHandoff,
-): ReadState<ArchitectureResponse> {
-  if (current.status !== "ready") {
-    return {
-      status: "ready",
-      data: {
-        profile: emptyLayerProfile(handoff.toPersonaId, handoff.ownerUserId),
-        lifecycleEvents: [],
-        handoffs: [handoff],
-      },
-    };
+function isArchitectureResponse(
+  value: unknown,
+  expectedPersonaId: string,
+  expectedOwnerUserId: string,
+): value is ArchitectureResponse {
+  if (!isRecord(value) || !isRecord(value.profile)) return false;
+  const profile = value.profile;
+  if (
+    profile.personaId !== expectedPersonaId
+    || profile.ownerUserId !== expectedOwnerUserId
+    || !layerKeys.every((key) => isRecord(profile[key]))
+    || !isTimestamp(profile.createdAt)
+    || !isTimestamp(profile.updatedAt)
+    || !Array.isArray(value.lifecycleEvents)
+    || !Array.isArray(value.handoffs)
+  ) {
+    return false;
   }
-  return {
-    status: "ready",
-    data: {
-      ...current.data,
-      handoffs: [handoff, ...current.data.handoffs],
-    },
-  };
+  return value.lifecycleEvents.every((event) => isPersonaLifecycleEvent(event, expectedPersonaId, expectedOwnerUserId))
+    && value.handoffs.every((handoff) => isPersonaHandoff(handoff, expectedPersonaId, expectedOwnerUserId));
 }
 
-function emptyLayerProfile(personaId: string, ownerUserId: string): PersonaLayerProfile {
-  const now = new Date().toISOString();
-  return {
-    personaId,
-    ownerUserId,
-    soul: {},
-    body: {},
-    faculty: {},
-    skill: {},
-    evolution: {},
-    createdAt: now,
-    updatedAt: now,
-  };
+function isPersonaLifecycleEvent(value: unknown, expectedPersonaId: string, expectedOwnerUserId: string) {
+  return isRecord(value)
+    && typeof value.id === "string"
+    && value.personaId === expectedPersonaId
+    && value.ownerUserId === expectedOwnerUserId
+    && [
+      "created",
+      "wake",
+      "handoff_in",
+      "handoff_out",
+      "forked",
+      "integrity_check",
+      "layer_update",
+      "memory_graph_update",
+    ].includes(String(value.eventType))
+    && (value.eventLabel === undefined || value.eventLabel === null || typeof value.eventLabel === "string")
+    && isRecord(value.eventData)
+    && isTimestamp(value.createdAt);
+}
+
+function isPersonaHandoff(
+  value: unknown,
+  expectedPersonaId: string,
+  expectedOwnerUserId: string,
+): value is PersonaHandoff {
+  return isRecord(value)
+    && typeof value.id === "string"
+    && value.ownerUserId === expectedOwnerUserId
+    && value.toPersonaId === expectedPersonaId
+    && typeof value.summary === "string"
+    && Array.isArray(value.pendingTasks)
+    && isRecord(value.emotionalContext)
+    && Array.isArray(value.continuityRefs)
+    && (value.status === "ready" || value.status === "consumed" || value.status === "archived")
+    && isTimestamp(value.createdAt);
+}
+
+function isMemoryGraph(value: unknown, expectedPersonaId: string): value is MemoryGraph {
+  if (!isRecord(value) || !Array.isArray(value.nodes) || !Array.isArray(value.edges)) return false;
+  return value.nodes.every((node) => isRecord(node)
+      && typeof node.id === "string"
+      && node.personaId === expectedPersonaId
+      && optionalNullableString(node.title)
+      && optionalNullableString(node.summary)
+      && ["chat", "import", "document", "calibration", "integrity_session", "manual"].includes(String(node.sourceType))
+      && (node.relevanceWeight === undefined
+        || (typeof node.relevanceWeight === "number" && Number.isFinite(node.relevanceWeight)))
+      && isTimestamp(node.createdAt))
+    && value.edges.every((edge) => isRecord(edge)
+      && typeof edge.id === "string"
+      && edge.personaId === expectedPersonaId
+      && typeof edge.fromMemoryItemId === "string"
+      && typeof edge.toMemoryItemId === "string"
+      && ["related_to", "supports", "contradicts", "supersedes", "extends", "references"].includes(String(edge.edgeType))
+      && typeof edge.confidence === "number"
+      && Number.isFinite(edge.confidence)
+      && edge.confidence >= 0
+      && edge.confidence <= 1
+      && optionalNullableString(edge.note)
+      && isTimestamp(edge.createdAt));
+}
+
+function isIntegrityHistory(
+  value: unknown,
+  expectedPersonaId: string,
+  expectedOwnerUserId: string,
+): value is IntegrityHistorySession[] {
+  return Array.isArray(value) && value.every((session) => isRecord(session)
+    && typeof session.id === "string"
+    && session.persona_id === expectedPersonaId
+    && session.owner_user_id === expectedOwnerUserId
+    && ["initial", "periodic", "migration", "pre_publication", "manual"].includes(String(session.session_type))
+    && ["in_progress", "completed", "abandoned"].includes(String(session.status))
+    && Array.isArray(session.clusters_covered)
+    && session.clusters_covered.every((cluster) => [
+      "identity",
+      "relationship",
+      "tone",
+      "continuity",
+      "boundaries",
+      "themes",
+    ].includes(String(cluster)))
+    && (session.integrity_session_outputs === undefined
+      || (Array.isArray(session.integrity_session_outputs)
+        && session.integrity_session_outputs.every((output) => isRecord(output)
+          && ["pending", "accepted", "rejected", "edited"].includes(String(output.status))))));
+}
+
+function isPersonaReadback(
+  value: unknown,
+  expectedPersonaId: string,
+  expectedOwnerUserId: string,
+): value is Persona {
+  return isRecord(value)
+    && value.id === expectedPersonaId
+    && value.ownerUserId === expectedOwnerUserId
+    && typeof value.name === "string"
+    && value.name.trim().length > 0
+    && (value.visibility === "private" || value.visibility === "public")
+    && ["platform", "openai", "anthropic", "deepseek", "gemini"].includes(String(value.provider))
+    && nullableString(value.shortDescription)
+    && nullableString(value.longDescription)
+    && nullableString(value.avatarUrl)
+    && typeof value.publicChatEnabled === "boolean"
+    && typeof value.publicAnonymousChatEnabled === "boolean";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function nullableString(value: unknown) {
+  return value === null || typeof value === "string";
+}
+
+function optionalNullableString(value: unknown) {
+  return value === undefined || nullableString(value);
+}
+
+function isTimestamp(value: unknown) {
+  return typeof value === "string" && Number.isFinite(Date.parse(value));
 }
 
 function acceptedCount(session: IntegrityHistorySession) {

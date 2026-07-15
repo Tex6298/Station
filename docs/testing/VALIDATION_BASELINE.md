@@ -4,6 +4,55 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Persona Profile Truth And Theme Accepted With ARGUS Patch
+
+ARGUS accepted the local implementation review on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_WITH_ARGUS_PATCH
+```
+
+ARGUS retained material defects from the submitted evidence: stale route/read
+pairing, incomplete primary/secondary validation, continuity erased by PATCH
+readback, fabricated ready-empty architecture/lifecycle after handoff partial
+success, cross-owner Integrity acceptance, invalid rendered timestamps,
+pending control movement, `2527px` adversarial overflow, and Dark control
+boundaries at about `2.12:1` to `2.38:1`. A narrow patch inside the accepted
+edit/component/CSS/focused-test paths corrected those failures without backend
+or product-scope expansion.
+
+Final validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/public-persona-route.test.ts apps/web/lib/studio-navigation.test.ts apps/web/lib/persona-lifecycle-ui.test.ts` | Pass, `41/41` |
+| `npx --yes pnpm@10.32.1 test:writing` | Pass, `35/35` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `264/264` |
+| `npx --yes pnpm@10.32.1 test:personas` | Pass, `18/18` |
+| `npx --yes pnpm@10.32.1 test:integrity` | Pass, `3/3` |
+| `npx --yes pnpm@10.32.1 test:persona-context` | Pass, `12/12` |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass, no warnings or errors |
+| `git diff --check` | Pass |
+
+Independent local Playwright proof intercepted every API request at the
+synthetic `127.0.0.1:4999` origin while Next ran at `127.0.0.1:3158`. It passed
+`9` primary/auth cases, `4` secondary-state groups, all four mutation forms,
+all six owner destinations, and System/Light/Dark at `1440x900`, `390x844`,
+and `375x812`. Text/control contrast, focus, hover, disabled and pending state,
+stable geometry, long-content wrapping, partial-success truth, bounded errors,
+and zero automatic retry passed. Horizontal overflow, clipped route
+containers, panel overlap, page errors, unclassified console errors, and
+unknown accepted-case API calls were zero.
+
+No hosted service or real product mutation was reachable. Synthetic captures
+were inspected and removed with the temporary harness, browser session, and
+local server. The exact-SHA zero-product-write ARIADNE hosted rehearsal remains
+required before closeout.
+
 ## PR527E Persona Profile Truth And Theme Implementation Submitted
 
 DAEDALUS submitted the implementation for ARGUS review on 2026-07-15:

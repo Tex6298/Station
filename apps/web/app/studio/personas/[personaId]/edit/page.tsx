@@ -11,7 +11,7 @@ import type { Persona } from "@station/types/persona";
 type LoadState =
   | { status: "loading" }
   | { status: "unavailable" }
-  | { status: "ready"; persona: Persona; accessToken: string };
+  | { status: "ready"; personaId: string; persona: Persona; accessToken: string };
 
 export default function PersonaEditPage() {
   const { personaId } = useParams<{ personaId: string }>();
@@ -23,6 +23,7 @@ export default function PersonaEditPage() {
       setState({ status: "unavailable" });
       return;
     }
+    setState({ status: "loading" });
 
     getSession()
       .then(async (session) => {
@@ -35,14 +36,15 @@ export default function PersonaEditPage() {
         }
 
         try {
-          const data = await apiGet<{ persona?: Persona }>(`/personas/${personaId}`, accessToken);
-          if (!data.persona?.ownerUserId || data.persona.ownerUserId !== userId) {
+          const data = await apiGet<{ persona?: unknown }>(`/personas/${personaId}`, accessToken);
+          if (!mounted) return;
+          if (!isOwnedPersonaForRoute(data.persona, personaId, userId)) {
             setState({ status: "unavailable" });
             return;
           }
-          setState({ status: "ready", persona: data.persona, accessToken });
+          setState({ status: "ready", personaId, persona: data.persona, accessToken });
         } catch {
-          setState({ status: "unavailable" });
+          if (mounted) setState({ status: "unavailable" });
         }
       })
       .catch(() => {
@@ -54,11 +56,11 @@ export default function PersonaEditPage() {
     };
   }, [personaId]);
 
-  if (state.status === "loading") {
+  if (state.status === "loading" || (state.status === "ready" && state.personaId !== personaId)) {
     return (
       <main className="persona-profile-page">
         <div className="persona-profile-shell">
-          <section className="persona-profile-unavailable" aria-busy="true">
+          <section className="persona-profile-unavailable" aria-busy="true" aria-live="polite" role="status">
             Loading Persona Profile...
           </section>
         </div>
@@ -70,7 +72,7 @@ export default function PersonaEditPage() {
     return (
       <main className="persona-profile-page">
         <div className="persona-profile-shell">
-          <section className="persona-profile-unavailable">
+          <section className="persona-profile-unavailable" role="alert">
             <h1>Persona Profile unavailable</h1>
             <p>Station could not load this owner-only profile. Return to Studio and try again.</p>
             <Link className="persona-profile-button persona-profile-button-secondary" href="/studio">
@@ -84,9 +86,56 @@ export default function PersonaEditPage() {
 
   return (
     <PersonaManagement
+      key={state.personaId}
       persona={state.persona}
-      personaId={personaId}
+      personaId={state.personaId}
       accessToken={state.accessToken}
     />
   );
+}
+
+function isOwnedPersonaForRoute(
+  value: unknown,
+  expectedPersonaId: string,
+  expectedOwnerUserId: string,
+): value is Persona {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Record<string, unknown>;
+  return candidate.id === expectedPersonaId
+    && candidate.ownerUserId === expectedOwnerUserId
+    && typeof candidate.name === "string"
+    && candidate.name.trim().length > 0
+    && (candidate.visibility === "private" || candidate.visibility === "public")
+    && ["platform", "openai", "anthropic", "deepseek", "gemini"].includes(String(candidate.provider))
+    && nullableString(candidate.shortDescription)
+    && nullableString(candidate.longDescription)
+    && nullableString(candidate.avatarUrl)
+    && typeof candidate.publicChatEnabled === "boolean"
+    && typeof candidate.publicAnonymousChatEnabled === "boolean"
+    && isContinuitySummary(candidate.continuity);
+}
+
+function isContinuitySummary(value: unknown) {
+  if (!isRecord(value)) return false;
+  return [
+    "memoryCount",
+    "canonCount",
+    "archiveFileCount",
+    "archivedChatCount",
+    "continuityCandidateCount",
+    "continuityRecordCount",
+    "integritySessionCount",
+  ].every((key) => isCount(value[key]));
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function nullableString(value: unknown) {
+  return value === null || typeof value === "string";
+}
+
+function isCount(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }

@@ -4,52 +4,46 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile implementation ready for ARGUS
+## Active lane - PR527E Persona Profile accepted locally; hosted rehearsal next
 
 ```text
-READY_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_FOR_ARGUS
+ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_WITH_ARGUS_PATCH
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
 Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
+ARGUS result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: ARGUS hostile-reviews the exact implementation, reruns validation/rendered proof as needed, patches only inside the accepted allow-list if required, then wakes MIMIR with verdict
+Next: MIMIR closes the local review and wakes ARIADNE for the locked exact-SHA zero-product-write hosted rehearsal
 ```
 
-DAEDALUS submitted the exact ARGUS-approved implementation for hostile review.
-The page retains exactly three live capability groups: avatar URL save/clear,
-eligible anonymous public chat alpha, and context handoff creation. Name, both
-descriptions, provider, visibility, public chat, public description,
-architecture, graph, archive, continuity, lifecycle, and Integrity history
-remain static facts, readback, or navigation. Failed secondary reads no longer
-masquerade as authoritative empty states, action notices stay local and
-bounded, and non-owner public serialization does not mount owner controls.
+ARGUS accepts the implementation with a narrow patch. Exact id/owner and
+continuity truth now gate owner controls; secondary architecture, graph,
+handoff, lifecycle, and Integrity readbacks fail closed on malformed or
+cross-owner bodies; PATCH readbacks preserve initial continuity; and a
+successful handoff followed by failed refresh retains only the returned item
+without fabricating empty architecture or lifecycle state.
 
-The opening statement that no persona-delete path exists is corrected. An
-owner-filtered `DELETE /personas/:id` API route exists, but Persona Profile has
-no delete command and PR527E must not add one. Route-context copy in
-`studio-navigation.ts` is inside the exact slice because it visibly promises
-identity and boundary shaping. All other Studio navigation and every backend,
-schema, auth, tier, billing, provider, public, package, and hosted-runtime
-domain remain frozen.
+The hostile rendered pass corrected incomplete DAEDALUS evidence. Pending
+avatar width initially shifted `156.78px -> 98.11px`; adversarial owner text
+created `2527px` desktop overflow; and Dark form/secondary boundaries measured
+about `2.12:1` to `2.38:1`. Stable command widths, complete readback wrapping,
+semantic disabled/hover states, and readable route-only boundaries now pass
+the locked `4.5:1` text and `3:1` control gates.
 
-Read-only hosted orientation reproduced the original defect across all nine
-viewport/theme cases on healthy shared API/web SHA `da105cf07`: Light title
-and support contrast measured about `1.06:1` and `1.96:1`, narrow desktop-grid
-minimums caused severe overlap at `390` and `375`, and no focus target met the
-explicit route focus criterion. No Persona Profile command or browser-side
-non-GET ran. This remains pre-implementation defect evidence, not acceptance
-proof.
+Independent synthetic browser proof passed `9` primary/auth cases, `4`
+secondary-state groups, all four mutation forms, all six destinations, and
+System/Light/Dark at desktop/`390`/`375`. Overflow, clipping, panel overlap,
+automatic mutation retry, unknown accepted-case API call, page error, and
+unclassified console error were zero. No hosted route was reachable; the
+temporary harness, screenshots, session, and local server were removed.
 
-Local implementation validation passed install, focused public-persona /
-navigation / lifecycle tests `41/41`, `test:writing` `35/35`, `test:studio-ui`
-`264/264`, `test:personas` `18/18`, `test:integrity` `3/3`,
-`test:persona-context` `12/12`, web/API typecheck, web lint, and
-`git diff --check`. Temporary local intercepted browser proof passed
-System/Light/Dark by desktop/`390`/`375`, owner-ready render, generic
-owner-mismatch unavailable state, zero overflow, and exactly the four allowed
-browser writes: avatar set, avatar clear, anonymous-chat toggle, and handoff
-create. The proof reached no hosted route and left no committed artifact.
+Final validation passes focused `41/41`, writing `35/35`, Studio `264/264`,
+personas `18/18`, Integrity `3/3`, persona context `12/12`, web/API typecheck,
+web lint, and `git diff --check`. The owner-filtered delete API still exists,
+but Persona Profile contains no delete command. Backend, schema, auth, tier,
+billing, provider, public, package, config, hosted runtime, and hosted product
+data remain frozen. Hosted acceptance is still open and read-only.
 
 PR527D2 is closed as
 `CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.
@@ -60,11 +54,6 @@ shape, lifecycle proof, trusted activity, hot score, and zero residue are
 accepted. Discover search remains presence-only, and linked discussions are
 deliberately represented by their document rather than duplicated as thread
 feed cards; eligible standalone feed count agreement was separately proved.
-
-The implementation is limited to the edit page, Persona Management component,
-two Profile navigation strings/tests, focused public-persona source tests, and
-route-scoped semantic CSS. All backend, deletion, public, package, config, and
-hosted product data remain frozen. ARGUS hostile review is mandatory next.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted

@@ -147,7 +147,7 @@ test("public avatar renderers escape CSS URL values and keep owner control bound
   assert.match(publicPersonaSource, /backgroundImage:\s*`url\(\$\{JSON\.stringify\(imageUrl\)\}\)`/);
   assert.match(publicSpaceSource, /backgroundImage:\s*`url\(\$\{JSON\.stringify\(src\)\}\)`/);
   assert.match(managementSource, /avatarUrl/);
-  assert.match(managementSource, /apiPatch<\{ persona: Persona \}>/);
+  assert.match(managementSource, /apiPatch<\{ persona\?: unknown \}>/);
   assert.doesNotMatch(rendered, /backgroundImage:\s*`url\(\$\{imageUrl\}\)`|backgroundImage:\s*`url\(\$\{src\}\)`/);
   assert.doesNotMatch(managementSource, /upload|signed upload|storage bucket|image generation|voice cloning|webrtc|microphone|camera capture|video/i);
 });
@@ -155,10 +155,16 @@ test("public avatar renderers escape CSS URL values and keep owner control bound
 test("Persona Profile edit route gates owner truth before mounting management", () => {
   const pageSource = readFileSync("apps/web/app/studio/personas/[personaId]/edit/page.tsx", "utf8");
 
-  assert.match(pageSource, /data\.persona\.ownerUserId !== userId/);
+  assert.match(pageSource, /isOwnedPersonaForRoute\(data\.persona, personaId, userId\)/);
+  assert.match(pageSource, /candidate\.id === expectedPersonaId/);
+  assert.match(pageSource, /candidate\.ownerUserId === expectedOwnerUserId/);
+  assert.match(pageSource, /typeof candidate\.publicChatEnabled === "boolean"/);
+  assert.match(pageSource, /isContinuitySummary\(candidate\.continuity\)/);
+  assert.match(pageSource, /if \(!mounted\) return;[\s\S]*setState\(\{ status: "ready", personaId, persona: data\.persona, accessToken \}\)/);
+  assert.match(pageSource, /state\.status === "ready" && state\.personaId !== personaId/);
   assert.match(pageSource, /Persona Profile unavailable/);
   assert.match(pageSource, /Station could not load this owner-only profile\. Return to Studio and try again\./);
-  assert.match(pageSource, /<PersonaManagement[\s\S]*accessToken=\{state\.accessToken\}/);
+  assert.match(pageSource, /<PersonaManagement[\s\S]*key=\{state\.personaId\}[\s\S]*personaId=\{state\.personaId\}[\s\S]*accessToken=\{state\.accessToken\}/);
   assert.doesNotMatch(pageSource, /ApiRequestError|error\.message|Persona not found|public serializer/i);
 });
 
@@ -181,6 +187,21 @@ test("Persona Profile management exposes only accepted live mutation bodies", ()
   assert.doesNotMatch(managementSource, /apiPatch<[\s\S]*>\(\s*`\/personas\/\$\{personaId\}\/architecture`/i);
   assert.doesNotMatch(managementSource, /Promise\.all\(|catch\(\(\) => \(\{ sessions: \[\] \}\)\)|catch\(\(\) => \(\{ graph: \{ nodes: \[\], edges: \[\] \} \}\)\)/);
   assert.doesNotMatch(managementSource, /err instanceof Error|Error\.message|console\./);
+  assert.match(managementSource, /isArchitectureResponse\(data, personaId, persona\.ownerUserId\)/);
+  assert.match(managementSource, /isMemoryGraph\(data\.graph, personaId\)/);
+  assert.match(managementSource, /isIntegrityHistory\(data\.sessions, personaId, persona\.ownerUserId\)/);
+  assert.match(managementSource, /session\.persona_id === expectedPersonaId/);
+  assert.match(managementSource, /session\.owner_user_id === expectedOwnerUserId/);
+  assert.match(managementSource, /isTimestamp\(value\.createdAt\)/);
+  assert.match(managementSource, /isPersonaReadback\(personaReadback, personaId, persona\.ownerUserId\)/);
+  assert.match(managementSource, /typeof value\.publicAnonymousChatEnabled === "boolean"/);
+  assert.match(managementSource, /setCurrentPersona\(\(current\) => \(\{ \.\.\.current, \.\.\.personaReadback \}\)\)/);
+  assert.match(managementSource, /if \(current\.status !== "ready"\) return current/);
+  assert.match(managementSource, /confirmedHandoffs/);
+  assert.doesNotMatch(managementSource, /setConfirmedHandoffs\(\[\]\)/);
+  assert.match(managementSource, /className="persona-profile-save-avatar"/);
+  assert.match(managementSource, /className="persona-profile-save-handoff"/);
+  assert.doesNotMatch(managementSource, /emptyLayerProfile|profile:\s*emptyLayerProfile/);
 });
 
 test("Persona Profile route CSS is scoped, token based, responsive, and focus visible", () => {
@@ -196,6 +217,14 @@ test("Persona Profile route CSS is scoped, token based, responsive, and focus vi
   assert.match(routeCss, /@media \(max-width: 820px\)/);
   assert.match(routeCss, /grid-template-columns: 1fr/);
   assert.match(routeCss, /@media \(hover: hover\) and \(pointer: fine\)/);
+  assert.match(routeCss, /button:disabled[\s\S]*border-color: var\(--station-page-muted\)[\s\S]*background: var\(--station-page-soft-2\)[\s\S]*color: var\(--station-page-muted\)/);
+  assert.match(routeCss, /persona-profile-field input,[\s\S]*border: 1px solid var\(--station-page-muted\)/);
+  assert.match(routeCss, /persona-profile-button-secondary,[\s\S]*border-color: var\(--station-page-muted\)/);
+  assert.match(routeCss, /button:not\(:disabled\):hover[\s\S]*background: var\(--station-page-text\)[\s\S]*color: var\(--station-page-on-strong\)/);
+  assert.match(routeCss, /persona-profile-button-secondary:hover[\s\S]*background: var\(--station-page-hover\)[\s\S]*color: var\(--station-page-text\)/);
+  assert.match(routeCss, /persona-profile-save-avatar[\s\S]*min-width: 10rem/);
+  assert.match(routeCss, /persona-profile-save-handoff[\s\S]*min-width: 12\.5rem/);
+  assert.match(routeCss, /persona-profile-list-row p,[\s\S]*persona-profile-relationships p,[\s\S]*overflow-wrap: anywhere/);
   assert.doesNotMatch(routeCss, /#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\(|clamp\(|vw|!important/);
 });
 

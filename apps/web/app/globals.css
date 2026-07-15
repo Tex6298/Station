@@ -8819,6 +8819,7 @@ a.studio-dashboard-row:hover {
   font-size: 2.5rem;
   line-height: 1.08;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .persona-profile-heading p,
@@ -8884,6 +8885,7 @@ a.studio-dashboard-row:hover {
   color: var(--station-page-muted);
   font-size: 0.82rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .persona-profile-section-title p,
@@ -8927,7 +8929,7 @@ a.studio-dashboard-row:hover {
 .persona-profile-field textarea {
   width: 100%;
   min-height: 42px;
-  border: 1px solid var(--station-page-border-strong);
+  border: 1px solid var(--station-page-muted);
   border-radius: 8px;
   background: var(--station-page-soft);
   color: var(--station-page-text);
@@ -8961,12 +8963,32 @@ a.studio-dashboard-row:hover {
 .persona-profile-button-secondary,
 .persona-profile-panel button.persona-profile-button-secondary,
 .persona-profile-link-row a {
-  border-color: var(--station-page-border-strong);
+  border-color: var(--station-page-muted);
   background: var(--station-page-soft);
   color: var(--station-page-text);
 }
 
-.persona-profile-panel button:disabled,
+.persona-profile-save-avatar {
+  min-width: 10rem;
+}
+
+.persona-profile-save-handoff {
+  min-width: 12.5rem;
+}
+
+.persona-profile-panel button:disabled {
+  border-color: var(--station-page-muted);
+  background: var(--station-page-soft-2);
+  color: var(--station-page-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.persona-profile-toggle:has(input:disabled) {
+  color: var(--station-page-muted);
+  cursor: not-allowed;
+}
+
 .persona-profile-toggle input:disabled {
   cursor: not-allowed;
   opacity: 0.65;
@@ -8984,9 +9006,18 @@ a.studio-dashboard-row:hover {
 
 @media (hover: hover) and (pointer: fine) {
   .persona-profile-button:hover,
-  .persona-profile-panel button:hover,
+  .persona-profile-panel button:not(:disabled):hover {
+    border-color: var(--station-page-text);
+    background: var(--station-page-text);
+    color: var(--station-page-on-strong);
+  }
+
+  .persona-profile-button-secondary:hover,
+  .persona-profile-panel button.persona-profile-button-secondary:not(:disabled):hover,
   .persona-profile-link-row a:hover {
+    border-color: var(--station-page-muted);
     background: var(--station-page-hover);
+    color: var(--station-page-text);
   }
 }
 
