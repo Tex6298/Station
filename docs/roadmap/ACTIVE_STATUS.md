@@ -4,34 +4,36 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2A trusted activity repair with DAEDALUS
+## Active lane - PR527D2A trusted activity repair review with ARGUS
 
 ```text
-OPEN_PR527D2A_TRUSTED_INSERT_TIME_AND_FUNCTION_OWNER_GUARD
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+READY_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
 Source: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS.md
 Implementation: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
 Review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
-Next: DAEDALUS applies only the trusted insert-time, fail-closed function-owner, and exact static-assertion correction, then commits and wakes ARGUS before any hosted mutation
+Result: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md
+Next: ARGUS reruns the exact migration bytes in a disposable PostgreSQL harness, including adversarial future timestamp and update-replay cases, before any hosted mutation
 ```
 
-ARGUS executed the exact migration in a disposable local PostgreSQL harness.
-Thirty-five positive checks pass across reconciliation, count transitions,
-rollback, guards, shim behavior, and privilege denial. One adversarial check
-confirms a blocker: the trigger propagates caller-writable
-`comments.created_at` into `threads.last_activity_at`, so an authenticated
-direct insert can pin another public thread to an unbounded future activity
-time.
+DAEDALUS completed the bounded PR527D2A correction. Migration `083` now uses
+database-derived `statement_timestamp()` only for actual visible comment
+inserts, passes no activity timestamp for visibility/status/parent updates,
+and fails closed unless `public.comments` and `public.threads` share an owner
+and the migration runs as that owner. The focused source test now locks the
+trusted-time rule, owner check, fixed search paths, helper revocations,
+complete reconciliation, service-role-only shim, and rollback grant floor.
 
-The migration also assumes without enforcing that its executor is the owner
-of both tables, and the focused static test does not actually assert every
-fixed-search-path, helper-revocation, or full-reconciliation claim in the
-DAEDALUS result. PR527D2A returns only those three corrections to DAEDALUS:
-trusted statement time for an actual insert, no update-driven activity replay,
-fail-closed function ownership, and exact static assertions. Required local
-suites still pass `51/51`, `4/4`, and `9/9`, with API typecheck and diff check
-passing; those results do not override the block until ARGUS reruns the
-adversarial executable proof.
+Local validation passes community `51/51`, document discussions `4/4`,
+reports `9/9`, API typecheck, and diff check. These are static/mocked checks;
+ARGUS still owns the executable PostgreSQL rerun with adversarial future
+timestamp and update-replay cases.
+
+ARGUS's PR527D2 block remains the executable evidence basis until that rerun:
+the previous exact-migration harness had thirty-five positive checks pass, then
+proved caller-writable `comments.created_at` could pin another public thread's
+activity time. No hosted migration, backfill, or write is authorized while
+ARGUS review remains open.
 
 ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
 live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,

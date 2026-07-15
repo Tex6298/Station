@@ -9,6 +9,8 @@ select pg_advisory_xact_lock(hashtextextended('station.pr527d2.visible_reply_cou
 do $$
 declare
   increment_oid oid;
+  comments_table_owner name;
+  threads_table_owner name;
 begin
   increment_oid := to_regprocedure('public.increment_thread_comment_count(uuid)');
   if increment_oid is null then
@@ -21,6 +23,26 @@ begin
 
   if to_regclass('public.comments') is null or to_regclass('public.threads') is null then
     raise exception 'PR527D2 expected public.comments and public.threads to exist before migration 083';
+  end if;
+
+  select pg_get_userbyid(c.relowner)
+  into comments_table_owner
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and c.relname = 'comments';
+
+  select pg_get_userbyid(c.relowner)
+  into threads_table_owner
+  from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and c.relname = 'threads';
+
+  if comments_table_owner is distinct from threads_table_owner then
+    raise exception 'PR527D2 expected public.comments and public.threads to share one owner before migration 083';
+  end if;
+
+  if current_user is distinct from comments_table_owner then
+    raise exception 'PR527D2 migration 083 must run as the public.comments/public.threads table owner';
   end if;
 
   if not exists (
@@ -144,6 +166,7 @@ declare
   new_visible boolean := false;
   old_thread_id uuid := null;
   new_thread_id uuid := null;
+  trusted_activity_at timestamptz := null;
 begin
   if tg_op <> 'INSERT' then
     old_visible := public.forum_comment_counts_as_visible_reply(old.parent_type, old.status, old.is_hidden);
@@ -156,6 +179,9 @@ begin
     new_visible := public.forum_comment_counts_as_visible_reply(new.parent_type, new.status, new.is_hidden);
     if new_visible then
       new_thread_id := new.parent_id;
+      if tg_op = 'INSERT' then
+        trusted_activity_at := statement_timestamp();
+      end if;
     end if;
   end if;
 
@@ -176,7 +202,7 @@ begin
   end if;
 
   if new_visible then
-    perform public.apply_thread_visible_reply_count_delta(new_thread_id, 1, new.created_at, false);
+    perform public.apply_thread_visible_reply_count_delta(new_thread_id, 1, trusted_activity_at, false);
   end if;
 
   return coalesce(new, old);

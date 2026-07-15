@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2A Trusted Activity Repair Submitted For ARGUS Review
+
+DAEDALUS completed the bounded correction on 2026-07-15:
+
+- `docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md`
+
+```text
+READY_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_FOR_ARGUS
+```
+
+Migration `083` now uses database-derived statement time only for actual
+visible comment inserts, sends no activity timestamp for update transitions,
+and fails closed unless the migration runs as the shared `public.comments` /
+`public.threads` table owner. The focused migration-source test now asserts
+trusted time, no `new.created_at` propagation, owner enforcement, fixed search
+paths, helper revocations, complete reconciliation, service-role-only shim, and
+rollback grant floor.
+
+DAEDALUS validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `git diff --check` | Pass |
+
+No disposable local PostgreSQL proof was run by DAEDALUS for this correction.
+ARGUS still owns executable PostgreSQL review with adversarial future-timestamp
+and update-replay cases. Hosted mutation count remains `0`; no migration,
+backfill, product write, RPC invocation, or ledger row is authorized.
+
 ## PR527D2A Trusted Activity Repair Opened
 
 MIMIR returned the same locked migration `083` lane to DAEDALUS on 2026-07-15:
