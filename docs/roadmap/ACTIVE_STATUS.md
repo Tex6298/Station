@@ -4,32 +4,37 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F Settings Persistence Truth preflight
+## Active lane - PR527F Settings Persistence Truth preflight accepted
 
 ```text
-OPEN_PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT
+ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_NOTIFICATION_PREFERENCE_GATING_FUTURE_THREAD_COMMENT_FANOUT
 Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS.md
+Result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARGUS maps current Settings, notification creation, schema, and hosted truth and returns one bounded implementation-ready verdict
+Next: MIMIR may open the exact bounded DAEDALUS implementation, with hosted mutation deferred until independent implementation review
 ```
 
-PR527E is closed as
-`CLOSE_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ACCEPTED`. ARIADNE's final
-PR527E2 rerun passed all `18` deployed placeholders with opacity `1` and a
-`5.35:1` minimum, stable focus/geometry, and zero overflow. The correct persona
-Archive route issued exactly one credentials GET at `200`, rendered safe
-missing/setup-disabled metadata, retained migration ledger `062/063` at `1/1`
-and credential/OAuth rows at `0/0`, and produced zero failed responses, errors,
-unknown calls, or product writes.
+ARGUS accepts one real Forum reply notification preference. It uses a dedicated
+owner-only `community_notification_preferences` table because `profiles` is
+publicly selectable and per-thread Watch rows are the wrong global ownership
+model. Missing preference rows mean enabled for existing/new users; PATCH
+upserts one owner row and returns authoritative state.
 
-PR527F now opens ranked correction six. Current Settings already marks Profile,
-Privacy, account deletion, and five notification rows unavailable, so ARGUS
-must inspect current rather than stale inventory wording. The preferred bounded
-candidate is one real owner Forum reply preference that defaults enabled,
-persists with refresh readback, and gates future `thread_comment` notification
-creation. A saved checkbox that does not affect delivery is explicitly
-unacceptable.
+Only `notifyThreadComment` may consult the preference, in one bulk recipient
+read before any insert. Explicit-false recipients are suppressed; a lookup
+failure suppresses all reply fanout while the valid comment remains successful.
+Report/review notifications, Watches, existing notifications, read state, and
+external delivery remain unchanged. The four unsupported Settings categories
+become plain unavailable facts instead of checked-disabled controls.
+
+Preflight validation passed AI Settings `12/12`, Community `51/51`, Reports
+`9/9`, API/web typecheck, and web lint. Hosted read-only catalog and six-case
+System/Light/Dark desktop/mobile orientation confirmed current schema absence,
+the public Profile boundary, zero Watches/notifications, stable geometry, and
+no product write. The accepted result locks migration `084`, API/state/copy,
+file allow-list, local tests, and a later disposable hosted lifecycle.
+
+## Previous PR527E hosted rehearsal blocker history
 
 ARIADNE passed signed-out protection, exact owner/static/live truth, independent
 secondary readbacks, absence of delete/broader edit, all six keyboard routes,

@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F Settings Persistence Truth Preflight Accepted
+
+ARGUS completed the read-only boundary preflight on 2026-07-15:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_NOTIFICATION_PREFERENCE_GATING_FUTURE_THREAD_COMMENT_FANOUT
+```
+
+The accepted implementation adds one owner-only Forum reply notification
+preference in a dedicated RLS table. Missing rows mean enabled. Exact
+authenticated GET/PATCH readback must persist through refresh, and only future
+`thread_comment` recipients with explicit false are suppressed. Watches,
+existing notifications, read state, report/review notifications, and external
+delivery remain unchanged. The four unsupported Settings categories become
+plain unavailable facts rather than checked-disabled claims.
+
+Preflight validation:
+
+| Command / proof | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `12/12` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass, zero warnings/errors |
+| Hosted database read-only catalog/aggregate probe | Pass; `084` and preference schema absent, Profile public-read boundary confirmed, zero Watches/notifications |
+| Hosted Settings System/Light/Dark at desktop and `390px` | Pass for orientation; `6/6` load, no overflow/overlap, current five controls remain checked-disabled |
+
+No hosted migration, preference, notification, Watch, comment, report, review,
+profile, or Settings product write occurred. Hosted implementation proof remains
+deferred until DAEDALUS implements the exact allow-list and ARGUS accepts it.
+
 ## PR527E Closed; PR527F Settings Preflight Opened
 
 MIMIR closed PR527E on 2026-07-15:
