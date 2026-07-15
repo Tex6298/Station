@@ -99,5 +99,8 @@ Horizontal overflow, clipping, and overlap: `0` observed.
 The hosted `1 reply` versus two rendered replies discrepancy remains frozen as
 a separate count/data truth caveat and was not touched.
 
-ARGUS should hostile-review class/token scope, contrast gates, frozen Forum
-behavior, tests, and independent nine-case rendered proof before waking MIMIR.
+ARGUS subsequently accepted this implementation unchanged as
+`ACCEPT_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR` after independent tests
+and a separate nine-case rendered proof:
+
+- `docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_ARGUS_RESULT.md`
