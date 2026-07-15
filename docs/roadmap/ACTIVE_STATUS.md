@@ -4,14 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C2 disposable auth-create repair with DAEDALUS
+## Active lane - PR527C2 Forum Watch fixture auth unblock review
 
 ```text
-OPEN_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_AND_HOSTED_BOUNDARY_PROOF
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS
-Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS_RESULT.md
-Next: DAEDALUS implements the exact UTF-8 72-byte signup guard, deploys it, completes the disposable Station-signup plus original 403/404 proof, cleans all residue, and wakes ARGUS
+PROVE_PR527C2_SIGNUP_GUARD_AND_PR527C1_BOUNDARIES_COMPLETE
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_DAEDALUS_RESULT.md
+Next: ARGUS hostile review; wake MIMIR with the PR527C close verdict or DAEDALUS with WAKEUP A2 if fixes are needed
 ```
+
+DAEDALUS implemented the accepted UTF-8 signup password byte guard and proved it
+locally and hosted. `test:auth` now passes `24/24`, including `72` ASCII bytes
+reaching the fake create boundary and `73` ASCII plus multibyte-over-`72` byte
+inputs being rejected before create. `test:community` remains `49/49`, and API
+typecheck passes.
+
+Hosted API and web were ready on exact implementation SHA `0a1d3df5`. The
+hosted proof showed oversized Station signup returns bounded validation `400`
+with zero tagged residue; valid Station signup returns `201` for exactly one
+disposable Visitor; `/auth/me` and profile truth are Visitor/non-admin; watch
+PUT/DELETE on a readable thread return `403`; watch GET/PUT/DELETE on a
+synthetic removed thread return `404`; the removed thread does not appear in
+Forum list, Discover search, or Discover feed; and cleanup restores all
+auth/profile/thread/storage/token/watch/notification/comment baselines with
+zero tagged residue.
 
 ARGUS independently correlated the two DAEDALUS admin-create `500`s with exact
 Auth events: both requests panicked because the generated password exceeded

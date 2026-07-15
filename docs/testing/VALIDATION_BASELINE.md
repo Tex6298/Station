@@ -4,22 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527C2 Implementation And Hosted Boundary Proof Opened
+## PR527C2 Implementation And Hosted Boundary Proof Complete For Review
 
-DAEDALUS now owns the accepted ARGUS lane:
+DAEDALUS completed the accepted ARGUS lane:
 
 ```text
-OPEN_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_AND_HOSTED_BOUNDARY_PROOF
+PROVE_PR527C2_SIGNUP_GUARD_AND_PR527C1_BOUNDARIES_COMPLETE
 ```
 
-The code allow-list is only `apps/api/src/schemas/auth.schema.ts` and focused
-`apps/api/src/routes/auth.test.ts` coverage. After local validation and exact
-API deployment, DAEDALUS must prove oversized Station signup rejects before
-Auth create, bounded signup creates one disposable Visitor, Watch PUT/DELETE
-return `403`, replay-owner Watch GET/PUT/DELETE return `404` for one removed
-synthetic thread, and `finally` cleanup restores all global baselines with
-zero tagged auth/profile/storage/token/session/thread/watch/notification
-residue. ARGUS review is mandatory before PR527C can close.
+- `docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_DAEDALUS_RESULT.md`
+
+Local validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `49/49` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+
+Hosted proof at exact API SHA `0a1d3df5` passed:
+
+- oversized Station signup returned bounded validation `400` and left tagged
+  residue at zero;
+- valid bounded Station signup returned `201`;
+- `/auth/me` and authoritative profile readback both proved Visitor and
+  non-admin;
+- readable-thread Watch PUT and DELETE returned `403` with watch/notification
+  counts unchanged;
+- synthetic removed-thread Watch GET, PUT, and DELETE returned `404` with
+  bounded `Thread not found`;
+- the removed thread was absent from Forum list, Discover search, and Discover
+  feed;
+- cleanup left tagged auth users, profiles, threads, watches, notifications,
+  storage usage, and token usage all `0`;
+- watch, notification, thread, profile, storage usage, token usage, and comment
+  baselines were restored.
+
+ARGUS review is mandatory before PR527C can close.
 
 ## PR527C2 Disposable Auth-Create Repair Accepted
 
