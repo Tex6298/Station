@@ -4,6 +4,23 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2C Hosted Human Reply-Count Readback Opened
+
+MIMIR opened the final zero-write human rehearsal on 2026-07-15:
+
+- `docs/roadmap/PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK_ARIADNE.md`
+
+```text
+OPEN_PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK
+```
+
+ARIADNE must follow the real public route at desktop and mobile and visibly
+confirm the existing linked document, Forum thread, category card, and
+Discover feed report `2` replies while exactly two reply cards render. Refresh
+must preserve the result. Discover search proves presence only because its
+current response has no reply-count field. Hosted product writes, source
+changes, lifecycle replay, and API-contract widening are forbidden.
+
 ## PR527D2B Hosted Migration 083 Proof Accepted By ARGUS
 
 ARGUS accepted the hosted migration and durable proof on 2026-07-15:

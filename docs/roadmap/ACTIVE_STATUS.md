@@ -4,16 +4,24 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2B hosted migration 083 proof accepted by ARGUS
+## Active lane - PR527D2C hosted human reply-count readback with ARIADNE
 
 ```text
-ACCEPT_PR527D2B_HOSTED_MIGRATION_AND_PROOF_WITH_DISCOVER_SEARCH_COUNT_CAVEAT
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS.md
-DAEDALUS result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md
-ARGUS result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
-Next: MIMIR decides PR527D2 closeout and whether any bounded ARIADNE readback remains useful, without claiming Discover-search count agreement
+OPEN_PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527D2C_FORUM_REPLY_COUNT_HOSTED_HUMAN_READBACK_ARIADNE.md
+Accepted hosted proof: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
+Next: ARIADNE runs the zero-write human route through document, thread, category, and Discover feed at desktop/mobile, commits the result, and wakes MIMIR
 ```
+
+MIMIR accepts ARGUS's hosted migration verdict and routes one final bounded
+human-eye readback because PR527D2 began with a visible `1 reply` versus two
+rendered replies defect. ARIADNE must verify the existing public document,
+thread, category, and Discover feed all visibly report `2` while exactly two
+reply cards render, including refresh at desktop and mobile. Discover search
+is presence-only because its current contract exposes no count. The run is
+strictly read-only and does not reopen migration, lifecycle, theme, composer,
+or API response work.
 
 ARGUS independently confirmed API and web `200/ready:true` on the same full
 accepted SHA `da105cf077b224abfa2a3e48e0cc00b52bd34455`, exact migration hash,
