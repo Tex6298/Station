@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2B Hosted Migration 083 Proof Submitted For ARGUS Review
+
+DAEDALUS completed the audited hosted apply/proof on 2026-07-15:
+
+- `docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md`
+
+```text
+READY_PR527D2B_EXACT_MIGRATION_083_HOSTED_PROOF_FOR_ARGUS
+```
+
+Hosted operation summary:
+
+| Check | Result |
+| --- | --- |
+| Railway API/web health | Pass, `200` |
+| API deployment identity | `main`, SHA prefix `da105cf0` |
+| Locked source drift from accepted review | `0` files |
+| Migration SHA-256 | matched authorized hash |
+| Preflight ledger `083` count | `0` |
+| Preflight aggregate | `12` threads, `2` mismatches |
+| Migration transaction | Pass |
+| Ledger row after schema postcheck | exactly `1` |
+| Post-apply aggregate | `12/12` matching, `0` counter mismatches, `0` hot-score mismatches |
+| Function/trigger/constraint/privilege shape | Pass |
+| Compatibility shim | service-role-only and no-write |
+| Disposable lifecycle | Pass |
+| Trusted activity adversary | Pass in rollback-only proof |
+| Cleanup | zero tagged residue |
+| Temporary tooling | removed from system temp directory |
+
+Cross-surface count proof passes through Forum thread detail, Forum category,
+and Discover rising. Discover search found the disposable fixture but does not
+expose a reply-count field, so that endpoint proves eligibility only; ARGUS
+must review the caveat.
+
+Committed validation for this lane is documentation/evidence only because no
+source files changed. `git diff --check` passed before commit.
+
 ## PR527D2B Hosted Migration 083 Proof Opened
 
 MIMIR opened the exact hosted apply/proof gate on 2026-07-15:

@@ -4,23 +4,44 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2B hosted migration 083 proof with DAEDALUS
+## Active lane - PR527D2B hosted migration 083 proof review with ARGUS
 
 ```text
-OPEN_PR527D2B_EXACT_MIGRATION_083_HOSTED_APPLY_AND_PROOF
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+READY_PR527D2B_EXACT_MIGRATION_083_HOSTED_PROOF_FOR_ARGUS
+Owner chain: MIMIR -> DAEDALUS -> ARGUS
 Source: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS.md
 Accepted review: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md
-Next: DAEDALUS applies the exact accepted migration in the audited hosted gate, proves reconciliation/security/lifecycle/readback/cleanup, commits the result, and wakes ARGUS
+Result: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md
+Next: ARGUS independently reviews the hosted catalog/aggregate state, ledger truth, cleanup, evidence caveats, and frozen scope before waking MIMIR
 ```
 
-MIMIR authorized the separately audited hosted operation after confirming
-Railway web/API ready on the accepted review lineage and a clean repository.
-DAEDALUS must hash and apply exact migration `083`, record one honest hosted
-ledger row only after successful application, prove all-thread reconciliation,
-security and privilege shape, a bounded disposable lifecycle, trusted activity
-time, cross-surface count agreement, and zero-residue cleanup. Product code,
-configuration, existing content edits, and PR527E remain frozen.
+DAEDALUS completed the audited hosted operation. Railway API/web health passed,
+API readiness reported `main` at deployed SHA prefix `da105cf0`, locked source
+drift was `0`, and migration `083` matched authorized SHA-256
+`DA4BBF4021723768F9DCEC41E0AD91C6FA4D909BAE17012B72FDF0462907C44B`.
+
+Read-only preflight found ledger `083` absent, new trigger/helper/constraint
+objects absent, legacy blind increment present, shared table-owner context
+valid, and the known aggregate shape still present: `12` threads, `10`
+matching, `2` mismatched, one undercount delta `1`, and one overcount delta
+`1`.
+
+The exact migration bytes applied successfully. One honest hosted ledger row
+named `083_forum_visible_reply_count_integrity` was inserted after schema
+postcheck. Durable post-state has both triggers, helper/shim functions,
+validated nonnegative constraint, service-role-only no-write shim, helper
+execute revoked from `PUBLIC`/`anon`/`authenticated`, `12/12` matching threads,
+`0` counter mismatches, `0` hot-score mismatches, and `6` canonical visible
+replies.
+
+The disposable hosted lifecycle passed route-created reply, direct reply,
+hide/unhide/repeated transitions, remove/restore, owner soft delete, hard
+delete, repeated shim no-op, failed rollback, trusted-activity adversary, and
+zero tagged residue across auth users/sessions/refresh tokens, profiles,
+threads, comments, notifications, and reports. Cross-surface proof passes Forum
+detail/category and Discover rising count agreement. Discover search found the
+fixture but does not expose a reply-count field; ARGUS should review that
+evidence caveat.
 
 ARGUS accepted the bounded local correction after the exact migration passed
 `30/30` disposable PostgreSQL checks. An unbounded caller row timestamp now
