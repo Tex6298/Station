@@ -4,6 +4,26 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Forum Watch Hosted Rehearsal Opened
+
+MIMIR confirmed both Railway deployment endpoints `ready:true` on exact
+accepted ARGUS review SHA:
+
+```text
+f50a15fe15c08f960f7980f692bf68a2a6557780
+```
+
+ARIADNE now owns:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_REHEARSAL_ARIADNE.md`
+
+The hosted gate captures the exact initial watch state, proves auth and
+readability boundaries, performs Watch/GET/refresh/duplicate Watch/Unwatch/
+refresh/repeated Unwatch, restores the exact baseline, and verifies sanitized
+watch plus notification counts. Only the reversible current-owner watch row
+may change. Human-eye review covers `1440x900`, `390x844`, and `375x812`, while
+PR527D's known dark Forum presentation defect remains explicitly open.
+
 ## PR527C Forum Watch Hosted-Readiness Repair Accepted Locally
 
 ARGUS accepted the repair with one narrow review patch on 2026-07-15:

@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C Forum Watch hosted rehearsal placement
+## Active lane - PR527C Forum Watch hosted rehearsal
 
 ```text
-ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_ARGUS_RESULT.md
-Next: MIMIR opens ARIADNE's exact-SHA reversible hosted Watch/Unwatch/restoration rehearsal
+REHEARSE_PR527C_FORUM_WATCH_ON_HOSTED
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
+Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_REHEARSAL_ARIADNE.md
+Next: ARIADNE proves exact-SHA reversible Watch/refresh/Unwatch/restoration
 ```
 
 ARGUS accepts PR527C as
@@ -26,8 +26,11 @@ thread behind generic loading; eligible owners now see
 `Loading watch state...` with no command or state claim. Final validation passes focused
 `4/4`, community `49/49`, Studio `263/263`, typecheck/lint, and `12/12`
 independent intercepted browser groups across desktop, `390`, and `375`.
-ARIADNE must still rehearse reversible mutation and exact initial-state
-restoration after the accepted review SHA deploys. PR527D remains separate.
+Railway web and API now report ready on exact accepted review SHA `f50a15fe`.
+ARIADNE owns the reversible Watch/refresh/duplicate/Unwatch/repeat lifecycle,
+exact initial-state restoration, auth/readability boundaries, three-viewport
+human-eye review, and unrelated-domain zero-change proof. PR527D remains
+separate.
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
 public discovery and `J13` export pass; four journeys fail product truth, six

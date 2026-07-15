@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527C | Forum Watch Hosted Readiness Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | `ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH`; exact hosted migration post-state, owner-safe API, fail-closed UI, full local validation, and 12-group intercepted proof pass after ARGUS exposed the initial watch-specific loading state. ARIADNE still owes exact-SHA reversible mutation/restoration; PR527D stays separate. | `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_ARGUS_RESULT.md` |
+| PR527C | Forum Watch Hosted Rehearsal | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE | `REHEARSE_PR527C_FORUM_WATCH_ON_HOSTED`; web/API are ready at exact accepted SHA `f50a15fe`, and ARIADNE owns reversible Watch/refresh/duplicate/Unwatch/repeat/restoration plus three-viewport human-eye proof. PR527D stays separate. | `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_REHEARSAL_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
