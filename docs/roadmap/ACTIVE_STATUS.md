@@ -4,30 +4,32 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2 migration 083 implementation with DAEDALUS
+## Active lane - PR527D2 migration 083 review with ARGUS
 
 ```text
-OPEN_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_IMPLEMENTATION
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+READY_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
 Source: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS.md
 Preflight: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS_RESULT.md
-Next: DAEDALUS implements migration 083 and the compatibility/test boundary locally, then commits a result and wakes ARGUS before any hosted mutation
+Result: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
+Next: ARGUS reviews transactional SQL, trigger/guard privileges, compatibility window, reconciliation, tests, rollback packet, and frozen scope before any hosted migration or write
 ```
 
-ARGUS completed the read-only hosted/source preflight. The sole live mismatch
-has stored counter `1`, total/active/viewer-visible rows `2/2/2`, and
-hidden/removed/flagged rows `0/0/0`. The other five anonymous-readable and all
-other live threads match. One inaccessible removed standalone thread is also
-historically overcounted, so live-only repair is insufficient.
-
-The accepted contract counts active, non-hidden thread comments. DAEDALUS now
-owns the locked local migration `083`: transactional database-trigger
-maintenance and all-thread reconciliation, count-derived hot-score repair,
+DAEDALUS completed the locked local migration `083` packet. It implements
+transactional database-trigger maintenance for active, non-hidden thread reply
+counts, all-thread reconciliation, count-derived hot-score repair,
 direct-counter protection, a nonnegative invariant, and replacement of the
 anonymous/authenticated-executable blind increment with a service-role-only
 no-write compatibility shim. The existing API compatibility call remains for
-the schema-deployment bridge. No hosted migration, backfill, or write is
-authorized before ARGUS review.
+the schema-deployment bridge. Focused community, document-discussion, report,
+API typecheck, and diff-check validation pass locally.
+
+ARGUS's read-only hosted/source preflight remains the evidence basis: the sole
+live mismatch has stored counter `1`, total/active/viewer-visible rows `2/2/2`,
+and hidden/removed/flagged rows `0/0/0`. The other five anonymous-readable and
+all other live threads match. One inaccessible removed standalone thread is
+also historically overcounted, so live-only repair is insufficient. No hosted
+migration, backfill, or write is authorized before ARGUS review.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted

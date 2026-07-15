@@ -769,6 +769,8 @@ test("owner document deletion tombstones only its linked discussion artifact", a
       },
     });
     assert.equal(comment.status, 201);
+    const linkedThreadAfterComment = db.rows("threads").find((row) => row.id === linkedThreadId);
+    assert.equal(linkedThreadAfterComment.comment_count, 1);
 
     const category = db.rows("forum_categories").find((row) => row.slug === "documents-and-codexes");
     assert.ok(category);

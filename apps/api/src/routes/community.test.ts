@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -60,6 +61,35 @@ const PRIVATE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab04";
 const COMMUNITY_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab05";
 const UNLISTED_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab06";
 const UNSAFE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab07";
+const MIGRATION_083_PATH = "infra/supabase/migrations/083_forum_visible_reply_count_integrity.sql";
+
+test("migration 083 owns visible thread reply counts transactionally", () => {
+  const sql = readFileSync(MIGRATION_083_PATH, "utf8");
+
+  assert.match(sql, /\bbegin;\s*select pg_advisory_xact_lock\(hashtextextended\('station\.pr527d2\.visible_reply_count\.083'/i);
+  assert.match(sql, /to_regprocedure\('public\.increment_thread_comment_count\(uuid\)'\)/);
+  assert.match(sql, /pg_get_functiondef\(increment_oid\) not ilike '%comment_count = comment_count \+ 1%'/);
+  assert.match(sql, /tgname = 'trg_comments_updated_at'/);
+  assert.match(sql, /tgname = 'trg_comments_visible_reply_count'/);
+  assert.match(sql, /create trigger trg_comments_visible_reply_count\s+after insert or delete or update of parent_type, parent_id, status, is_hidden\s+on public\.comments/i);
+  assert.match(sql, /comment_parent_type = 'thread'[\s\S]*comment_status = 'active'[\s\S]*comment_is_hidden = false/);
+  assert.match(sql, /where id in \(old_thread_id, new_thread_id\)[\s\S]*order by id[\s\S]*for update;/);
+  assert.match(sql, /perform public\.apply_thread_visible_reply_count_delta\(old_thread_id, -1, null, true\);/);
+  assert.match(sql, /perform public\.apply_thread_visible_reply_count_delta\(new_thread_id, 1, new\.created_at, false\);/);
+  assert.match(sql, /hot_score = score \+ \(next_count \* 0\.35\)/);
+  assert.match(sql, /reply_delta > 0[\s\S]*activity_at > last_activity_at/);
+  assert.match(sql, /prevent_direct_thread_comment_count_write/);
+  assert.match(sql, /tg_op = 'INSERT' and coalesce\(new\.comment_count, 0\) <> 0/);
+  assert.match(sql, /tg_op = 'UPDATE' and new\.comment_count is distinct from old\.comment_count/);
+  assert.match(sql, /check \(comment_count >= 0\) not valid/);
+  assert.match(sql, /validate constraint threads_comment_count_nonnegative_check/);
+  assert.match(sql, /create or replace function public\.increment_thread_comment_count\(thread_id uuid\)[\s\S]*return;/);
+  assert.match(sql, /revoke all on function public\.increment_thread_comment_count\(uuid\) from public, anon, authenticated/);
+  assert.match(sql, /grant execute on function public\.increment_thread_comment_count\(uuid\) to service_role/);
+  assert.match(sql, /notify pgrst, 'reload schema';[\s\S]*commit;/);
+  assert.doesNotMatch(sql, /\bgreatest\s*\(/i);
+  assert.doesNotMatch(sql, /insert\s+into\s+.*schema_migrations/i);
+});
 
 class CommunitySupabase {
   rpcWithoutCatch = false;

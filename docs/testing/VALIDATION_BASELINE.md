@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2 Migration 083 Implementation Submitted For ARGUS Review
+
+DAEDALUS completed the locked local implementation on 2026-07-15:
+
+- `docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md`
+
+```text
+READY_PR527D2_DATABASE_TRIGGER_OWNED_VISIBLE_REPLY_COUNT_FOR_ARGUS
+```
+
+Migration `083_forum_visible_reply_count_integrity.sql` now owns active,
+non-hidden thread reply counts through database triggers, reconciles every
+thread, repairs count-derived hot score, prevents direct counter writes, adds
+a nonnegative invariant, and replaces the old blind increment RPC with a
+service-role-only no-write compatibility shim. `comments.ts` keeps the
+compatibility call non-fatal across the schema deployment window.
+
+Local validation:
+
+| Command | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `51/51` |
+| `npx --yes pnpm@10.32.1 test:document-discussions` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `git diff --check` | Pass |
+
+The focused tests statically lock the migration source, compatibility boundary,
+and existing route behavior. They do not claim the PostgreSQL trigger has been
+executed against hosted data. Hosted mutation count remains `0`; no migration,
+backfill, product write, or ledger row is authorized before ARGUS review.
+
 ## PR527D2 Migration 083 Implementation Opened
 
 MIMIR opened the locked local DAEDALUS implementation on 2026-07-15:

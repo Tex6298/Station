@@ -254,12 +254,15 @@ commentsRouter.post(
     if (error) return res.status(500).json(COMMENT_ERROR_RESPONSES.create);
     await bumpCommunityActivity(userId, "comment").catch(() => undefined);
 
-    // Bump comment_count on thread
+    // Compatibility bridge: pre-083 this RPC increments the denormalized count;
+    // post-083 the database trigger owns truth and this service-role shim is a no-op.
     if (parentType === "thread") {
       try {
-        await sb.rpc("increment_thread_comment_count", { thread_id: parentId });
+        const { error: countBridgeError } = await sb.rpc("increment_thread_comment_count", { thread_id: parentId });
+        void countBridgeError;
       } catch {
-        // Non-fatal - comment_count is denormalised, can sync later
+        // Non-fatal during the schema/code compatibility window; migration 083
+        // makes count maintenance transactional with the comment write.
       }
       await notifyThreadComment({
         threadId: parentId,
