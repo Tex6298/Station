@@ -54,7 +54,6 @@ export const studioWorkspaceLinks = [
   { label: "Onboarding Paths", href: "/studio/onboarding", mark: "O", detail: "Start, migrate, bridge" },
   { label: "Station Assistant", href: "/studio/assistant", mark: "?", detail: "Archive and publishing help" },
   { label: "Global Archive", href: "/studio/archive", mark: "A", detail: "Owner-only archive search" },
-  { label: "Notes and Scratchpad", href: "/studio/notes", mark: "N", detail: "Private working notes" },
   { label: "Export Workspace", href: "/studio/export", mark: "E", detail: "Portable bundle planning" },
   { label: "Settings", href: "/settings", mark: "S" },
 ] as const;
@@ -195,12 +194,12 @@ const studioStaticRouteContexts: StudioRouteContext[] = [
     nextAction: { label: "Open Personas", href: "/studio" },
   },
   {
-    label: "Notes and Scratchpad",
+    label: "Notes unavailable",
     href: "/studio/notes",
-    detail: "Private working notes",
-    privacy: "Owner-only notes",
-    state: "Notes stay in the private scratchpad until copied elsewhere.",
-    nextAction: { label: "Back to Studio", href: "/studio" },
+    detail: "No durable Notes storage on this route",
+    privacy: "Owner-only Studio",
+    state: "The former scratchpad kept text only in the open page. Global Archive remains separate.",
+    nextAction: { label: "Open Global Archive", href: "/studio/archive" },
   },
 ];
 

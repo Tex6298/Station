@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527A | Notes Truth Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS | `IMPLEMENT_PR527A_NOTES_TRUTH_REPAIR`; DAEDALUS owns the exact route-only allow-list, truthful former-page-memory disclosure, Archive non-equivalence rule, focused/full validation, and ARGUS wake. | `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md` |
+| PR527A | Notes Truth Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS | `REVIEW_PR527A_NOTES_TRUTH_REPAIR`; DAEDALUS implemented the exact route-only unavailable state, Studio inventory removal, deep-link context truth, focused/full validation, and ARGUS wake. ARGUS owns hostile review before hosted proof. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_DAEDALUS_RESULT.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

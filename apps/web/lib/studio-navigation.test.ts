@@ -65,6 +65,8 @@ test("Studio navigation helpers expose private persona links and labels", () => 
   assert.equal(studioPersonaMeta(persona), "private - private Studio");
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/onboarding"), true);
   assert.equal(studioWorkspaceLinks.some((link) => link.href === "/studio/archive"), true);
+  const workspaceHrefs: string[] = studioWorkspaceLinks.map((link) => link.href);
+  assert.equal(workspaceHrefs.includes("/studio/notes"), false);
 });
 
 test("Studio persona workspace exposes Continuity as its own stop", () => {
@@ -159,6 +161,14 @@ test("Studio route context names static Studio stops for mobile summaries", () =
   assert.equal(studioRouteContext("/studio/assistant").nextAction.href, "/studio/archive");
   assert.equal(studioRouteContext("/studio").detail, "Private workbench overview");
   assert.equal(studioRouteContext("/studio").nextAction.href, "/studio/new");
+  assert.deepEqual(studioRouteContext("/studio/notes"), {
+    label: "Notes unavailable",
+    detail: "No durable Notes storage on this route",
+    privacy: "Owner-only Studio",
+    state: "The former scratchpad kept text only in the open page. Global Archive remains separate.",
+    href: "/studio/notes",
+    nextAction: { label: "Open Global Archive", href: "/studio/archive" },
+  });
 });
 
 test("Studio route context names persona workspace stops without exposing raw ids", () => {

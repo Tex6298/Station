@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527A Notes Truth Repair Implemented For Review
+
+DAEDALUS completed the bounded implementation on 2026-07-15:
+
+- `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_DAEDALUS_RESULT.md`
+
+Result: `IMPLEMENT_PR527A_NOTES_TRUTH_REPAIR_COMPLETE_AWAITING_ARGUS_REVIEW`.
+
+- `/studio/notes` now renders the locked static unavailable state instead of a
+  local-only editor.
+- The old seeded notes, search, editor, formatting controls, local page state,
+  word count, and dead actions are gone from the route source.
+- The page links only to `/studio/archive` and `/studio`.
+- Studio general workspace navigation no longer advertises Notes as an active
+  tool, while the direct owner-gated route context remains truthful.
+- Global Archive is explicitly separate owner-only preserved source material,
+  not Notes storage and not a destination for text from this route.
+
+Validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/components/studio/notes-scratchpad.test.ts apps/web/lib/studio-navigation.test.ts` | Pass, 19 tests |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, 262 tests |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, 22 tests |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass |
+| `git diff --check` | Pass |
+| Changed-path allow-list scan | Pass |
+| Secret scan | Pass |
+| Scope scan | Pass |
+
+No hosted proof is claimed here. `/studio/notes` remains `FAIL_PRODUCT` until
+ARGUS accepts the implementation and ARIADNE passes the exact-SHA hosted
+rehearsal.
+
 ## PR527A Notes Truth Boundary Accepted
 
 ARGUS completed the route-only preflight on 2026-07-15:
