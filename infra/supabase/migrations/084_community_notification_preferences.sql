@@ -15,7 +15,7 @@ begin
   if to_regclass('public.community_notification_preferences') is not null then
     raise exception 'PR527F expected public.community_notification_preferences to be absent before migration 084';
   end if;
-end
+end;
 $$;
 
 create table public.community_notification_preferences (

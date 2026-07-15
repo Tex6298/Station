@@ -207,11 +207,11 @@ export function NotificationPreferencesPanel() {
             aria-label="Forum reply notifications"
             checked={checked}
             disabled={disabled}
-            onMouseDown={(event) => {
-              if (!disabled) event.preventDefault();
-            }}
             onKeyDown={(event) => {
-              if (!disabled && (event.key === " " || event.key === "Enter")) event.preventDefault();
+              if (!disabled && !event.repeat && (event.key === " " || event.key === "Enter")) {
+                event.preventDefault();
+                void toggleForumReplies(!checked);
+              }
             }}
             onClick={(event) => {
               event.preventDefault();

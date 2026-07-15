@@ -347,6 +347,42 @@ test("notification preferences require auth, default missing rows to enabled, an
     assert.deepEqual(otherInitial.body, {
       settings: { forumReplyNotificationsEnabled: true },
     });
+
+    const otherUpdated = await requestJson(app, "PATCH", "/settings/notifications", {
+      token: "other-token",
+      body: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(otherUpdated.status, 200);
+    assert.deepEqual(otherUpdated.body, {
+      settings: { forumReplyNotificationsEnabled: false },
+    });
+    assert.equal(db.rows("community_notification_preferences").length, 2);
+    assert.equal(
+      db.rows("community_notification_preferences")
+        .find((row) => row.owner_user_id === "owner-user")
+        ?.forum_reply_notifications_enabled,
+      false
+    );
+  } finally {
+    resetSettingsFakes();
+  }
+
+  const malformedReadbackDb = new AiSettingsSupabase();
+  malformedReadbackDb.rows("community_notification_preferences").push({
+    owner_user_id: "owner-user",
+    forum_reply_notifications_enabled: "false",
+  });
+  useSettingsFakes(malformedReadbackDb);
+  const malformedReadbackApp = createSettingsProofApp();
+  try {
+    const response = await requestJson(malformedReadbackApp, "GET", "/settings/notifications", {
+      token: "owner-token",
+    });
+    assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not load notification preferences.",
+      code: "notification_preferences_load_failed",
+    });
   } finally {
     resetSettingsFakes();
   }

@@ -232,6 +232,16 @@ async function loadNotificationPreferences(userId: string) {
     .maybeSingle();
 
   if (error) throw new Error("Could not load notification preferences.");
+  if (
+    data !== null
+    && (
+      typeof data !== "object"
+      || Array.isArray(data)
+      || typeof data.forum_reply_notifications_enabled !== "boolean"
+    )
+  ) {
+    throw new Error("Could not load notification preferences.");
+  }
   return serializeNotificationPreferences(data as Pick<NotificationPreferencesRow, "forum_reply_notifications_enabled"> | null);
 }
 

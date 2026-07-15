@@ -142,11 +142,23 @@ async function filterForumReplyNotificationRecipients(recipientUserIds: string[]
     throw new Error("Could not load notification preferences.");
   }
 
-  const disabled = new Set(
-    (data as Pick<CommunityNotificationPreferenceRow, "owner_user_id" | "forum_reply_notifications_enabled">[])
-      .filter((row) => row.forum_reply_notifications_enabled === false)
-      .map((row) => row.owner_user_id)
-  );
+  const requestedRecipients = new Set(recipientUserIds);
+  const disabled = new Set<string>();
+  for (const candidate of data as unknown[]) {
+    if (
+      !candidate
+      || typeof candidate !== "object"
+      || Array.isArray(candidate)
+      || typeof (candidate as Partial<CommunityNotificationPreferenceRow>).owner_user_id !== "string"
+      || typeof (candidate as Partial<CommunityNotificationPreferenceRow>).forum_reply_notifications_enabled !== "boolean"
+      || !requestedRecipients.has((candidate as CommunityNotificationPreferenceRow).owner_user_id)
+    ) {
+      throw new Error("Could not load notification preferences.");
+    }
+
+    const row = candidate as CommunityNotificationPreferenceRow;
+    if (!row.forum_reply_notifications_enabled) disabled.add(row.owner_user_id);
+  }
   return recipientUserIds.filter((recipientUserId) => !disabled.has(recipientUserId));
 }
 

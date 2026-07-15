@@ -136,6 +136,7 @@ test("migration 084 creates only owner notification preferences with exact RLS b
   assert.match(sql, /to_regclass\('public\.profiles'\)/);
   assert.match(sql, /to_regprocedure\('public\.handle_updated_at\(\)'\)/);
   assert.match(sql, /to_regclass\('public\.community_notification_preferences'\) is not null[\s\S]*raise exception/i);
+  assert.match(sql, /do \$\$[\s\S]*end;\s*\$\$;/i);
   assert.match(sql, /create table public\.community_notification_preferences\s*\(/i);
   assert.match(sql, /owner_user_id uuid primary key references public\.profiles\(id\) on delete cascade/i);
   assert.match(sql, /forum_reply_notifications_enabled boolean not null default true/i);
@@ -3736,6 +3737,22 @@ test("thread comment preference lookup failure fails notification fanout closed 
     assert.equal(db.tables.comments.some((row) => row.id === response.body.comment.id), true);
     assert.equal(db.tables.community_notifications.length, 0);
     assert.equal(JSON.stringify(response.body).includes("hostile preference read failure"), false);
+
+    db.insertRow("community_notification_preferences", {
+      owner_user_id: MEMBER_ID,
+      forum_reply_notifications_enabled: "false",
+    });
+    const malformedResponse = await requestJson(app, "POST", "/comments", {
+      token: "owner-token",
+      body: {
+        parentType: "thread",
+        parentId: PUBLIC_THREAD_ID,
+        body: "Malformed preference readback also fails notification fanout closed.",
+      },
+    });
+    assert.equal(malformedResponse.status, 201);
+    assert.equal(db.tables.comments.some((row) => row.id === malformedResponse.body.comment.id), true);
+    assert.equal(db.tables.community_notifications.length, 0);
   } finally {
     setSupabaseAdminForTests(null);
   }

@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F Settings Persistence Truth Accepted Locally
+
+ARGUS completed independent review on 2026-07-16:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_PREFERENCE_WITH_ARGUS_SAFETY_PATCH
+```
+
+ARGUS corrected the submitted migration's missing PL/pgSQL terminator, broken
+Space/Enter save behavior and pointer focus suppression, and malformed-row
+GET/fanout handling. The original DAEDALUS rendered evidence did not exercise
+keyboard activation; its result now carries that explicit correction.
+
+Independent validation:
+
+| Command / proof | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `54/54` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/notification-preferences.test.ts` | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 --filter @station/db build` | Pass |
+| API/web typecheck and web lint | Pass; lint has zero warnings/errors |
+| Disposable PostgreSQL/PGlite migration proof | Pass; execute, catalog, RLS/policies/grants, owner/cross-owner, DELETE/anonymous denial, default/update, and replay guard |
+| Independent intercepted Settings render | Pass, `21/21`; pointer, Space, and Enter each send exactly one strict PATCH |
+| Hosted read-only postcheck | Pass; preference table absent, `084` ledger absent, Watches `0`, notifications `0`, transaction rolled back |
+
+The rendered matrix covered System/Light/Dark at desktop and `390px`, all
+authoritative ready/loading/error/session states, malformed and mismatched
+readback reconciliation, failed reconciliation, and stale unmount response.
+Page errors, unclassified console errors, overflow, overlap, unavailable fake
+controls, hosted reachability, and hosted product mutation were zero. Temporary
+scripts, screenshots, package sandbox, and local server were removed/stopped.
+
+This is local acceptance only. Migration `084`, deployment, ledger proof, and
+hosted lifecycle validation remain a separate MIMIR-routed lane.
+
 ## PR527F Settings Persistence Truth Submitted
 
 DAEDALUS completed the local implementation on 2026-07-16:

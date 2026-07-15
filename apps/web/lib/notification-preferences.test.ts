@@ -80,8 +80,10 @@ test("notification preference panel is non-optimistic, stale guarded, and expose
   assert.match(component, /aria-label="Forum reply notifications"/);
   assert.match(component, /checked=\{checked\}/);
   assert.match(component, /disabled=\{disabled\}/);
-  assert.match(component, /onMouseDown=\{\(event\) => \{\s*if \(!disabled\) event\.preventDefault\(\);/);
-  assert.match(component, /onKeyDown=\{\(event\) => \{/);
+  assert.doesNotMatch(component, /onMouseDown=/);
+  const keydownHandler = component.match(/onKeyDown=\{\(event\) => \{[\s\S]*?(?=\s*onClick=)/)?.[0] ?? "";
+  assert.match(keydownHandler, /event\.preventDefault\(\);/);
+  assert.match(keydownHandler, /toggleForumReplies\(!checked\)/);
   assert.match(component, /event\.preventDefault\(\);\s*if \(!disabled\) void toggleForumReplies\(!checked\);/);
   assert.match(component, /generation = useRef\(0\)/);
   assert.match(component, /mounted = useRef\(true\)/);

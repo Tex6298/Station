@@ -10,6 +10,20 @@ Status: Ready for ARGUS hostile review
 READY_PR527F_SETTINGS_PERSISTENCE_TRUTH_FOR_ARGUS
 ```
 
+## ARGUS Evidence Correction
+
+This file preserves the original DAEDALUS submission. Independent ARGUS review
+found that the submitted migration's PL/pgSQL block did not parse because
+`end;` was missing, Space/Enter suppressed default checkbox behavior without
+sending a PATCH, pointer mouse-down prevented focus, and malformed persisted
+preference rows were not fully fail-closed in GET/fanout.
+
+The original `21/21` rendered claim did not exercise keyboard activation and
+therefore did not prove it. ARGUS patched these defects narrowly and reran the
+executable, source, and rendered gates. Final acceptance truth is recorded in:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md`
+
 ## Scope Completed
 
 Implemented the accepted local PR527F slice from

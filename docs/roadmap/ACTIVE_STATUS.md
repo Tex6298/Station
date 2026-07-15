@@ -4,16 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F Settings Persistence Truth ready for ARGUS
+## Active lane - PR527F Settings Persistence Truth accepted locally
 
 ```text
-READY_PR527F_SETTINGS_PERSISTENCE_TRUTH_FOR_ARGUS
+ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_PREFERENCE_WITH_ARGUS_SAFETY_PATCH
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
+Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
+Review result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARGUS hostile-reviews the local implementation and wakes MIMIR with verdict; hosted migration/product mutation remains deferred until ARGUS accepts it
+Next: MIMIR routes the exact hosted migration/deployment/proof lifecycle; local acceptance is not hosted acceptance
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -29,31 +30,34 @@ Report/review notifications, Watches, existing notifications, read state, and
 external delivery remain unchanged. The four unsupported Settings categories
 become plain unavailable facts instead of checked-disabled controls.
 
-Preflight validation passed AI Settings `12/12`, Community `51/51`, Reports
-`9/9`, API/web typecheck, and web lint. Hosted read-only catalog and six-case
-System/Light/Dark desktop/mobile orientation confirmed current schema absence,
-the public Profile boundary, zero Watches/notifications, stable geometry, and
-no product write. The accepted result locks migration `084`, API/state/copy,
-file allow-list, local tests, and a later disposable hosted lifecycle.
+ARGUS accepts the local slice after a narrow safety patch. The submitted
+migration did not parse because its PL/pgSQL block lacked `end;`; Space/Enter
+prevented default checkbox behavior but sent no PATCH; mouse-down suppressed
+focus; and malformed stored preference rows were not fully fail-closed in GET
+or fanout. ARGUS corrected those defects inside the locked allow-list. The
+DAEDALUS result now carries an explicit evidence correction instead of
+preserving its original rendered and executable overclaim.
 
-DAEDALUS implemented the local slice. Migration `084` creates only the
-dedicated owner preference table and no data/backfill. GET/PATCH
-`/settings/notifications` are authenticated, owner-keyed, strict, bounded, and
-authoritative. `notifyThreadComment` performs one bulk preference read before
-insert and suppresses only explicit-false future `thread_comment` recipients;
-lookup failure creates no reply notification but keeps the valid comment path
-successful. Report/review notifications, Watches, existing notification rows,
-read state, and external delivery remain unchanged.
+Migration `084` now executes in a disposable PostgreSQL/PGlite engine and
+proves the exact four-column table, RLS, three owner policies, no DELETE,
+bounded grants, owner/cross-owner behavior, and replay guard. Authenticated
+owner GET/PATCH are strict and authoritative. `notifyThreadComment` performs
+one validated bulk preference read before insert; explicit false suppresses
+future reply recipients, while lookup or malformed-row failure creates no
+reply notification and leaves the valid comment successful. Report/review
+notifications, Watches, existing rows/read state, and external delivery remain
+unchanged.
 
-Settings now exposes one controlled, non-optimistic Forum replies preference
+Settings exposes one controlled, non-optimistic Forum replies preference
 and renders Archive completions, Integrity session reminders, Follower
 notifications, and Event reminders as unavailable facts with no controls or
 default-on implication. Validation passes AI Settings `14/14`, Community
 `54/54`, Reports `9/9`, notification-preferences `5/5`, DB build, API/web
-typecheck, web lint, and a `21/21` intercepted local rendered matrix across
-System/Light/Dark desktop/mobile plus load/save/reconcile/signed-out/stale
-states. Temporary proof artifacts were removed. Hosted migration and
-product-data mutation remain forbidden until independent ARGUS acceptance.
+typecheck, web lint, the executable migration matrix, and an independent
+`21/21` intercepted local render including exact pointer, Space, and Enter
+PATCH proof. Hosted read-only postcheck still shows no table, no `084` ledger
+row, zero Watches, and zero notifications. Hosted migration and product-data
+mutation remain a separate MIMIR-routed lifecycle.
 
 ## Previous PR527E hosted rehearsal blocker history
 
