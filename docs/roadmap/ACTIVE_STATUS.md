@@ -4,32 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Terminal condition - finish UI integration, then pause
+## Mainline paused - PR525 UI integration accepted
 
-The current UI integration remains active through its real accepted closeout.
-This directive does not interrupt the active PR525H closeout baton.
+```text
+CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE
+Source: docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md
+```
 
-Closeout requires all of the following:
+PR525A-H, the PR526A fresh-head audit, and the PR526B boundary preflight are
+closed or deliberately parked exactly as recorded in the final closeout. The
+accepted light composition and final System/Light/Dark treatment have fresh
+exact-SHA hosted proof across public/private desktop and mobile routes.
 
-- preserve accepted PR525D and complete/review PR525E and PR525F;
-- reconcile Discern head `ff93308b` through the accepted PR526A
-  adoption/deviation decision and PR526B boundary preflight; PR526C-F remain
-  parked unless that preflight identifies a concrete correction needed to make
-  this UI closeout truthful;
-- complete hosted PR525G desktop and mobile proof;
-- complete PR525H shared light/dark theme treatment using the accepted
-  composition rather than reopening a broad reskin;
-- commit one final UI integration closeout naming implemented work, deliberate
-  deviations, hosted proof, theme status, and anything explicitly parked or
-  externally blocked.
+There is no active implementation, review, or rehearsal baton. The existing
+PR524B / Phase 3 product pause is restored. MIMIR must not automatically open a
+new feature, hardening, operations, backend, provider, or product-expansion
+lane. Mainline resumes only on a later explicit Marty instruction or a
+correction required to keep the final closeout truthful.
 
-After that closeout, the existing PR524B / Phase 3 product pause remains in
-force. MIMIR must not automatically open a new feature, hardening, operations,
-backend, provider, or product-expansion lane. Mainline resumes only on a later
-explicit Marty instruction or a correction required to make this UI closeout
-truthful.
-
-## Current lane - PR525H Hosted Dual-Theme Rehearsal Passed
+## Closed UI integration evidence
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -219,18 +212,17 @@ PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              CLOSED
-PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    HOSTED PASS / MIMIR CLOSEOUT
-Final UI integration closeout                                      THEN PAUSE MAINLINE
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    CLOSED
+Final UI integration closeout                                      CLOSED / MAINLINE PAUSED
 ```
 
 Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
 are not part of the target. PR525's accepted visual source remains `de7b918e`;
 PR526A prevents that snapshot from being mistaken for a current-head audit.
 
-The final light composition is corrected first. PR525H then carries shared
-light/dark tokens and hosted dual-mode rehearsal without reopening a broad
-reskin. Phase 3 product expansion and PR524B remain paused under the existing
-MIMIR directive.
+The final light composition, shared System/Light/Dark treatment, and hosted
+dual-mode rehearsal are accepted without reopening a broad reskin. Phase 3
+product expansion and PR524B are paused under the restored MIMIR directive.
 
 ## Previous lane - PR523D Studio companion entry affordance repair closed
 

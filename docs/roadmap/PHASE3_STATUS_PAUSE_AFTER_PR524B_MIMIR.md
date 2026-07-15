@@ -2,6 +2,8 @@
 
 Date: 2026-07-12
 
+Last reaffirmed: 2026-07-15 after accepted PR525 UI integration closeout
+
 Owner: MIMIR / A1
 
 Status:
@@ -49,9 +51,14 @@ be a PR524B hosted proof rerun, not a new product capability.
   Redis, Cloudflare, queue/worker/webhook, package/lockfile, deployment, or
   broad UI redesign as part of this lane.
 
-## Future Backlog Reminder
+## UI Integration Completed During The Pause
 
-Light/dark mode is recorded as future UI/platform backlog, covering the
-companion-first Studio shell, public surfaces, mobile, accessibility/contrast,
-and persisted user preference. It is not part of PR524B.
+PR525 subsequently completed the companion-first Station UI integration and
+the shared System/Light/Dark treatment, including exact-SHA hosted desktop and
+mobile proof. That accepted work is closed in:
 
+`docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md`
+
+It does not remove or widen the PR524B generated-material publication blocker.
+The next valid PR524B action remains the hosted proof rerun after the hosted
+Supabase/RPC/schema accepts generated scopes.

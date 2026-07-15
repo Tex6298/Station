@@ -45,8 +45,9 @@ Reason:
 | `git diff --check` | Pass | No whitespace errors in the documentation result. |
 | `pnpm typecheck` | Not required | Documentation only; no imports or scripts changed. |
 
-MIMIR final UI integration closeout remains required before the terminal
-mainline pause resumes.
+MIMIR accepted this proof in
+`docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md`; the terminal
+mainline pause is restored.
 
 ## PR525H ARGUS Review - Shared Light/Dark Theme Treatment
 
@@ -84,8 +85,9 @@ Reason:
 | Local Playwright matrix | Pass after patch | System/live resolution, explicit persistence, denied APIs, auth isolation, signed-out/in control, both themes, three viewports, exact geometry, observatory boundary, contrast, overflow, and page errors passed. |
 | Changed-path/secret/whitespace scans | Pass | Changes remain bounded; no high-risk literal or whitespace error was found. |
 
-ARIADNE hosted exact-SHA dual-theme rehearsal remains required before MIMIR
-closes PR525H and the final UI integration sequence.
+The required ARIADNE exact-SHA dual-theme rehearsal passed and is recorded in
+the section above. MIMIR then closed PR525H and the final UI integration
+sequence.
 
 ## PR525G Hosted Light-Parity Rehearsal
 
