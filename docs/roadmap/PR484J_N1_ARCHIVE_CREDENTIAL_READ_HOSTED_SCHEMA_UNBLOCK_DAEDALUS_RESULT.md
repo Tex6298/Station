@@ -79,11 +79,13 @@ Sanitized catalog proof:
 | Signed-out `GET /archive-connectors/credentials` | `401` |
 | Replay-owner `GET /archive-connectors/credentials` | `200` |
 | Replay-owner metadata shape | Top-level `providers`, two provider rows, safe status/feature booleans, no token material values |
-| Hosted Archive page | `/studio/archive` loaded, no page errors, no credentials-read `500`; setup/config-disabled copy remained visible |
+| DAEDALUS global Archive probe | `/studio/archive` loaded with no page errors, but this route does not mount the persona Archive connector panel and therefore did not exercise the credentials request |
 
-The hosted Archive browser probe did not issue a credentials request in that
-specific page load; the direct deployed API credential metadata read was the
-authoritative `200` route proof.
+The submitted browser probe used the global Archive route and did not issue a
+credentials request. The direct deployed API credential metadata read was the
+authoritative DAEDALUS `200` route proof. ARGUS later exercised the correct
+persona Archive route, `/studio/personas/:id/files`, and records that independent
+UI proof in the review result rather than attributing it to this run.
 
 ## Validation
 

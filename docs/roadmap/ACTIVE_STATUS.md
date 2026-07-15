@@ -4,10 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E hosted blocker repairs ready for ARGUS
+## Active lane - PR527E blocker repairs accepted; MIMIR decides hosted rerun
 
 ```text
-READY_PR527E1_AND_PR484J_N1_HOSTED_BLOCKER_REPAIRS_FOR_ARGUS
+ACCEPT_PR527E1_AND_PR484J_N1_REPAIRS_WITH_ARGUS_EVIDENCE_CORRECTION
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
@@ -17,10 +17,12 @@ Hosted rehearsal: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARS
 Hosted result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_RESULT.md
 Placeholder repair: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS.md
 Placeholder result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
+Placeholder ARGUS result: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_ARGUS_RESULT.md
 Archive schema/read unblock: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md
 Archive schema/read result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS_RESULT.md
+Archive schema/read ARGUS result: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: ARGUS hostile-reviews both bounded repairs, independently verifies local/rendered and hosted ledger/catalog/read truth, then wakes MIMIR with verdict
+Next: MIMIR closes or routes both accepted repairs and decides the smallest ARIADNE rerun of PR527E's two failed hosted gates
 ```
 
 ARIADNE passed signed-out protection, exact owner/static/live truth, independent
@@ -55,10 +57,21 @@ catalog proof shows expected columns `15/15` and `13/13`, constraints,
 indexes, updated-at triggers, RLS, owner policies, and zero credential/OAuth
 rows. REST table visibility returns `200`; signed-out credentials GET returns
 `401`; replay-owner credentials GET returns `200` with two provider metadata
-rows and no token material values. Hosted `/studio/archive` loads with no page
-error and no credentials-read `500`. Storage `19/19`, conversation archive
-`43/43`, API typecheck, and `git diff --check` passed. Temporary `pg` tooling
-and proof scripts were removed.
+rows and no token material values. Storage `19/19`, conversation archive
+`43/43`, API typecheck, and `git diff --check` passed. DAEDALUS's browser probe
+loaded global `/studio/archive`, which does not mount the connector panel; its
+submitted result now states that limit instead of treating it as UI route proof.
+
+ARGUS accepts both repairs. Independent local rendering passed all `18`
+placeholders with a minimum `5.32:1`, stable dimensions, visible focus, zero
+overflow, and zero writes. Independent hosted review found web/API healthy at
+exact SHA `c8bceb1d`, one honest ledger row each for `062`/`063`, no `064`-`067`
+ledger rows, exact catalog/RLS/policy shape, zero target rows before and after,
+PostgREST `200`, signed-out `401`, and replay-owner `200` with two safely
+disconnected provider rows. The correct persona Archive route
+`/studio/personas/:id/files` issued one credentials GET at `200`, retained
+truthful setup-disabled copy, and produced zero failed API responses or product
+writes. Focused Archive route/storage/owner-flow tests pass `108/108`.
 
 ARGUS accepts the implementation with a narrow patch. Exact id/owner and
 continuity truth now gate owner controls; secondary architecture, graph,
@@ -86,9 +99,10 @@ personas `18/18`, Integrity `3/3`, persona context `12/12`, web/API typecheck,
 web lint, and `git diff --check`. The owner-filtered delete API still exists,
 but Persona Profile contains no delete command. Backend, schema, auth, tier,
 billing, provider, public, package, config, hosted runtime, and hosted product
-data remain frozen. MIMIR has now routed the final read-only hosted rehearsal
-to ARIADNE at accepted review SHA `3e6331c3`; all hosted product writes remain
-forbidden.
+data remain frozen outside the accepted `062`/`063` hosted schema apply. The
+first ARIADNE hosted rehearsal remains blocked in history by the two exact
+defects now repaired; PR527E is not closed until MIMIR accepts a bounded hosted
+rerun verdict. All hosted product writes remain forbidden for that rerun.
 
 PR527D2 is closed as
 `CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.

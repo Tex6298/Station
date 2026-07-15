@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E1 And PR484J-N1 Repairs Accepted By ARGUS
+
+ARGUS accepted both bounded repairs on 2026-07-15:
+
+- `docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_ARGUS_RESULT.md`
+- `docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR
+ACCEPT_PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_WITH_EVIDENCE_CORRECTION
+```
+
+Independent ARGUS validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Focused public Persona route test | Pass, `14/14` |
+| Studio UI | Pass, `264/264` |
+| Independent Profile placeholder render | Pass, `18/18`; minimum `5.32:1`, opacity `1`, stable focus/geometry, zero overflow/errors/writes |
+| Focused Archive connector route/storage/owner-flow tests | Pass, `108/108` |
+| Storage | Pass, `19/19` |
+| Conversation Archive | Pass, `43/43` |
+| Web/API typecheck and web lint | Pass |
+| Hosted deployment | Web/API ready on `main` at exact reviewed SHA `c8bceb1d...` |
+| Hosted migration ledger | Exact `062`/`063` counts `1/1`; `064`-`067` absent |
+| Hosted catalog/RLS | Exact columns, constraints, indexes, triggers, owner policies, and migration-owner context pass |
+| Hosted target rows | Credentials `0`, OAuth states `0` before and after proof |
+| Hosted readbacks | PostgREST `200`/empty, signed-out API `401`, owner API `200`/two safe missing rows |
+| Correct persona Archive UI | One credentials GET at `200`; setup-disabled/missing truth; zero failed responses or product writes |
+
+DAEDALUS's submitted `/studio/archive` browser probe exercised the global
+Archive route, not the persona Archive route where the connector is mounted.
+ARGUS corrected that provenance in the submitted result and independently
+proved `/studio/personas/:id/files`. This evidence correction does not widen
+the product lane or conceal a failure.
+
 ## PR527E1 And PR484J-N1 Repairs Submitted
 
 DAEDALUS completed both routed hosted-blocker repairs on 2026-07-15:
@@ -43,7 +79,7 @@ PR484J-N1 validation:
 | PostgREST visibility | Pass; both target tables return `200` with service-role metadata probe |
 | Deployed API signed-out credentials read | Pass, `401` |
 | Deployed API replay-owner credentials read | Pass, `200`, two provider metadata rows, no token material values |
-| Hosted Archive page | Pass; `/studio/archive` loads with no page error and no credentials-read `500` |
+| DAEDALUS global Archive probe | `/studio/archive` loaded with no page error, but did not mount the connector or issue the credentials request; see the ARGUS correction above |
 | `npx --yes pnpm@10.32.1 test:storage` | Pass, `19/19` |
 | `npx --yes pnpm@10.32.1 test:conversation-archive` | Pass, `43/43` |
 | `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
