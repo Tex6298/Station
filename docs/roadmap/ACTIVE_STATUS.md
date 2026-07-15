@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527B Space entitlement and visibility review
+## Active lane - PR527B Space hosted rehearsal handoff
 
 ```text
-REVIEW_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
-Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_DAEDALUS_RESULT.md
-Next: ARGUS hostile-reviews the implementation and wakes MIMIR if accepted or DAEDALUS if fixes are needed
+ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_WITH_ARGUS_PATCH
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md
+Next: MIMIR closes local review and wakes ARIADNE for exact-SHA no-write hosted proof
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -27,16 +27,18 @@ product writes, page errors, unclassified console errors, or horizontal
 overflow. This removes the deceptive page-memory editor and does not claim a
 working Notes feature.
 
-PR527B now addresses `/space/new`. DAEDALUS implemented the bounded repair in
-`docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_DAEDALUS_RESULT.md`.
-The page restores current session truth, reads billing status and owner Spaces,
-fails closed before exposing the builder, mirrors Creator-tier-before-count
-order, defaults the entitled builder Private, and handles stale create `403`
-without losing entries or auto-retrying POST. The API create schema now defaults
-omitted visibility Private while explicit `true`/`false` and PATCH omission
-semantics are tested.
+ARGUS accepts PR527B after a narrow review patch. `/space/new` now fails closed
+until restored owner, canonical tier/limit, and owner-Space count truth agree;
+Creator-tier-before-count/admin order matches shared server permission logic.
+The entitled builder and omitted API visibility default Private, explicit
+Public remains owner-selected, PATCH omission is stable, denied API cases
+insert no Space/pages, and stale `403` rechecks preserve entries without
+automatic POST replay or response-detail disclosure.
 
-This is implementation awaiting ARGUS review, not hosted acceptance. PR527B
+ARGUS also corrected stale in-progress/completed copy, fixed-dark create-only
+controls, invalid multi-control labels, and inherited public theme claims in
+the Private form. All command gates and an independent 26-group browser proof
+pass. This is local implementation acceptance, not hosted acceptance. PR527B
 does not claim the full J07 create/edit/public/cleanup journey. Negative
 replay-owner hosted proof may establish truthful unavailability for that owner,
 but J07 remains `BLOCKED_HOSTED_DEPENDENCY` until an entitled disposable

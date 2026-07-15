@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   deriveSpaceCreateAccess,
   spaceCountLabel,
   spaceLimitLabel,
   staleSpaceCreateCopy,
+  staleSpaceCreateResolvedCopy,
   tierSpaceLimit,
 } from "./space-create-entitlement";
 
@@ -29,7 +31,23 @@ test("space create entitlement validates response shape and tier agreement", () 
     { status: "unverifiable" }
   );
   assert.deepEqual(
+    deriveSpaceCreateAccess({ user: baseUser, billing: { tier: "creator", limits: { spaces: 0.5 } }, spaces: { spaces: [] } }),
+    { status: "unverifiable" }
+  );
+  assert.deepEqual(
+    deriveSpaceCreateAccess({
+      user: { id: "institutional-owner", tier: "institutional", isAdmin: false },
+      billing: { tier: "institutional", limits: { spaces: -1 } },
+      spaces: { spaces: [] },
+    }),
+    { status: "unverifiable" }
+  );
+  assert.deepEqual(
     deriveSpaceCreateAccess({ user: baseUser, billing: baseBilling, spaces: { rows: [] } }),
+    { status: "unverifiable" }
+  );
+  assert.deepEqual(
+    deriveSpaceCreateAccess({ user: { ...baseUser, id: "" }, billing: baseBilling, spaces: { spaces: [] } }),
     { status: "unverifiable" }
   );
 });
@@ -53,7 +71,7 @@ test("space create entitlement applies Creator threshold before count policy", (
   );
 });
 
-test("space create entitlement handles finite and unlimited count boundaries", () => {
+test("space create entitlement handles finite count and strict admin boundaries", () => {
   assert.deepEqual(
     deriveSpaceCreateAccess({ user: baseUser, billing: baseBilling, spaces: { spaces: [{ id: "existing" }] } }),
     {
@@ -82,11 +100,18 @@ test("space create entitlement handles finite and unlimited count boundaries", (
   );
   assert.deepEqual(
     deriveSpaceCreateAccess({
-      user: { id: "institutional-owner", tier: "institutional", isAdmin: false },
-      billing: { tier: "institutional", limits: { spaces: -1 } },
-      spaces: { spaces: [{}, {}, {}, {}, {}, {}] },
+      user: { id: "malformed-admin", tier: "creator", isAdmin: "true" as unknown as boolean },
+      billing: baseBilling,
+      spaces: { spaces: [{}] },
     }),
-    { status: "allowed", tier: "institutional", count: 6, limit: -1 }
+    {
+      status: "limit-reached",
+      tier: "creator",
+      count: 1,
+      limit: 1,
+      countLabel: "1 Space",
+      limitLabel: "1 Space",
+    }
   );
 });
 
@@ -101,5 +126,31 @@ test("space create entitlement copy and labels stay bounded", () => {
     staleSpaceCreateCopy(),
     "Space creation was not allowed. Your entries are still here while Station checks your currently verified tier and Space count again."
   );
+  assert.equal(
+    staleSpaceCreateResolvedCopy(),
+    "Station checked your currently verified tier and Space count again. Your entries are still here; review them before submitting again."
+  );
   assert.doesNotMatch(staleSpaceCreateCopy(), /server|response|debug|stack|provider|checkout|stripe/i);
+});
+
+test("space create page keeps stale-race and theme controls truthful", () => {
+  const page = readFileSync("apps/web/app/space/new/page.tsx", "utf8");
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+
+  assert.match(page, /runPreflight\("stale"\)/);
+  assert.match(page, /gate\.reason === "stale"/);
+  assert.match(page, /staleSpaceCreateResolvedCopy\(\)/);
+  assert.doesNotMatch(page, /A fresh access check is running/);
+  assert.doesNotMatch(page, /<label className="space-form-field">/);
+  assert.match(page, /role="group" aria-label="Theme"/);
+  assert.match(page, /aria-label="Title"/);
+  assert.match(page, /aria-pressed=\{form\.theme === option\.id\}/);
+  assert.match(page, /SPACE_CREATE_THEME_DESCRIPTIONS\[option\.id\]/);
+  assert.doesNotMatch(page, /Your authored public home/);
+  assert.match(page, /label: "Review plan details", href: "\/billing"/);
+  assert.match(page, /label: "View My Spaces", href: "\/space"/);
+  assert.match(css, /\.space-create-page \.space-builder-panel\s*\{[^}]*var\(--station-frame-panel\)/s);
+  assert.match(css, /\.space-create-page \.space-choice\s*\{[^}]*var\(--station-frame-text\)/s);
+  assert.match(css, /\.space-create-page \.space-segmented-control button\[data-active="true"\]\s*\{[^}]*var\(--station-frame-active\)/s);
+  assert.match(css, /\.space-create-page \.space-form-error\s*\{[^}]*var\(--station-page-danger-bg\)/s);
 });

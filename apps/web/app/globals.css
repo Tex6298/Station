@@ -1819,17 +1819,57 @@ html, body {
   outline-offset: 2px;
 }
 
-.space-create-inline-status {
-  border: 1px solid var(--station-frame-border);
-  border-radius: 8px;
-  background: var(--station-frame-soft);
-  color: var(--station-frame-text);
-  padding: 0.85rem 1rem;
-  margin-bottom: 1rem;
-}
-
 .space-create-visibility-copy {
   margin-top: 0.55rem;
+}
+
+.space-create-page .space-builder-panel {
+  border-color: var(--station-frame-border);
+  background: var(--station-frame-panel);
+}
+
+.space-create-page .space-choice {
+  border-color: var(--station-frame-border);
+  background: var(--station-frame-panel);
+  color: var(--station-frame-text);
+  font: inherit;
+}
+
+.space-create-page .space-choice[data-active="true"] {
+  border-color: var(--station-frame-active);
+  background: var(--station-frame-selected);
+}
+
+.space-create-page .space-choice small {
+  color: var(--station-frame-muted);
+}
+
+.space-create-page .space-segmented-control {
+  border-color: var(--station-frame-border);
+}
+
+.space-create-page .space-segmented-control button {
+  background: var(--station-frame-panel);
+  color: var(--station-frame-muted);
+}
+
+.space-create-page .space-segmented-control button[data-active="true"] {
+  background: var(--station-frame-active);
+  color: var(--station-frame-on-strong);
+}
+
+.space-create-page .space-choice:focus-visible,
+.space-create-page .space-segmented-control button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--station-frame-active);
+  outline-offset: 2px;
+}
+
+.space-create-page .space-form-error {
+  border-color: var(--station-page-danger-border);
+  background: var(--station-page-danger-bg);
+  color: var(--station-page-red);
 }
 
 .space-builder-heading {

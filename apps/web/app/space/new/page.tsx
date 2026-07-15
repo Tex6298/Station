@@ -14,6 +14,7 @@ import { ApiRequestError, apiGet, apiPost, getBillingStatus } from "@/lib/api-cl
 import {
   deriveSpaceCreateAccess,
   staleSpaceCreateCopy,
+  staleSpaceCreateResolvedCopy,
   type SpaceCreateAccess,
 } from "@/lib/space-create-entitlement";
 
@@ -39,8 +40,15 @@ const initialForm: NewSpaceForm = {
   isPublic: false,
 };
 
+const SPACE_CREATE_THEME_DESCRIPTIONS: Record<SpaceThemeId, string> = {
+  atlas: "Warm editorial styling for essays, profiles, and orientation.",
+  folio: "Crisp portfolio styling for projects, releases, and featured work.",
+  signal: "High-contrast research styling for notes, logs, and field reports.",
+  garden: "Calm library styling for collections, personas, and evolving archives.",
+};
+
 type GateState =
-  | { status: "loading" }
+  | { status: "loading"; reason: "initial" | "stale" }
   | SpaceCreateAccess;
 
 export default function NewSpacePage() {
@@ -48,13 +56,12 @@ export default function NewSpacePage() {
   const [form, setForm] = useState<NewSpaceForm>(initialForm);
   const [slugEdited, setSlugEdited] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [gate, setGate] = useState<GateState>({ status: "loading" });
+  const [gate, setGate] = useState<GateState>({ status: "loading", reason: "initial" });
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [staleRetryMessage, setStaleRetryMessage] = useState<string | null>(null);
 
-  const runPreflight = useCallback(async () => {
-    setGate({ status: "loading" });
+  const runPreflight = useCallback(async (reason: "initial" | "stale" = "initial") => {
+    setGate({ status: "loading", reason });
     try {
       const session = await getSession();
       if (!session) {
@@ -67,7 +74,11 @@ export default function NewSpacePage() {
         getBillingStatus(session.accessToken),
         apiGet<unknown>("/spaces", session.accessToken),
       ]);
-      setGate(deriveSpaceCreateAccess({ user: session.user, billing, spaces }));
+      const nextGate = deriveSpaceCreateAccess({ user: session.user, billing, spaces });
+      setGate(nextGate);
+      if (reason === "stale" && nextGate.status === "allowed") {
+        setError(staleSpaceCreateResolvedCopy());
+      }
     } catch {
       setGate({ status: "unverifiable" });
     } finally {
@@ -100,7 +111,6 @@ export default function NewSpacePage() {
 
     setSubmitting(true);
     setError(null);
-    setStaleRetryMessage(null);
     try {
       const { space } = await apiPost<{ space: { slug: string } }>(
         "/spaces",
@@ -115,9 +125,8 @@ export default function NewSpacePage() {
       router.push(`/space/${space.slug}`);
     } catch (e) {
       if (e instanceof ApiRequestError && e.status === 403) {
-        setError(staleSpaceCreateCopy());
-        setStaleRetryMessage("A fresh access check is running.");
-        await runPreflight();
+        setError(null);
+        await runPreflight("stale");
         return;
       }
       setError("Could not create Space.");
@@ -129,8 +138,10 @@ export default function NewSpacePage() {
     return (
       <main className="container space-create-page">
         <SpaceAccessNotice
-          title="Checking Space access"
-          body="Station is confirming your currently verified tier and owner Space count before opening the builder."
+          title={gate.reason === "stale" ? "Space creation was not allowed" : "Checking Space access"}
+          body={gate.reason === "stale"
+            ? staleSpaceCreateCopy()
+            : "Station is confirming your currently verified tier and owner Space count before opening the builder."}
         />
       </main>
     );
@@ -173,7 +184,7 @@ export default function NewSpacePage() {
           title="Could not check Space access"
           body="Station could not confirm your currently verified tier and owner Space count. Retry before opening the builder. No Space was created."
           actions={[
-            { label: "Retry access check", onClick: runPreflight },
+            { label: "Retry access check", onClick: () => runPreflight() },
             { label: "View My Spaces", href: "/space" },
           ]}
         />
@@ -191,17 +202,17 @@ export default function NewSpacePage() {
         </div>
       </div>
 
-      {error && <div className="space-form-error">{error}</div>}
-      {staleRetryMessage && <div className="space-create-inline-status">{staleRetryMessage}</div>}
+      {error && <div className="space-form-error" role="alert">{error}</div>}
 
-      <form onSubmit={handleSubmit} className="space-builder-grid">
+      <form onSubmit={handleSubmit} className="space-builder-grid" aria-busy={submitting}>
         <section className="space-builder-panel">
           <Field label="Title" required>
-            <input className="input" value={form.title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="The Mirror Archive" maxLength={100} required />
+            <input aria-label="Title" className="input" value={form.title} onChange={(e) => handleTitleChange(e.target.value)} placeholder="The Mirror Archive" maxLength={100} required />
           </Field>
 
           <Field label="Slug" help={`station.build/space/${form.slug || "your-slug"}`} required>
             <input
+              aria-label="Slug"
               className="input"
               value={form.slug}
               onChange={(e) => {
@@ -215,39 +226,40 @@ export default function NewSpacePage() {
           </Field>
 
           <Field label="Tagline" help="Shown in the hero. Keep it punchy.">
-            <input className="input" value={form.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="A living archive of continuity experiments." maxLength={160} />
+            <input aria-label="Tagline" className="input" value={form.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="A living archive of continuity experiments." maxLength={160} />
           </Field>
 
           <Field label="Short description">
-            <input className="input" value={form.shortDescription} onChange={(e) => set("shortDescription", e.target.value)} placeholder="One sentence about this Space" maxLength={300} />
+            <input aria-label="Short description" className="input" value={form.shortDescription} onChange={(e) => set("shortDescription", e.target.value)} placeholder="One sentence about this Space" maxLength={300} />
           </Field>
 
           <Field label="About this Space">
-            <textarea className="textarea" value={form.longDescription} onChange={(e) => set("longDescription", e.target.value)} placeholder="More detail about what lives here." style={{ minHeight: 130 }} />
+            <textarea aria-label="About this Space" className="textarea" value={form.longDescription} onChange={(e) => set("longDescription", e.target.value)} placeholder="More detail about what lives here." style={{ minHeight: 130 }} />
           </Field>
         </section>
 
         <aside className="space-builder-panel">
           <Field label="Theme">
-            <div className="space-choice-grid">
+            <div className="space-choice-grid" role="group" aria-label="Theme">
               {SPACE_THEME_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
                   className={`space-choice space-choice-${option.id}`}
+                  aria-pressed={form.theme === option.id}
                   data-active={form.theme === option.id}
                   onClick={() => set("theme", option.id)}
                 >
                   <span className="space-choice-swatch" />
                   <strong>{option.label}</strong>
-                  <small>{option.description}</small>
+                  <small>{SPACE_CREATE_THEME_DESCRIPTIONS[option.id]}</small>
                 </button>
               ))}
             </div>
           </Field>
 
           <Field label="Layout">
-            <select className="input" value={form.layout} onChange={(e) => set("layout", e.target.value as SpaceLayoutId)}>
+            <select aria-label="Layout" className="input" value={form.layout} onChange={(e) => set("layout", e.target.value as SpaceLayoutId)}>
               {SPACE_LAYOUT_OPTIONS.map((option) => (
                 <option key={option.id} value={option.id}>{option.label} - {option.description}</option>
               ))}
@@ -298,7 +310,7 @@ function SpaceAccessNotice({
   actions?: Array<{ label: string; href: string } | { label: string; onClick: () => void | Promise<void> }>;
 }) {
   return (
-    <section className="space-create-notice" aria-labelledby="space-create-notice-title">
+    <section className="space-create-notice" aria-labelledby="space-create-notice-title" aria-live="polite">
       <h1 id="space-create-notice-title">{title}</h1>
       <p>{body}</p>
       {actions.length > 0 && (
@@ -318,13 +330,13 @@ function SpaceAccessNotice({
 
 function Field({ label, help, required, children }: { label: string; help?: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <label className="space-form-field">
+    <div className="space-form-field">
       <span>
         {label}{required ? " *" : ""}
         {help && <small>{help}</small>}
       </span>
       {children}
-    </label>
+    </div>
   );
 }
 

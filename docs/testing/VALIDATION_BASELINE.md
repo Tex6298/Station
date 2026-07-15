@@ -4,6 +4,55 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527B Space Entitlement And Visibility Repair Accepted Locally
+
+ARGUS accepted the implementation with a narrow review patch on 2026-07-15:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_WITH_ARGUS_PATCH
+```
+
+ARGUS tightened client policy to require non-empty restored owner identity and
+an integer billing Space limit equal to canonical `TIER_LIMITS`, then applies
+shared `canCreateSpace` only after the explicit Creator gate. This removes a
+fictional `institutional: -1` allowance and keeps admin/count behavior aligned
+with the API.
+
+The review patch also makes stale recheck copy true while running and after
+completion, routes inherited fixed-dark create controls through semantic
+theme variables, restores exact accessible field/group/button names, and
+removes inherited public-theme claims from the Private-default form. Shared
+Space manage styling and API authority remain unchanged.
+
+Final validation:
+
+| Command / check | Result |
+| --- | --- |
+| Focused entitlement test | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `22/22` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `262/262` |
+| Web and API typecheck | Pass |
+| Web lint | Pass, no warning or error |
+| Independent intercepted Playwright proof | Pass, `26/26` groups |
+
+The browser proof includes signed-out redirect, the complete 18-case
+unavailable/entitled System/Light/Dark viewport matrix, loading, failure/Retry,
+finite limit, canonical-limit mismatch, Private/Public payloads, and delayed
+stale `403` retained-value/no-auto-retry behavior. Expected synthetic
+`503`/`403` browser resource messages were classified; all other console/page
+errors, clipping, and horizontal overflow were zero. No real Space or database
+write occurred, and temporary evidence was removed.
+
+This is local acceptance only. Hosted replay-owner proof remains exact-SHA,
+negative, and no-write; J07 remains `BLOCKED_HOSTED_DEPENDENCY` until an
+authorized disposable entitled lifecycle and cleanup pass.
+
 ## PR527B Space Entitlement And Visibility Repair Implemented For Review
 
 DAEDALUS completed the bounded implementation on 2026-07-15:

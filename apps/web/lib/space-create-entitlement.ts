@@ -1,5 +1,5 @@
 import { TIER_LIMITS, type Tier } from "@station/config";
-import { hasTier } from "@station/auth/permissions";
+import { canCreateSpace, hasTier } from "@station/auth/permissions";
 import type { AuthUser } from "@station/types";
 
 const RECOGNIZED_TIERS = new Set<Tier>(["visitor", "private", "creator", "canon", "institutional"]);
@@ -21,13 +21,17 @@ export function deriveSpaceCreateAccess(input: SpaceCreatePreflightInput): Space
   const billingTier = recognizedTier(input.billing?.tier);
   const limitValue = input.billing?.limits?.spaces;
   const spaces = ownerSpaces(input.spaces);
+  const expectedLimit = billingTier ? tierSpaceLimit(billingTier) : null;
 
   if (
+    typeof input.user.id !== "string" ||
+    input.user.id.trim().length === 0 ||
     !userTier ||
     !billingTier ||
     userTier !== billingTier ||
     typeof limitValue !== "number" ||
-    !Number.isFinite(limitValue) ||
+    !Number.isInteger(limitValue) ||
+    limitValue !== expectedLimit ||
     !spaces
   ) {
     return { status: "unverifiable" };
@@ -35,13 +39,13 @@ export function deriveSpaceCreateAccess(input: SpaceCreatePreflightInput): Space
 
   const limit = limitValue;
   const count = spaces.length;
-  const user = { id: input.user.id, tier: billingTier, isAdmin: Boolean(input.user.isAdmin) };
+  const user = { id: input.user.id, tier: billingTier, isAdmin: input.user.isAdmin === true };
 
   if (!hasTier(user, "creator")) {
     return { status: "below-tier", tier: billingTier };
   }
 
-  if (!user.isAdmin && !withinLimit(limit, count)) {
+  if (!canCreateSpace(user, count)) {
     return {
       status: "limit-reached",
       tier: billingTier,
@@ -68,6 +72,10 @@ export function staleSpaceCreateCopy() {
   return "Space creation was not allowed. Your entries are still here while Station checks your currently verified tier and Space count again.";
 }
 
+export function staleSpaceCreateResolvedCopy() {
+  return "Station checked your currently verified tier and Space count again. Your entries are still here; review them before submitting again.";
+}
+
 function recognizedTier(value: unknown): Tier | null {
   return typeof value === "string" && RECOGNIZED_TIERS.has(value as Tier) ? (value as Tier) : null;
 }
@@ -76,10 +84,6 @@ function ownerSpaces(value: unknown): unknown[] | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const spaces = (value as { spaces?: unknown }).spaces;
   return Array.isArray(spaces) ? spaces : null;
-}
-
-function withinLimit(limit: number, count: number): boolean {
-  return limit < 0 || count < limit;
 }
 
 export function tierSpaceLimit(tier: Tier) {
