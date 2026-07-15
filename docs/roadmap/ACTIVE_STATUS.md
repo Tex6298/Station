@@ -4,75 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D1 hosted composer contrast rerun with ARIADNE
+## Active lane - PR527D2 Forum reply count truth preflight with ARGUS
 
 ```text
-REHEARSE_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_ON_HOSTED
-Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_HOSTED_RERUN_ARIADNE.md
-Implementation: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
-Review: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_ARGUS_RESULT.md
-Next: ARIADNE runs the exact-SHA nine-case hosted composer rerun and wakes MIMIR with pass, defect, or exact blocker
+PREFLIGHT_PR527D2_FORUM_REPLY_COUNT_TRUTH_BOUNDARY
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_PREFLIGHT_ARGUS.md
+Next: ARGUS diagnoses the hosted count mismatch read-only, fixes the canonical contract, compares repair shapes, and wakes MIMIR with a committed recommendation or exact blocker
 ```
 
-Railway web and API return `200`, `ok:true`, `ready:true`, branch `main`, exact
-service names, and full accepted implementation SHA
-`ae349fc9f71c533333751a68515572a45bcff72b`. ARIADNE owns the read-only
-System/Light/Dark composer rerun at `1440x900`, `390x844`, and `375x812`.
+PR527D is closed as
+`CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED`. ARGUS accepted the
+scoped route repair, ARIADNE completed the full hosted `18/18` thread matrix,
+and the isolated PR527D1 composer correction passed ARGUS review plus the
+exact-SHA hosted `9/9` rerun. Composer boundary and placeholder minima are both
+`5.03:1`; overflow, clipping, overlap, page errors, unclassified console
+errors, non-auth product writes, and database drift are zero.
 
-DAEDALUS completed the bounded local PR527D1 repair. The signed-in Forum reply
-textarea now has a dedicated `forum-thread-detail-composer` class layered on
-the generic `textarea` class, with route-scoped semantic tokens for resting
-boundary, background, input text, caret, placeholder, placeholder opacity, and
-focus. Generic `.textarea` behavior and all Forum product behavior remain
-frozen.
-
-ARGUS accepts the repair without a review patch after independently rerunning
-community `50/50`, Studio UI `263/263`, web typecheck, web lint, diff check,
-and a separate nine-case rendered matrix. Across `1440x900`, `390x844`, and
-`375x812` in System, Light, and Dark, minimum resting boundary and placeholder
-contrast are both `5.03:1`; minimum input/caret contrast is `13.55:1`; minimum
-focus contrast is `6.84:1`; product writes, page errors, unclassified console
-errors, clipping, overlap, and horizontal overflow are all `0`.
-
-This is local acceptance only. The exact deployed accepted SHA is now ready,
-and ARIADNE must return the bounded composer verdict before MIMIR decides
-PR527D closeout.
-
-ARIADNE completed all `18` required exact-SHA hosted PR527D cases read-only.
-Thread presentation, replies, metadata, source navigation, participation,
-Watch and witness readback, theme persistence, focus, wrapping, mobile
-navigation, diagnostics, and mutation boundaries pass.
-
-The signed-in reply textarea blocks closeout. Its resting boundary measures
-`1.49:1` in Light and `1.55:1` in System-resolved Dark and explicit Dark,
-below `3:1`. Its placeholder measures `3.41:1` in both Dark cases, below
-`4.5:1`. PR527D1 is limited to a dedicated route composer class, scoped
-semantic boundary/placeholder tokens, and focused proof. Forum behavior,
-generic textarea styling, and unrelated routes remain frozen.
-
-The fixture summary said `1 reply` while two real replies rendered. That is a
-separate count/data truth caveat for later triage and must not broaden PR527D1.
-
-ARGUS accepts the bounded local PR527D implementation with a narrow scoped CSS
-and source-contract patch. DAEDALUS correctly moved thread-detail presentation
-onto `forum-thread-detail-*` classes and existing semantic tokens without
-changing API/data/auth/tier/Watch/vote/report/witness/moderation/database or
-global theme behavior.
-
-The submitted contrast evidence was incomplete. ARGUS independently found
-pre-patch Light minima of `2.94:1` meaningful text and `1.63:1` selected
-control boundaries, plus Dark selected/strong boundaries at `2.41:1`, a hover
-cascade that could erase selected-vote text, and source-link specificity drift.
-ARGUS moved meaningful faint/source text to readable semantic tokens, restored
-opaque selected/strong edges, isolated hover from selected/disabled states,
-added explicit pressed truth, and hardened metadata/control wrapping.
-
-Final pre-hosted local validation passed community `50/50`, Studio UI
-`263/263`, web typecheck/lint, and diff check. The hosted result supersedes the
-local composer evidence only; all other accepted PR527D evidence remains
-valid. After DAEDALUS and ARGUS close PR527D1 locally, ARIADNE reruns only the
-bounded hosted composer contrast sanity gate on the exact deployed SHA.
+The hosted thread summary still said `1 reply` while two visible replies
+rendered. Source orientation shows `threads.comment_count` is denormalized,
+thread detail loads visible comments separately, creation increments through
+a caught non-fatal RPC, and delete/moderation visibility changes do not
+symmetrically reconcile the counter. Category and Discover also consume that
+counter. ARGUS therefore owns a read-only cross-surface contract preflight;
+no cosmetic detail-only patch, hosted mutation, migration, or backfill is yet
+authorized.
 
 PR527C is closed as
 `CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED`.
@@ -82,13 +38,6 @@ three-viewport human states, and cleanup all pass. ARGUS's correction is
 retained: two sequential disposable create/delete cycles ran, not one total;
 both are independently zero-residue and their second-cycle reason is not
 inferred.
-
-PR527D is the next ranked PR527 correction. It is confined to the populated
-Forum thread-detail presentation, shared semantic tokens, and focused tests.
-All PR527C behavior, community actions, routes, data, auth, API, database,
-global preference behavior, and unrelated surfaces remain frozen. ARGUS has
-accepted the corrected local System/Light/Dark implementation; exact-SHA
-ARIADNE hosted rehearsal remains required.
 
 ARGUS accepts DAEDALUS's narrow UTF-8 signup password byte guard. Independent
 reruns pass auth `24/24`, community `49/49`, and API typecheck. The schema

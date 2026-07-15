@@ -4,6 +4,27 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D Closed; PR527D2 Reply Count Truth Preflight Opened
+
+MIMIR closed PR527D on 2026-07-15 as:
+
+```text
+CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED
+```
+
+The full hosted thread matrix passed every route surface except the isolated
+reply composer defect; PR527D1 corrected that defect and passed its exact-SHA
+hosted `9/9` rerun. Boundary and placeholder minima are `5.03:1`, input/caret
+minimum is `13.55:1`, focus minimum is `6.84:1`, and hosted layout,
+diagnostics, mutation, and database-preservation gates pass.
+
+The separate hosted `1 reply` summary versus two rendered visible replies is
+now PR527D2. Source orientation confirms detail/category/Discover consume a
+denormalized counter while visible comments are filtered separately and write/
+visibility-change paths do not guarantee symmetric reconciliation. ARGUS owns
+a read-only canonical-contract and repair-shape preflight. No hosted write,
+backfill, migration, or product patch is authorized yet.
+
 ## PR527D1 Forum Reply Composer Contrast Repair Accepted Locally
 
 ARGUS completed independent hostile review on 2026-07-15:
