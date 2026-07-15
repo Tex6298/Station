@@ -4,14 +4,30 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D1 Forum reply composer contrast repair with DAEDALUS
+## Active lane - PR527D1 Forum reply composer contrast repair with ARGUS
 
 ```text
-OPEN_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR
+READY_PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_FOR_ARGUS
 Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Source: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS.md
-Next: DAEDALUS implements the scoped textarea boundary/placeholder correction and wakes ARGUS with a committed result
+Result: docs/roadmap/PR527D1_FORUM_REPLY_COMPOSER_CONTRAST_REPAIR_DAEDALUS_RESULT.md
+Next: ARGUS hostile-reviews class/token scope, contrast gates, frozen Forum behavior, tests, and independent nine-case rendered proof
 ```
+
+DAEDALUS completed the bounded local PR527D1 repair. The signed-in Forum reply
+textarea now has a dedicated `forum-thread-detail-composer` class layered on
+the generic `textarea` class, with route-scoped semantic tokens for resting
+boundary, background, input text, caret, placeholder, placeholder opacity, and
+focus. Generic `.textarea` behavior and all Forum product behavior remain
+frozen.
+
+Local validation passes community `50/50`, Studio UI `263/263`, web
+typecheck, web lint, and `git diff --check`. The temporary intercepted local
+browser proof covered the signed-in empty composer at `1440x900`, `390x844`,
+and `375x812` across System, Light, and Dark. Minimum resting boundary contrast
+is `5.03:1`; minimum placeholder contrast is `5.03:1`; minimum input text
+contrast is `13.55:1`; minimum focus contrast is `6.84:1`; page errors,
+unclassified console errors, and horizontal overflow are all `0`.
 
 ARIADNE completed all `18` required exact-SHA hosted PR527D cases read-only.
 Thread presentation, replies, metadata, source navigation, participation,

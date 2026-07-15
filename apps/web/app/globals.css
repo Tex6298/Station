@@ -5449,6 +5449,24 @@ html, body {
   text-decoration: none;
 }
 
+.forum-thread-detail .forum-thread-detail-composer.textarea {
+  border-color: var(--station-page-muted);
+  background: var(--station-page-surface);
+  color: var(--station-page-text);
+  caret-color: var(--station-page-text);
+}
+
+.forum-thread-detail .forum-thread-detail-composer.textarea::placeholder {
+  color: var(--station-page-muted);
+  opacity: 1;
+}
+
+.forum-thread-detail .forum-thread-detail-composer.textarea:focus {
+  border-color: var(--station-page-accent);
+  outline: 2px solid var(--station-page-accent);
+  outline-offset: 2px;
+}
+
 .forum-thread-detail-button,
 .forum-thread-detail-witness-button,
 .forum-thread-detail-witness-pill,

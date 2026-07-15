@@ -72,6 +72,7 @@ test("forum thread detail uses scoped semantic theme classes", () => {
   assert.match(threadPage, /forum-thread-detail-watch/);
   assert.match(threadPage, /forum-thread-detail-witness-button/);
   assert.match(threadPage, /forum-thread-detail-moderation-button/);
+  assert.match(threadPage, /textarea forum-thread-detail-composer/);
   assert.match(threadPage, /forum-thread-detail-submit/);
   assert.doesNotMatch(
     threadPage,
@@ -88,6 +89,9 @@ test("forum thread detail uses scoped semantic theme classes", () => {
   assert.match(css, /\.forum-thread-detail \.forum-thread-detail-source-link\s*\{[\s\S]*?color: var\(--station-page-success-text\);/);
   assert.match(css, /\.forum-thread-detail-witness-button\[data-active="true"\],[\s\S]*?border-color: var\(--station-page-green\);/);
   assert.match(css, /\.forum-thread-detail-moderation-button\[data-strong="true"\]\s*\{[\s\S]*?border-color: var\(--station-page-red\);/);
+  assert.match(css, /\.forum-thread-detail \.forum-thread-detail-composer\.textarea\s*\{[\s\S]*?border-color: var\(--station-page-muted\);[\s\S]*?color: var\(--station-page-text\);/);
+  assert.match(css, /\.forum-thread-detail \.forum-thread-detail-composer\.textarea::placeholder\s*\{[\s\S]*?color: var\(--station-page-muted\);[\s\S]*?opacity: 1;/);
+  assert.match(css, /\.forum-thread-detail \.forum-thread-detail-composer\.textarea:focus\s*\{[\s\S]*?border-color: var\(--station-page-accent\);[\s\S]*?outline: 2px solid var\(--station-page-accent\);/);
   assert.match(css, /\.forum-thread-detail-button:hover:not\(:disabled\):not\(\[data-active="true"\]\)/);
   assert.match(css, /\.forum-thread-detail-button\[data-active="true"\]:hover\s*\{\s*border-color: var\(--station-page-accent\);\s*\}/);
   assert.match(css, /\.forum-thread-detail-button:active:not\(:disabled\)[\s\S]*?transform: translateY\(1px\);/);

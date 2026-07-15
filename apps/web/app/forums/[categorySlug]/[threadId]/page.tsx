@@ -555,7 +555,7 @@ export default function ThreadPage() {
           )}
           <form onSubmit={handleComment} style={{ display: "grid", gap: "0.75rem" }}>
             <textarea
-              className="textarea"
+              className="textarea forum-thread-detail-composer"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleComment(e as unknown as React.FormEvent); }}
