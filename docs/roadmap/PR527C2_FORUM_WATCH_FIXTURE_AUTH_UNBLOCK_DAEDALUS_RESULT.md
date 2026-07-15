@@ -21,8 +21,8 @@ hosted disposable proof that PR527C1 was missing.
 - Local auth tests prove `72` ASCII bytes reach the fake create boundary, while `73` ASCII bytes and multibyte-over-`72` byte inputs are rejected before create.
 - Hosted API deployed exact implementation SHA `0a1d3df5`.
 - Hosted oversized Station signup returned bounded validation `400` and zero tagged residue.
-- Hosted valid Station signup created exactly one disposable Visitor, then the original below-tier `403` and unreadable-thread `404` watch gates passed.
-- Cleanup removed the disposable user and synthetic removed thread, with zero tagged residue and restored baselines.
+- Hosted valid Station signup created a disposable Visitor, then the original below-tier `403` and unreadable-thread `404` watch gates passed.
+- Cleanup removed the disposable users and synthetic removed thread, with zero tagged residue and restored baselines.
 
 ## Local Validation
 
@@ -60,6 +60,21 @@ Sanitized final run:
 | Removed-thread watch PUT | `404`; bounded `Thread not found` |
 | Removed-thread watch DELETE | `404`; bounded `Thread not found` |
 | Removed-thread exposure | Forum list `false`; Discover search `false`; Discover feed `false` |
+
+## ARGUS Evidence Correction
+
+Post-review Supabase Auth management logs show two sequential tagged
+disposable-user create/delete cycles in the proof window, not one total cycle.
+Both creates and both deletes returned `200`, and the first delete completed
+before the second create. The retained evidence does not establish why the
+second cycle ran. ARGUS therefore does not certify a one-cycle-total or
+no-retry claim.
+
+Independent read-only cleanup review recovered both temporary ids in memory
+and found zero residue for either id across inspected Auth and public
+profile-referencing relations. Global baselines below remained exact. This is
+an evidence-count correction; it does not change the final boundary statuses
+or cleanup result.
 
 Cleanup/final residue:
 

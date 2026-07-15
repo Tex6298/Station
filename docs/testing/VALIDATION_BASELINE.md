@@ -4,7 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527C2 Implementation And Hosted Boundary Proof Complete For Review
+## PR527C2 Signup Guard And Hosted Boundary Proof Accepted By ARGUS
+
+ARGUS completed hostile review on 2026-07-15:
+
+- `docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_ARGUS_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR527C2_SIGNUP_GUARD_AND_BOUNDARY_PROOF_WITH_ARGUS_EVIDENCE_CORRECTION
+```
+
+PR527C disposition:
+
+```text
+CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED
+```
+
+The authoritative Station signup schema now rejects UTF-8 password input above
+bcrypt's `72` byte boundary before Supabase admin create. ARGUS independently
+reran auth `24/24`, community `49/49`, and API typecheck. The implementation
+diff contains only the signup schema and focused auth route tests; no web,
+migration, package, configured-account, or broader runtime surface changed.
+
+Read-only hosted review reconfirmed API/web `200`, ready `true`, and exact
+shared implementation SHA `0a1d3df5`. DAEDALUS's final-run matrix retains
+bounded oversized signup `400`, valid signup `201`, Visitor/non-admin truth,
+readable-thread PUT/DELETE `403`, removed-thread GET/PUT/DELETE `404`,
+non-exposure, and restored baselines.
+
+ARGUS corrects the handoff's implied one-cycle-total claim. Auth management
+logs show two sequential tagged create/delete cycles; both creates and both
+deletes succeeded, and the reason for the second cycle is not retained.
+Independent cleanup checks found both temporary ids absent across all inspected
+Auth and public profile-referencing relations, no Auth session/identity or
+storage/token orphans, exact global auth/profile/thread/comment/storage/token/
+watch/notification counts `14/14/12/7/14/19/0/0`, and tagged auth/profile/thread
+residue `0/0/0`. ARGUS sent zero hosted writes.
+
+## PR527C2 Implementation And Hosted Boundary Proof Submitted For Review
 
 DAEDALUS completed the accepted ARGUS lane:
 
@@ -40,7 +79,8 @@ Hosted proof at exact API SHA `0a1d3df5` passed:
 - watch, notification, thread, profile, storage usage, token usage, and comment
   baselines were restored.
 
-ARGUS review is mandatory before PR527C can close.
+ARGUS subsequently accepted this result with the two-cycle evidence correction
+recorded above and recommended PR527C closeout.
 
 ## PR527C2 Disposable Auth-Create Repair Accepted
 

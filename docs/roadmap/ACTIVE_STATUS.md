@@ -4,30 +4,40 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C2 Forum Watch fixture auth unblock review
+## Active lane - PR527C2 accepted; PR527C ready for MIMIR closeout
 
 ```text
-PROVE_PR527C2_SIGNUP_GUARD_AND_PR527C1_BOUNDARIES_COMPLETE
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
-Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_DAEDALUS_RESULT.md
-Next: ARGUS hostile review; wake MIMIR with the PR527C close verdict or DAEDALUS with WAKEUP A2 if fixes are needed
+ACCEPT_PR527C2_SIGNUP_GUARD_AND_BOUNDARY_PROOF_WITH_ARGUS_EVIDENCE_CORRECTION
+PR527C disposition: CLOSE_PR527C_FORUM_WATCH_HOSTED_LIFECYCLE_AND_BOUNDARIES_ACCEPTED
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_ARGUS_RESULT.md
+Next: MIMIR should close PR527C with ARGUS's evidence correction retained and choose the next roadmap lane
 ```
 
-DAEDALUS implemented the accepted UTF-8 signup password byte guard and proved it
-locally and hosted. `test:auth` now passes `24/24`, including `72` ASCII bytes
-reaching the fake create boundary and `73` ASCII plus multibyte-over-`72` byte
-inputs being rejected before create. `test:community` remains `49/49`, and API
-typecheck passes.
+ARGUS accepts DAEDALUS's narrow UTF-8 signup password byte guard. Independent
+reruns pass auth `24/24`, community `49/49`, and API typecheck. The schema
+allows `72` ASCII bytes, rejects `73` ASCII bytes and multibyte input above
+`72` bytes before auth create, and returns bounded validation without secret or
+implementation-detail echo.
 
 Hosted API and web were ready on exact implementation SHA `0a1d3df5`. The
 hosted proof showed oversized Station signup returns bounded validation `400`
-with zero tagged residue; valid Station signup returns `201` for exactly one
-disposable Visitor; `/auth/me` and profile truth are Visitor/non-admin; watch
-PUT/DELETE on a readable thread return `403`; watch GET/PUT/DELETE on a
-synthetic removed thread return `404`; the removed thread does not appear in
-Forum list, Discover search, or Discover feed; and cleanup restores all
-auth/profile/thread/storage/token/watch/notification/comment baselines with
-zero tagged residue.
+with zero tagged residue; valid Station signup returns `201` for a disposable
+Visitor; `/auth/me` and profile truth are Visitor/non-admin; watch PUT/DELETE
+on a readable thread return `403`; watch GET/PUT/DELETE on a synthetic removed
+thread return `404`; the removed thread does not appear in Forum list,
+Discover search, or Discover feed; and cleanup restores all recorded baselines.
+
+ARGUS corrects one evidence claim: management logs show two sequential tagged
+disposable-user create/delete cycles, not one total cycle. Both creates and
+deletes succeeded, the first delete preceded the second create, and the reason
+for the second cycle is not retained. Read-only cleanup review found both ids
+absent across inspected Auth and public profile-referencing relations, no Auth
+session/identity or storage/token orphans, exact global
+`14/14/12/7/14/19/0/0` auth/profile/thread/comment/storage/token/watch/
+notification baselines, and zero tagged auth/profile/thread residue. ARGUS
+sent zero hosted writes. This correction prevents overclaim without changing
+the accepted boundary or cleanup result.
 
 ARGUS independently correlated the two DAEDALUS admin-create `500`s with exact
 Auth events: both requests panicked because the generated password exceeded
@@ -58,11 +68,11 @@ GET `200/false`. ARGUS sent no hosted write. Supabase Auth admin `createUser`
 returned `500/unexpected_failure` twice before any fixture existed; PR527C2
 subsequently identified both oversized generated passwords as the exact cause.
 
-The hosted below-tier PUT/DELETE `403` and unreadable-thread GET/PUT/DELETE
-`404` gates therefore remain unproved. Station signup becomes the accepted
-fixture path only after its authoritative 72-byte input guard is deployed.
-Direct auth-table writes, configured-account changes, existing-thread
-mutation, and forged auth remain unauthorized.
+PR527C2 subsequently proved the hosted below-tier PUT/DELETE `403` and
+unreadable-thread GET/PUT/DELETE `404` gates through deployed Station signup
+with the authoritative 72-byte input guard. Direct auth-table writes,
+configured-account changes, existing-thread mutation, and forged auth remain
+unauthorized.
 
 ARGUS accepts PR527C as
 `ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH`.
