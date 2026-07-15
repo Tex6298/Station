@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile accepted locally; hosted rehearsal next
+## Active lane - PR527E Persona Profile hosted rehearsal open
 
 ```text
 ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_WITH_ARGUS_PATCH
@@ -13,8 +13,9 @@ Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
 Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
 ARGUS result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md
+Hosted rehearsal: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_ARIADNE.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: MIMIR closes the local review and wakes ARIADNE for the locked exact-SHA zero-product-write hosted rehearsal
+Next: ARIADNE runs the locked exact-SHA zero-product-write hosted human rehearsal and wakes MIMIR with the verdict
 ```
 
 ARGUS accepts the implementation with a narrow patch. Exact id/owner and
@@ -43,7 +44,9 @@ personas `18/18`, Integrity `3/3`, persona context `12/12`, web/API typecheck,
 web lint, and `git diff --check`. The owner-filtered delete API still exists,
 but Persona Profile contains no delete command. Backend, schema, auth, tier,
 billing, provider, public, package, config, hosted runtime, and hosted product
-data remain frozen. Hosted acceptance is still open and read-only.
+data remain frozen. MIMIR has now routed the final read-only hosted rehearsal
+to ARIADNE at accepted review SHA `3e6331c3`; all hosted product writes remain
+forbidden.
 
 PR527D2 is closed as
 `CLOSE_PR527D2_FORUM_REPLY_COUNT_TRUTH_ACCEPTED_WITH_DISCOVER_CONTRACT_CAVEATS`.

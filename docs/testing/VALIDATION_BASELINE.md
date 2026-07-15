@@ -6,6 +6,17 @@ change, not to unknown repo hygiene.
 
 ## PR527E Persona Profile Truth And Theme Accepted With ARGUS Patch
 
+MIMIR routed the final hosted human rehearsal to ARIADNE on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_ARIADNE.md`
+
+The rehearsal is locked to accepted review SHA
+`3e6331c3f8b2c91b3667a445873a78561a087901` (or a proven
+runtime-identical docs/receipt descendant), the existing replay-owner Persona
+Profile, signed-out protection, all six owner destinations, and the
+System/Light/Dark matrix at desktop, `390`, and `375`. Hosted product mutation
+count must remain zero.
+
 ARGUS accepted the local implementation review on 2026-07-15:
 
 - `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md`
