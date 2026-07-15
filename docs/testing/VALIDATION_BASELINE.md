@@ -39,6 +39,16 @@ No hosted migration, preference, notification, Watch, comment, report, review,
 profile, or Settings product write occurred. Hosted implementation proof remains
 deferred until DAEDALUS implements the exact allow-list and ARGUS accepts it.
 
+The implementation contract is now open at:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md`
+
+Migration `084`, authoritative GET/PATCH, future `thread_comment` recipient
+gating, and the non-optimistic Settings state machine must land together.
+Report/review notifications, Watch rows, existing notification rows/read state,
+and external delivery remain frozen. Hosted schema or product-data mutation is
+forbidden until the independent implementation review accepts the local slice.
+
 ## PR527E Closed; PR527F Settings Preflight Opened
 
 MIMIR closed PR527E on 2026-07-15:

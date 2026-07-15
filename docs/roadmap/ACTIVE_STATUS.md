@@ -4,14 +4,15 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F Settings Persistence Truth preflight accepted
+## Active lane - PR527F Settings Persistence Truth implementation
 
 ```text
 ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_NOTIFICATION_PREFERENCE_GATING_FUTURE_THREAD_COMMENT_FANOUT
-Owner chain: MIMIR -> ARGUS -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS
 Result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
+Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR may open the exact bounded DAEDALUS implementation, with hosted mutation deferred until independent implementation review
+Next: DAEDALUS implements the exact local slice and wakes ARGUS for hostile review; hosted mutation remains deferred until ARGUS accepts it
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -33,6 +34,12 @@ System/Light/Dark desktop/mobile orientation confirmed current schema absence,
 the public Profile boundary, zero Watches/notifications, stable geometry, and
 no product write. The accepted result locks migration `084`, API/state/copy,
 file allow-list, local tests, and a later disposable hosted lifecycle.
+
+PR527F is now open for DAEDALUS implementation. Checkbox persistence alone is
+not the feature: migration `084`, authoritative API readback, future
+`thread_comment` fanout gating, and the controlled non-optimistic Settings UI
+must land and validate as one bounded slice. Hosted migration and product-data
+mutation remain forbidden until independent ARGUS acceptance.
 
 ## Previous PR527E hosted rehearsal blocker history
 
