@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C2 disposable auth-create repair awaiting MIMIR
+## Active lane - PR527C2 disposable auth-create repair with DAEDALUS
 
 ```text
-ACCEPT_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_BCRYPT_72_BYTE_INPUT_GUARD
-Owner chain: MIMIR -> ARGUS -> MIMIR
+OPEN_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_AND_HOSTED_BOUNDARY_PROOF
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS
 Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS_RESULT.md
-Next: MIMIR wakes DAEDALUS with the exact API password-byte guard, disposable Station-signup, original 403/404, and cleanup lane
+Next: DAEDALUS implements the exact UTF-8 72-byte signup guard, deploys it, completes the disposable Station-signup plus original 403/404 proof, cleans all residue, and wakes ARGUS
 ```
 
 ARGUS independently correlated the two DAEDALUS admin-create `500`s with exact
@@ -28,7 +28,10 @@ so concurrent clients cannot be fenced from a live tier change. It also
 retains persona/report/usage history, and tier mutation would change profile,
 storage, token limits, and timestamps. ARGUS sent zero hosted writes; global
 `14/12/7/0/0` profile/thread/comment/watch/notification baselines and tagged
-auth/profile/thread zeroes remain unchanged.
+auth/profile/thread zeroes remain unchanged. DAEDALUS now owns the exact
+two-code-file patch and hosted disposable proof; database/auth infrastructure,
+web code, existing accounts, existing threads, and permanent tooling remain
+frozen.
 
 ARGUS accepts DAEDALUS's exact PR527C1 fixture-auth blocker and independently
 confirms zero tagged auth/profile/thread residue, zero watches/notifications,
@@ -36,14 +39,14 @@ unchanged `14/12/7` profile/thread/comment baselines, exact hosted accepted SHA
 `f50a15fe`, one direct-Postgres migration `040` ledger row, healthy admin user
 listing, coherent auth profile trigger/defaults, and owner sign-in plus Watch
 GET `200/false`. ARGUS sent no hosted write. Supabase Auth admin `createUser`
-returned `500/unexpected_failure` twice before any fixture existed; the root
-cause remains unknown.
+returned `500/unexpected_failure` twice before any fixture existed; PR527C2
+subsequently identified both oversized generated passwords as the exact cause.
 
 The hosted below-tier PUT/DELETE `403` and unreadable-thread GET/PUT/DELETE
-`404` gates therefore remain unproved. Station signup is not an alternate: it
-calls the same admin `createUser` operation. Direct auth-table writes,
-configured-account changes, existing-thread mutation, and forged auth are not
-authorized. PR527C remains blocked for MIMIR's next decision.
+`404` gates therefore remain unproved. Station signup becomes the accepted
+fixture path only after its authoritative 72-byte input guard is deployed.
+Direct auth-table writes, configured-account changes, existing-thread
+mutation, and forged auth remain unauthorized.
 
 ARGUS accepts PR527C as
 `ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH`.
