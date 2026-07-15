@@ -4,6 +4,53 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Forum Watch Hosted-Readiness Repair Accepted Locally
+
+ARGUS accepted the repair with one narrow review patch on 2026-07-15:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_ARGUS_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_WITH_ARGUS_PATCH
+```
+
+Independent hosted read-only review proved web/API ready at implementation SHA
+`f17fcd1b6bd0`, exact migration `040` table/column/default/constraint/index/
+trigger/RLS/policy shape, one ledger row at `20260715095133`, four unchanged
+later community rows, PostgREST visibility, signed-out watch `401`, and owner
+watch GET `200/false/null`. Watch and notification counts remained `0 -> 0`;
+ARGUS sent no hosted watch PUT/DELETE or product write.
+
+ARGUS changed the initial watch load from awaited to detached because awaiting
+kept the whole thread behind generic `Loading...`. The already-readable thread
+now renders while the watch panel honestly shows `Loading watch state...` and
+no command or state claim. All watch errors remain caught and fail closed.
+
+Final validation:
+
+| Command / check | Result |
+| --- | --- |
+| Focused notification/watch test | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `49/49` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `263/263` |
+| API and web typecheck | Pass |
+| Web lint | Pass, no warning or error |
+| Independent hosted schema/ledger/API probe | Pass |
+| Independent intercepted Playwright proof | Pass, `12/12` groups |
+
+Browser proof covered signed-out, below-tier, delayed initial GET, failed and
+malformed GET, GET-only Retry, ready true/false, pending/successful PUT,
+successful DELETE, failed and ambiguous PUT/DELETE reconciliation, unexpected
+booleans, refresh persistence, and desktop/`390`/`375` fit. All browser writes
+were intercepted synthetic requests; screenshots were inspected and removed.
+
+This is not final hosted journey acceptance. ARIADNE must wait for the exact
+accepted review SHA, perform the reversible Watch/duplicate/refresh/Unwatch/
+repeat/restoration contract, prove the final state equals the initial state,
+and keep PR527D separate.
+
 ## PR527C Forum Watch Hosted-Readiness Repair Implemented For Review
 
 DAEDALUS completed the bounded repair on 2026-07-15:

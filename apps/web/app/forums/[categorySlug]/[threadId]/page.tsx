@@ -138,7 +138,7 @@ export default function ThreadPage() {
         const nextSession = { access_token: sess.access_token, user: sess.user };
         setSession(nextSession);
         if (canUseThreadWatch(sess.user)) {
-          await loadWatchState(data.thread.id, sess.access_token);
+          void loadWatchState(data.thread.id, sess.access_token);
         }
       }
     }).catch((e) => {

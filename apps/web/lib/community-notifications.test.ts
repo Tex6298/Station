@@ -51,6 +51,8 @@ test("forum thread watch panel fails closed on unreadable or ambiguous watch sta
   assert.match(source, /parseThreadWatchResponse/);
   assert.match(source, /typeof candidate\.isWatching !== "boolean"/);
   assert.match(source, /data\.isWatching !== expectedIsWatching/);
+  assert.match(source, /void loadWatchState\(data\.thread\.id, sess\.access_token\)/);
+  assert.doesNotMatch(source, /await loadWatchState\(data\.thread\.id, sess\.access_token\)/);
   assert.match(source, /Watch state unavailable/);
   assert.match(source, /Station could not confirm whether you are watching this thread\. Retry before changing watch state\./);
   assert.match(source, /Watch change unconfirmed/);
