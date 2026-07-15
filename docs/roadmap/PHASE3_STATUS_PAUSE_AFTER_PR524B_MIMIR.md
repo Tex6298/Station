@@ -2,7 +2,8 @@
 
 Date: 2026-07-12
 
-Last reaffirmed: 2026-07-15 after accepted PR525 UI integration closeout
+Last reaffirmed: 2026-07-15 after PR525 visual-foundation closeout and the
+PR527 UI product-completeness correction
 
 Owner: MIMIR / A1
 
@@ -51,14 +52,21 @@ be a PR524B hosted proof rerun, not a new product capability.
   Redis, Cloudflare, queue/worker/webhook, package/lockfile, deployment, or
   broad UI redesign as part of this lane.
 
-## UI Integration Completed During The Pause
+## UI Product Completeness Work During The Pause
 
-PR525 subsequently completed the companion-first Station UI integration and
+PR525 subsequently completed the companion-first Station visual foundation and
 the shared System/Light/Dark treatment, including exact-SHA hosted desktop and
-mobile proof. That accepted work is closed in:
+mobile proof. That accepted visual work is closed in:
 
 `docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md`
 
-It does not remove or widen the PR524B generated-material publication blocker.
-The next valid PR524B action remains the hosted proof rerun after the hosted
-Supabase/RPC/schema accepts generated scopes.
+Product-owner correction `6ee89b5a` superseded the broader claim that UI
+integration was complete. PR527 now inventories and closes the supported
+hosted product's working-and-pretty journeys:
+
+`docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md`
+
+PR527 does not remove or widen the PR524B generated-material publication
+blocker and does not resume unrelated Phase 3 product expansion. The next valid
+PR524B action remains the hosted proof rerun after the hosted Supabase/RPC/
+schema accepts generated scopes.

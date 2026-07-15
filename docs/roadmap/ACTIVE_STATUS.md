@@ -4,25 +4,33 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Mainline paused - PR525 UI integration accepted
+## Active lane - PR527 UI product completeness hosted journey inventory
 
 ```text
-CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE
-Source: docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md
+OPEN_PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY
+Owner chain: MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md
 ```
 
-PR525A-H, the PR526A fresh-head audit, and the PR526B boundary preflight are
-closed or deliberately parked exactly as recorded in the final closeout. The
-accepted light composition and final System/Light/Dark treatment have fresh
-exact-SHA hosted proof across public/private desktop and mobile routes.
+Product-owner correction `6ee89b5a` supersedes PR525's overall UI-completion
+label. PR525A-H remain accepted as the Discern-informed visual foundation, but
+their predetermined read-heavy route matrix did not prove Station's supported
+product end to end.
 
-There is no active implementation, review, or rehearsal baton. The existing
-PR524B / Phase 3 product pause is restored. MIMIR must not automatically open a
-new feature, hardening, operations, backend, provider, or product-expansion
-lane. Mainline resumes only on a later explicit Marty instruction or a
-correction required to keep the final closeout truthful.
+ARIADNE owns a finite hosted human/product inventory across account entry,
+persona setup/import/update, companion chat, Memory/Continuity/Integrity,
+Archive, writing/publishing, Spaces, public discovery, Forums/community,
+Developer Spaces, settings/providers, Stripe test billing, and exports. Live
+commands require authoritative mutation/readback/refresh/cleanup proof; every
+visible command must be live, truthfully unavailable, permission-gated, or
+recorded as a route-specific defect. The result returns to MIMIR for ARGUS
+boundary review where needed and bounded DAEDALUS correction slices.
 
-## Closed UI integration evidence
+PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
+automatically mandatory implementations, but their underlying current product
+journeys cannot pass solely because those proposals remain parked.
+
+## Accepted visual-foundation evidence
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -213,7 +221,8 @@ PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PL
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              CLOSED
 PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    CLOSED
-Final UI integration closeout                                      CLOSED / MAINLINE PAUSED
+PR525 visual-foundation closeout                                   CLOSED
+PR527 UI product completeness hosted inventory                     ACTIVE / ARIADNE
 ```
 
 Commit `99ae8a5c` remains lineage only; its removed persona topbar/right panel
@@ -221,8 +230,9 @@ are not part of the target. PR525's accepted visual source remains `de7b918e`;
 PR526A prevents that snapshot from being mistaken for a current-head audit.
 
 The final light composition, shared System/Light/Dark treatment, and hosted
-dual-mode rehearsal are accepted without reopening a broad reskin. Phase 3
-product expansion and PR524B are paused under the restored MIMIR directive.
+dual-mode rehearsal remain accepted without reopening a broad reskin. PR527
+now owns working-and-pretty product completeness; Phase 3 product expansion and
+PR524B remain paused.
 
 ## Previous lane - PR523D Studio companion entry affordance repair closed
 

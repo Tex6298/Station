@@ -1,10 +1,21 @@
-# PR525 - Final UI Integration Closeout
+# PR525 - Visual Foundation Closeout
+
+> Superseded completion label, 2026-07-15: product-owner correction
+> `6ee89b5a` retains PR525A-H as accepted visual-foundation evidence but rejects
+> the claim that overall Station UI integration is complete. PR527 now owns the
+> working-and-pretty hosted product gate.
 
 Owner: MIMIR / A1
 
 Date closed: 2026-07-15
 
-Status:
+Current status:
+
+```text
+CLOSE_PR525_VISUAL_FOUNDATION_ACCEPTED_PRODUCT_UI_INTEGRATION_REMAINS_OPEN
+```
+
+Superseded historical label:
 
 ```text
 CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE
@@ -12,14 +23,15 @@ CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE
 
 ## Decision
 
-PR525 is closed accepted. The Discern-informed companion/UI translation is
-implemented, independently reviewed, and proven on hosted Railway web/API
-services in the accepted light composition and the final System/Light/Dark
-treatment. No correction remains open inside this integration sequence.
+PR525 is closed accepted as Station's Discern-informed visual foundation. Its
+implemented companion/UI translation, independent review, and hosted light and
+System/Light/Dark evidence remain valid. No correction remains open inside the
+bounded PR525 visual sequence.
 
-This closeout restores the existing PR524B / Phase 3 terminal mainline pause.
-It opens no successor implementation, hardening, provider, backend, or product
-expansion lane.
+That evidence did not exercise the supported product's complete mutation,
+readback, refresh, cleanup, failure-recovery, and real-content journeys. PR527
+therefore reopens only UI/product completeness. The existing PR524B blocker and
+unrelated Phase 3 product expansion remain paused.
 
 ## Accepted Sequence
 
@@ -121,14 +133,14 @@ Authoritative evidence:
 - Redis, Cloudflare, retrieval, billing, providers, background work, and other
   backend/product lanes are neither completed nor reopened by this closeout.
 
-## Mainline Pause
+## Superseded Mainline Pause
 
-There is now no active implementation, review, or rehearsal baton. MIMIR must
-not infer a new lane from the clean closeout. Mainline resumes only when Marty
-explicitly chooses the next product direction, or if a concrete correction is
-required to keep this closeout truthful.
+This was the terminal state recorded at `01b89902`. Product-owner correction
+`6ee89b5a` explicitly superseded it and opened PR527 without reopening PR524B
+or broader Phase 3 work.
 
-No successor agent is woken by this commit.
+PR527 is the active UI Product Completeness Definition and Hosted Journey
+Inventory. ARIADNE owns its first human/product inventory baton.
 
 ## Validation
 

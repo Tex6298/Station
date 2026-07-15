@@ -12,14 +12,14 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| Paused | Mainline after accepted PR525 UI integration | MIMIR / A1 | `CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE`; no active implementation/review/rehearsal baton and no inferred successor lane. | `docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md` |
+| PR527 | UI Product Completeness Definition And Hosted Journey Inventory | MIMIR -> ARIADNE -> MIMIR | `OPEN_PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY`; finite hosted journey and visible-command inventory, followed by numbered correction slices until the working-and-pretty product gate passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
 ## Recently Closed
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
-| PR525 final closeout | Discern-Informed UI Integration | MIMIR -> ARIADNE / DAEDALUS / ARGUS -> MIMIR | Closed as `CLOSE_PR525_UI_INTEGRATION_ACCEPTED_AND_RESTORE_MAINLINE_PAUSE`; implemented translation, deliberate deviations, local review corrections, light and dual-theme hosted proof, parked PR526 proposals, and the PR524B blocker are recorded. | `docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md` |
+| PR525 visual-foundation closeout | Discern-Informed Visual Foundation | MIMIR -> ARIADNE / DAEDALUS / ARGUS -> MIMIR | Closed as `CLOSE_PR525_VISUAL_FOUNDATION_ACCEPTED_PRODUCT_UI_INTEGRATION_REMAINS_OPEN`; visual translation, deliberate deviations, review corrections, and light/dual-theme hosted evidence remain accepted, while PR527 supersedes the overall-completion claim. | `docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md` |
 | PR525H hosted rehearsal | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> ARIADNE -> MIMIR | Passed as `PASS_PR525H_HOSTED_DUAL_THEME_REHEARSAL`; exact-SHA System/Light/Dark public/private proof passes at all three viewports with no blocker or hosted mutation. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_HOSTED_REHEARSAL_RESULT.md` |
 | PR525H review | Shared Light/Dark Theme Treatment | MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> ARIADNE | Accepted as `ACCEPT_PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_WITH_ARGUS_PATCH`; denied-storage fallback, Discover contrast, and observatory isolation were corrected, with full local tests and independent rendered proof passing. | `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_ARGUS_RESULT.md` |
 | PR525G closeout | Hosted Light-Parity Rehearsal | MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_ACCEPTED`; the fresh hosted 12-case light matrix, session persistence, exact geometry, accessibility, state truth, and mobile fit pass, opening PR525H. | `docs/roadmap/PR525G_HOSTED_LIGHT_PARITY_REHEARSAL_CLOSEOUT_MIMIR.md` |

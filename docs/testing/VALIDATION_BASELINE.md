@@ -4,6 +4,18 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527 UI Product Completeness Inventory Open
+
+Product-owner correction `6ee89b5a` retains the PR525 visual and theme proof
+below but supersedes its overall UI-completion label. PR527 now requires hosted
+end-to-end journey and visible-command evidence, including authoritative
+mutation/readback/refresh/cleanup proof where a workflow writes state:
+
+- `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md`
+
+No PR527 journey result is accepted yet. ARIADNE owns the first hosted
+human/product inventory. PR524B and unrelated Phase 3 expansion remain paused.
+
 ## PR525H Hosted Dual-Theme Rehearsal
 
 ARIADNE completed the exact-SHA hosted rehearsal on 2026-07-15:
@@ -45,9 +57,9 @@ Reason:
 | `git diff --check` | Pass | No whitespace errors in the documentation result. |
 | `pnpm typecheck` | Not required | Documentation only; no imports or scripts changed. |
 
-MIMIR accepted this proof in
-`docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md`; the terminal
-mainline pause is restored.
+MIMIR accepted this as visual-foundation proof in
+`docs/roadmap/PR525_FINAL_UI_INTEGRATION_CLOSEOUT_MIMIR.md`. The former terminal
+UI-completion pause was superseded by PR527; the proof itself remains valid.
 
 ## PR525H ARGUS Review - Shared Light/Dark Theme Treatment
 
