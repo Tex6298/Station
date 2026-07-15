@@ -4,19 +4,39 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile hosted rehearsal open
+## Active lane - PR527E hosted blockers routed as PR527E1 and PR484J-N1
 
 ```text
-ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_WITH_ARGUS_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+BLOCK_PR527E_HOSTED_PLACEHOLDER_CONTRAST_AND_ARCHIVE_CREDENTIALS_READ
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
 Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
 Implementation result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS_RESULT.md
 ARGUS result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_ARGUS_RESULT.md
 Hosted rehearsal: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_ARIADNE.md
+Hosted result: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_RESULT.md
+Placeholder repair: docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS.md
+Archive schema/read unblock: docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: ARIADNE runs the locked exact-SHA zero-product-write hosted human rehearsal and wakes MIMIR with the verdict
+Next: DAEDALUS completes both bounded tasks, wakes ARGUS for hostile review, then ARIADNE reruns only the failed hosted gates
 ```
+
+ARIADNE passed signed-out protection, exact owner/static/live truth, independent
+secondary readbacks, absence of delete/broader edit, all six keyboard routes,
+focus, hover, disabled states, wrapping, responsive geometry, diagnostics apart
+from one classified request, and zero hosted product writes. PR527E remains
+open for exactly two defects: empty Profile placeholders measure `2.94:1` in
+System/Dark and `3.83:1` in Light, and Archive credential metadata GET returns
+one bounded hosted `500`.
+
+MIMIR's sanitized direct probe identifies the Archive failure as missing
+accepted hosted schema: normal reads of
+`public.archive_connector_credentials` and
+`public.archive_connector_oauth_states` return `PGRST205`. PR484J-N1 therefore
+authorizes only exact migrations `062` and `063`, their honest ledger rows,
+catalog/read proof, and zero credential/OAuth/product rows. It does not require
+or authorize Reddit configuration, an encryption key, OAuth, provider calls,
+or migrations `064` through `067`.
 
 ARGUS accepts the implementation with a narrow patch. Exact id/owner and
 continuity truth now gate owner controls; secondary architecture, graph,

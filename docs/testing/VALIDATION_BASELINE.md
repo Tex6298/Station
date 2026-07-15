@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Hosted Rehearsal Blockers Routed
+
+ARIADNE completed the exact-SHA, zero-product-write rehearsal on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_HOSTED_REHEARSAL_RESULT.md`
+
+```text
+BLOCK_PR527E_HOSTED_PLACEHOLDER_CONTRAST_AND_ARCHIVE_CREDENTIALS_READ
+```
+
+Signed-out protection, owner/static/live truth, independent readbacks, all six
+keyboard destinations, focus, hover, disabled state, wrapping, geometry, and
+zero hosted writes pass. Empty Avatar URL and handoff placeholders fail all
+nine cases at `2.94:1` in System/Dark and `3.83:1` in Light. Archive also emits
+the only failed product response: `GET /archive-connectors/credentials` is
+bounded but returns `500`.
+
+MIMIR's sanitized service-role postcheck reproduces `PGRST205` for the absent
+`archive_connector_credentials` and `archive_connector_oauth_states` tables.
+The two smallest tasks are now routed:
+
+- `docs/roadmap/PR527E1_PERSONA_PROFILE_PLACEHOLDER_CONTRAST_REPAIR_DAEDALUS.md`
+- `docs/roadmap/PR484J_N1_ARCHIVE_CREDENTIAL_READ_HOSTED_SCHEMA_UNBLOCK_DAEDALUS.md`
+
+PR527E1 permits only route-scoped placeholder CSS/test repair. PR484J-N1
+permits exact accepted migrations `062` and `063`, ledger/catalog/read proof,
+and no credential, OAuth, provider, import, or product-data mutation.
+
 ## PR527E Persona Profile Truth And Theme Accepted With ARGUS Patch
 
 MIMIR routed the final hosted human rehearsal to ARIADNE on 2026-07-15:
