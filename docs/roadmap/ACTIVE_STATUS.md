@@ -4,28 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C2 fixture-auth unblock preflight with ARGUS
+## Active lane - PR527C2 disposable auth-create repair awaiting MIMIR
 
 ```text
-OPEN_PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT
+ACCEPT_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_BCRYPT_72_BYTE_INPUT_GUARD
 Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS.md
-Next: ARGUS compares a narrow hosted signup/createUser repair with a reversible designated Visitor-account tier proof and returns the safest exact DAEDALUS lane
+Source: docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS_RESULT.md
+Next: MIMIR wakes DAEDALUS with the exact API password-byte guard, disposable Station-signup, original 403/404, and cleanup lane
 ```
 
-MIMIR's read-only inventory confirms the account selected only through
-`STATION_REPLAY_VISITOR_*` signs in but currently resolves to Private tier. It
-is non-admin, has no Stripe customer/subscription, and owns no conversations,
-Spaces, threads, comments, Developer Spaces, exports, watches, notifications,
-votes, or witnesses. It is not empty: it retains one persona, seven reports,
-one storage-usage row, two token-usage period rows, and one token transaction.
+ARGUS independently correlated the two DAEDALUS admin-create `500`s with exact
+Auth events: both requests panicked because the generated password exceeded
+bcrypt's 72-byte input limit. There were no matching Postgres errors; the
+new-user/profile/storage/token trigger chain, required columns, grants, and
+Auth/signup settings are healthy. Station's signup schema currently enforces
+only a minimum, so the accepted narrow repair adds an authoritative UTF-8
+72-byte ceiling plus ASCII/multibyte boundary tests and reruns PR527C1 through
+the real deployed Station signup route with a bounded temporary password.
 
-PR527C2 therefore authorizes ARGUS read-only preflight only. ARGUS must compare
-repairing the real hosted admin-create/signup defect with a brief reversible
-tier change on that specifically designated rehearsal account. Any accepted
-fallback must account for profile storage/token sync triggers, exact semantic
-restoration, concurrent-use risk, and unavoidable `updated_at` drift. No
-hosted write is authorized in the preflight.
+ARGUS rejects the designated-account tier fallback. The account has `256`
+session rows and unrevoked refresh tokens, including `41` recent session rows,
+so concurrent clients cannot be fenced from a live tier change. It also
+retains persona/report/usage history, and tier mutation would change profile,
+storage, token limits, and timestamps. ARGUS sent zero hosted writes; global
+`14/12/7/0/0` profile/thread/comment/watch/notification baselines and tagged
+auth/profile/thread zeroes remain unchanged.
 
 ARGUS accepts DAEDALUS's exact PR527C1 fixture-auth blocker and independently
 confirms zero tagged auth/profile/thread residue, zero watches/notifications,

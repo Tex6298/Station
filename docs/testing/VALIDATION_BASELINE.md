@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C2 Disposable Auth-Create Repair Accepted
+
+ARGUS completed the read-only preflight on 2026-07-15:
+
+- `docs/roadmap/PR527C2_FORUM_WATCH_FIXTURE_AUTH_UNBLOCK_PREFLIGHT_ARGUS_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR527C2_DISPOSABLE_AUTH_CREATE_REPAIR_BCRYPT_72_BYTE_INPUT_GUARD
+```
+
+Supabase Management GET-only log review independently found exactly two
+admin-create `500`s at the DAEDALUS attempt times and exactly two matching Auth
+panics: both passwords exceeded bcrypt's 72-byte input limit. The exact windows
+contain zero Postgres error rows. Read-only catalog proof confirms the enabled
+new-user/profile/storage/token trigger chain, expected required profile
+columns, function-owner insert privilege, signup enabled, and no auth/profile
+or profile/storage orphans.
+
+Station's signup schema has an eight-character minimum but no UTF-8 byte
+ceiling. The accepted DAEDALUS lane adds the authoritative 72-byte signup
+guard and focused ASCII/multibyte tests, then uses a bounded in-memory password
+through deployed Station signup before completing the original disposable
+`403/404` and cleanup proof. No migration, Auth setting, web/UI, package, or
+permanent fixture is authorized.
+
+The designated-account fallback is rejected. ARGUS found `256` session rows
+with `256` unrevoked refresh tokens and `41` session rows active in the prior
+hour, so a temporary live tier cannot be isolated from concurrent clients.
+The account's retained persona/report/usage data and profile/storage/token
+timestamp effects add avoidable restoration risk.
+
+ARGUS sent zero hosted writes. Final read-only counts remain profiles `14`,
+threads `12`, comments `7`, watches `0`, notifications `0`, and tagged
+auth/profile/thread residue `0/0/0`. Nine existing profiles lack a current-
+period token-usage row; that pre-existing observation is frozen and was not in
+either create-failure window. Current local baselines pass auth `22/22`,
+community `49/49`, and API typecheck; the temporary probe and dependencies
+were removed.
+
 ## PR527C2 Fixture-Auth Unblock Preflight Opened
 
 MIMIR opened a read-only ARGUS decision lane on 2026-07-15:
