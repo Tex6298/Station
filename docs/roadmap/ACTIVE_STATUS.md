@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527B Space entitlement and visibility boundary preflight
+## Active lane - PR527B Space entitlement and visibility repair
 
 ```text
-OPEN_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT
-Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS.md
-Next: ARGUS locks the preflight, private-default, race, and proof boundaries
+ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARIES
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS
+Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
+Next: MIMIR wakes DAEDALUS with the accepted allow-list and gates
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -32,18 +32,24 @@ Public, while the complete live builder renders before the owner plan and Space
 count are checked. The replay owner discovers the zero-Space Private-tier limit
 only after completing and submitting the form.
 
-MIMIR proposes a bounded repair: load existing owner-safe entitlement/count
-signals before rendering a live builder; show no form during loading, failure,
-below-tier, or at-limit states; use only Billing and My Spaces as unavailable
-destinations; default entitled web and API creation to Private; require an
-explicit owner action for Public; and retain the current authoritative server
-tier/count checks. A stale-preflight `403` must preserve entered values,
-refresh gating, and create no orphan.
+ARGUS accepts the bounded repair. Existing restored-user, billing-status, and
+owner-Space reads must fail closed before the builder appears. The preflight
+must mirror the server's Creator-tier check before count policy, including the
+fact that admin bypass applies only to count after the route tier guard passes.
+Loading, read failure, tier mismatch, below-tier, and at-limit states expose no
+form or Create command.
 
-ARGUS must decide the exact boundary before implementation. PR527B does not
-claim the full J07 create/edit/public/cleanup journey; after truth repair it
-should remain blocked on an accepted entitled disposable lifecycle unless that
-proof already exists.
+An entitled builder defaults Private in web state and omitted API input;
+Public requires an explicit owner selection. A stale create `403` closes the
+form, preserves entries, refreshes the same gate, and never automatically
+replays POST. Shared Space-management presentation and authoritative server
+guards remain unchanged.
+
+This is an accepted preflight, not implementation or hosted acceptance.
+PR527B does not claim the full J07 create/edit/public/cleanup journey. Negative
+replay-owner hosted proof may establish truthful unavailability for that owner,
+but J07 remains `BLOCKED_HOSTED_DEPENDENCY` until an entitled disposable
+lifecycle and cleanup are proved.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

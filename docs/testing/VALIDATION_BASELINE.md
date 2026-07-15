@@ -4,30 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527B Space Entitlement And Visibility Preflight Opened
+## PR527B Space Entitlement And Visibility Preflight Accepted
 
-MIMIR opened the boundary review on 2026-07-15:
+ARGUS accepted the exact boundary on 2026-07-15:
 
-- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS.md`
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md`
 
-Current defect evidence:
+Verdict:
 
-- `/space/new` renders the complete live builder before loading owner tier,
-  Space limit, or current owner count;
-- the web form initializes `isPublic: true`;
-- the API create schema defaults omitted `isPublic` to `true`;
-- the server correctly retains Creator-tier and count checks, but the replay
-  owner sees the zero-Space limit only after full form submission.
+```text
+ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARIES
+```
 
-The proposed repair uses existing current-user/billing/owner-Space reads for a
-no-write preflight, with no form during loading/failure/no-entitlement states,
-Private defaults at web and API boundaries, explicit owner selection for
-Public, and unchanged authoritative server checks. ARGUS must accept or block
-the exact boundary before implementation.
+Existing restored-user, billing-status, and owner-scoped Space reads are
+sufficient for a fail-closed `/space/new` preflight. The accepted client gate
+must mirror the route's Creator-tier check before count policy; admin bypasses
+count only after passing that tier guard. Loading, malformed/conflicting read,
+below-tier, and at-limit states expose no form or Create command.
 
-No product code changed in this docs-only opening. Required checks are
-`git diff --check`, changed-path review, secret-shaped diff scan, and wakeup
-message verification.
+Entitled web creation and omitted API visibility default Private. Public
+requires explicit owner selection. A create `403` preserves entries, closes
+the form, refreshes the same gate, and never automatically retries POST. The
+authoritative server guards, shared Space-management styling, schema, tiers,
+prices, and hosted runtime remain unchanged.
+
+Current pre-implementation checks pass:
+
+- `test:spaces`: `2/2`;
+- `test:billing`: `16/16`.
+
+These results establish the inherited baseline and do not accept the current
+Public default. Implementation must add focused entitlement and API default,
+PATCH-omission, denial-no-write, admin-order, stale-race, theme/viewport, and
+synthetic-payload proof, then pass Space, billing, auth, Studio, web/API
+typecheck, web lint, changed-path, secret, and whitespace gates recorded in the
+ARGUS result.
+
+No product code changed in this docs-only acceptance. No hosted Space was
+created, and no J07 create/edit/public/cleanup claim is made.
 
 ## PR527A Notes Truth Repair Hosted Acceptance
 
