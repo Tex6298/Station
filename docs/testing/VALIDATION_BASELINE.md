@@ -4,6 +4,22 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527E Persona Profile Truth And Theme Implementation Opened
+
+MIMIR routed the accepted implementation to DAEDALUS on 2026-07-15:
+
+- `docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md`
+
+```text
+OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_IMPLEMENTATION
+```
+
+The exact ARGUS truth map, copy, owner gate, independent state, four request
+forms across three live capabilities, semantic route presentation, file
+allow-list, regression suites, and synthetic rendered matrix are mandatory.
+Backend/deletion/public contracts and hosted product data remain frozen.
+DAEDALUS must commit and wake ARGUS for hostile review.
+
 ## PR527E Persona Profile Truth And Theme Preflight Accepted
 
 ARGUS accepted the bounded implementation boundary on 2026-07-15:

@@ -4,25 +4,25 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527E Persona Profile preflight accepted; MIMIR handoff
+## Active lane - PR527E Persona Profile implementation with DAEDALUS
 
 ```text
-ACCEPT_PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARIES
+OPEN_PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_IMPLEMENTATION
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
-Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
-Opening packet: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS.md
+Source: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_DAEDALUS.md
+Accepted boundary: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_CLOSEOUT_MIMIR.md
-Next: MIMIR wakes DAEDALUS with ARGUS's exact file allow-list, owner gate, truth/state/copy contract, semantic presentation boundary, and review gates
+Next: DAEDALUS implements the exact owner gate, static/live truth, independent states, bounded mutations/notices, Profile navigation copy, and route-scoped semantic presentation, then commits and wakes ARGUS
 ```
 
-ARGUS accepts PR527E's bounded preflight. The page may retain exactly three
-live mutation capabilities: avatar URL save/clear, eligible anonymous public
-chat alpha, and context handoff creation. Name, both descriptions, provider,
-visibility, public chat, public description, architecture, graph, archive,
-continuity, lifecycle, and Integrity history remain static facts, readback, or
-navigation. Failed secondary reads must no longer masquerade as authoritative
-empty states, action notices must stay local and bounded, and the primary page
-must reject non-owner public serialization before mounting owner controls.
+DAEDALUS owns the exact ARGUS-approved implementation. The page may retain
+exactly three live mutation capabilities: avatar URL save/clear, eligible
+anonymous public chat alpha, and context handoff creation. Name, both
+descriptions, provider, visibility, public chat, public description,
+architecture, graph, archive, continuity, lifecycle, and Integrity history
+remain static facts, readback, or navigation. Failed secondary reads must no
+longer masquerade as authoritative empty states, action notices stay local and
+bounded, and non-owner public serialization must not mount owner controls.
 
 The opening statement that no persona-delete path exists is corrected. An
 owner-filtered `DELETE /personas/:id` API route exists, but Persona Profile has
@@ -49,9 +49,10 @@ accepted. Discover search remains presence-only, and linked discussions are
 deliberately represented by their document rather than duplicated as thread
 feed cards; eligible standalone feed count agreement was separately proved.
 
-PR527E isolates the next ranked product failure. Its accepted implementation
-boundary is recorded in the ARGUS result and now awaits MIMIR's committed
-DAEDALUS handoff.
+The implementation is limited to the edit page, Persona Management component,
+two Profile navigation strings/tests, focused public-persona source tests, and
+route-scoped semantic CSS. All backend, deletion, public, package, config, and
+hosted product data remain frozen. ARGUS hostile review is mandatory next.
 
 PR527D remains closed as
 `CLOSE_PR527D_FORUM_THREAD_SEMANTIC_THEME_REPAIR_ACCEPTED` after full hosted
