@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Forum Watch Hosted-Readiness Preflight Accepted
+
+ARGUS completed the docs-only preflight on 2026-07-15:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS_RESULT.md`
+
+Verdict:
+
+```text
+ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_BOUNDARIES
+```
+
+The exact sanitized diagnosis is
+`MIGRATION_040_ABSENT_PLUS_WEB_FAILED_READ_FALSE_STATE`. Hosted web/API were
+ready on exact SHA `a36f55d0`; configured project targets agreed; both tables
+defined by migration `040` were absent; the matching ledger count was zero;
+four later community entries and all migration prerequisites were present.
+A safe GET against an already-readable thread reproduced bounded
+`500/thread_watch_load_failed` with zero writes.
+
+The checked-in whole migration is compatible with current watch and
+notification use and is locked at SHA-256
+`88F6CF617878D1C3DE52B9CDB011F81ECA168D92DBF20C475996BC0B04DC8B9D`.
+Separately, the current page turns failed watch GET into `Not watching` with a
+live PUT command. DAEDALUS must apply the exact migration through the audited
+atomic protocol, make web state fail closed with GET-only reconciliation, and
+strengthen owner/idempotency tests. API routes, notification behavior,
+migration bytes, packages, and PR527D presentation remain frozen.
+
+Pre-implementation local checks:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/community-notifications.test.ts` | Pass, `3/3` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `48/48` |
+| Sanitized hosted identity/project/schema/ledger probe | Pass as defect evidence |
+| Safe hosted watch GET | Reproduced bounded `500`; zero writes |
+
+These checks establish the inherited baseline and diagnosis, not hosted watch
+acceptance. ARGUS applied no migration and sent no hosted PUT/DELETE. Final
+acceptance requires the exact local, post-apply schema, hostile review, and
+reversible initial-state restoration gates in the result.
+
 ## PR527C Forum Watch Hosted-Readiness Preflight Opened
 
 PR527B is closed from ARIADNE's exact-SHA hosted verdict:

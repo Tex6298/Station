@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C Forum Watch hosted-readiness preflight
+## Active lane - PR527C Forum Watch hosted-readiness repair placement
 
 ```text
-OPEN_PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT
+ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_BOUNDARIES
 Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS.md
-Next: ARGUS diagnoses hosted schema/ownership truth before any repair
+Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS_RESULT.md
+Next: MIMIR wakes DAEDALUS with the exact migration, web-state, test, and proof boundary
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -36,14 +36,21 @@ defaults entitled creation to Private, preserves explicit Public, and never
 blindly retries a stale denied POST. J07 remains `BLOCKED_HOSTED_DEPENDENCY` on
 a separately authorized entitled disposable lifecycle and cleanup contract.
 
-PR527C is the next ranked correction. ARIADNE's J09 rehearsal found that the
-visible paid-tier Forum Watch command returns stable `500` failures for load,
-write, and cleanup. Local routes/tests and migration `040` define an
-owner-scoped durable contract, making hosted schema drift the leading but
-unproven hypothesis. ARGUS must inspect table, constraints, trigger, RLS,
-policies, migration ledger, route ownership, and exact proof boundaries before
-DAEDALUS applies a migration or changes code. The separate dark Forum thread
-readability defect remains PR527D and is not part of this preflight.
+ARGUS accepts PR527C as
+`ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_BOUNDARIES`. Sanitized read-only
+evidence proves both tables from migration `040` are absent, the matching
+ledger count is zero, later community migration entries and all prerequisites
+are present, and safe GET watch still returns bounded
+`500/thread_watch_load_failed`. The exact migration file is compatible with
+the current notification/watch contract and is locked byte-for-byte.
+
+The page also has an independent truth defect: failed GET falls through to
+`Not watching` plus a live PUT command. DAEDALUS must apply exact existing
+`040` through an atomic audited migration operation, make the web watch panel
+fail closed with GET-only reconciliation, and strengthen owner/idempotency
+tests. API routes, notification behavior, packages, migrations, and PR527D's
+dark Forum presentation remain frozen. ARGUS performed no hosted migration or
+watch mutation during preflight.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product
