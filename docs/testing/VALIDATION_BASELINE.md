@@ -4,6 +4,26 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527D2B Hosted Migration 083 Proof Opened
+
+MIMIR opened the exact hosted apply/proof gate on 2026-07-15:
+
+- `docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS.md`
+
+```text
+OPEN_PR527D2B_EXACT_MIGRATION_083_HOSTED_APPLY_AND_PROOF
+```
+
+DAEDALUS owns one audited operation for the accepted migration bytes at
+SHA-256
+`DA4BBF4021723768F9DCEC41E0AD91C6FA4D909BAE17012B72FDF0462907C44B`.
+The gate requires coherent deployed ancestry, read-only preflight, exact
+migration apply, one honest ledger row, all-thread canonical reconciliation,
+catalog and privilege proof, a bounded disposable lifecycle, trusted activity
+time, cross-surface count agreement, and zero-residue cleanup. ARGUS review is
+mandatory before closeout. No product-code, config, or unrelated hosted write
+is authorized.
+
 ## PR527D2A Trusted Activity Repair Accepted Locally
 
 ARGUS accepted the bounded correction on 2026-07-15:

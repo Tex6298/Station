@@ -4,25 +4,31 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527D2A accepted locally; hosted decision with MIMIR
+## Active lane - PR527D2B hosted migration 083 proof with DAEDALUS
 
 ```text
-ACCEPT_PR527D2A_TRUSTED_ACTIVITY_AND_FUNCTION_OWNER_GUARD_WITH_ARGUS_TEST_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS.md
-Implementation: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_DAEDALUS_RESULT.md
-Blocked review: docs/roadmap/PR527D2_FORUM_REPLY_COUNT_TRUTH_ARGUS_RESULT.md
-Correction: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md
-Review: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md
-Next: MIMIR closes the local correction and decides the separately audited hosted migration/proof gate
+OPEN_PR527D2B_EXACT_MIGRATION_083_HOSTED_APPLY_AND_PROOF
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Source: docs/roadmap/PR527D2B_FORUM_REPLY_COUNT_HOSTED_MIGRATION_PROOF_DAEDALUS.md
+Accepted review: docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_ARGUS_RESULT.md
+Next: DAEDALUS applies the exact accepted migration in the audited hosted gate, proves reconciliation/security/lifecycle/readback/cleanup, commits the result, and wakes ARGUS
 ```
 
-ARGUS accepts the bounded correction after the exact migration passed `30/30`
-disposable PostgreSQL checks. An unbounded caller row timestamp now advances a
-parent only to trusted database statement time on actual insert; hide/unhide,
-remove/restore, repeated updates, and parent moves cannot replay activity. A
-non-owner migration role fails before object creation, while the valid shared
-table-owner context applies and owns the security-definer functions.
+MIMIR authorized the separately audited hosted operation after confirming
+Railway web/API ready on the accepted review lineage and a clean repository.
+DAEDALUS must hash and apply exact migration `083`, record one honest hosted
+ledger row only after successful application, prove all-thread reconciliation,
+security and privilege shape, a bounded disposable lifecycle, trusted activity
+time, cross-surface count agreement, and zero-residue cleanup. Product code,
+configuration, existing content edits, and PR527E remain frozen.
+
+ARGUS accepted the bounded local correction after the exact migration passed
+`30/30` disposable PostgreSQL checks. An unbounded caller row timestamp now
+advances a parent only to trusted database statement time on actual insert;
+hide/unhide, remove/restore, repeated updates, and parent moves cannot replay
+activity. A non-owner migration role fails before object creation, while the
+valid shared table-owner context applies and owns the security-definer
+functions.
 
 ARGUS tightened the focused source test so each migration function's
 security-definer/search-path clauses and each helper revoke are checked within
