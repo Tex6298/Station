@@ -72,6 +72,17 @@ interface ThreadWatchResponse {
 }
 type SessionState = { access_token: string; user: AuthUser };
 type WitnessTargetType = "thread" | "comment";
+type WatchViewState =
+  | { status: "idle" }
+  | { status: "loading" }
+  | { status: "ready"; isWatching: boolean }
+  | { status: "updating"; previousIsWatching: boolean }
+  | { status: "error"; kind: "load" | "update" };
+
+const WATCH_LOAD_ERROR_TITLE = "Watch state unavailable";
+const WATCH_LOAD_ERROR_COPY = "Station could not confirm whether you are watching this thread. Retry before changing watch state.";
+const WATCH_UPDATE_ERROR_TITLE = "Watch change unconfirmed";
+const WATCH_UPDATE_ERROR_COPY = "Station could not confirm the result of that change. Reload watch state before trying again.";
 
 export default function ThreadPage() {
   const { categorySlug, threadId } = useParams<{ categorySlug: string; threadId: string }>();
@@ -85,9 +96,7 @@ export default function ThreadPage() {
   const [newComment, setNewComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [commentFeedback, setCommentFeedback] = useState<{ tone: "error" | "success"; message: string } | null>(null);
-  const [watchState, setWatchState] = useState<ThreadWatchResponse | null>(null);
-  const [watchLoading, setWatchLoading] = useState(false);
-  const [watchUpdating, setWatchUpdating] = useState(false);
+  const [watchState, setWatchState] = useState<WatchViewState>({ status: "idle" });
   const [watchFeedback, setWatchFeedback] = useState<string | null>(null);
   const [witnessUpdating, setWitnessUpdating] = useState<string | null>(null);
   const [witnessFeedback, setWitnessFeedback] = useState<string | null>(null);
@@ -106,6 +115,21 @@ export default function ThreadPage() {
     return data;
   }, [threadId]);
 
+  const loadWatchState = useCallback(async (threadId: string, accessToken: string) => {
+    setWatchState({ status: "loading" });
+    setWatchFeedback(null);
+    try {
+      const watch = parseThreadWatchResponse(await apiGet<unknown>(threadWatchPath(threadId), accessToken));
+      if (!watch) {
+        setWatchState({ status: "error", kind: "load" });
+        return;
+      }
+      setWatchState({ status: "ready", isWatching: watch.isWatching });
+    } catch {
+      setWatchState({ status: "error", kind: "load" });
+    }
+  }, []);
+
   useEffect(() => {
     if (!threadId) return;
     getSession().then(async (sess) => {
@@ -114,21 +138,13 @@ export default function ThreadPage() {
         const nextSession = { access_token: sess.access_token, user: sess.user };
         setSession(nextSession);
         if (canUseThreadWatch(sess.user)) {
-          setWatchLoading(true);
-          try {
-            const watch = await apiGet<ThreadWatchResponse>(threadWatchPath(data.thread.id), sess.access_token);
-            setWatchState(watch);
-          } catch (e) {
-            setWatchFeedback(e instanceof Error ? e.message : "Could not load watch state.");
-          } finally {
-            setWatchLoading(false);
-          }
+          await loadWatchState(data.thread.id, sess.access_token);
         }
       }
     }).catch((e) => {
       setError(e instanceof Error ? e.message : "Thread not found.");
     }).finally(() => setLoading(false));
-  }, [loadThreadData, threadId]);
+  }, [loadThreadData, loadWatchState, threadId]);
 
   async function handleComment(e: React.FormEvent) {
     e.preventDefault();
@@ -204,20 +220,30 @@ export default function ThreadPage() {
 
   async function toggleThreadWatch() {
     if (!session || !thread || !canUseThreadWatch(session.user)) return;
-    setWatchUpdating(true);
+    if (watchState.status !== "ready") return;
+    const previousIsWatching = watchState.isWatching;
+    const expectedIsWatching = !previousIsWatching;
+    setWatchState({ status: "updating", previousIsWatching });
     setWatchFeedback(null);
     try {
       const path = threadWatchPath(thread.id);
-      const data = watchState?.isWatching
-        ? await apiDelete<ThreadWatchResponse>(path, session.access_token)
-        : await apiPut<ThreadWatchResponse>(path, {}, session.access_token);
-      setWatchState(data);
+      const data = parseThreadWatchResponse(previousIsWatching
+        ? await apiDelete<unknown>(path, session.access_token)
+        : await apiPut<unknown>(path, {}, session.access_token));
+      if (!data || data.isWatching !== expectedIsWatching) {
+        setWatchState({ status: "error", kind: "update" });
+        return;
+      }
+      setWatchState({ status: "ready", isWatching: data.isWatching });
       setWatchFeedback(data.isWatching ? "Thread watched." : "Thread unwatched.");
-    } catch (e) {
-      setWatchFeedback(e instanceof Error ? e.message : "Could not update watch state.");
-    } finally {
-      setWatchUpdating(false);
+    } catch {
+      setWatchState({ status: "error", kind: "update" });
     }
+  }
+
+  function retryWatchState() {
+    if (!session || !thread || !canUseThreadWatch(session.user)) return;
+    void loadWatchState(thread.id, session.access_token);
   }
 
   async function toggleWitness(
@@ -405,20 +431,12 @@ export default function ThreadPage() {
             <span>Sign in to watch replies on this thread.</span>
           ) : !canWatchThread ? (
             <span>Thread watching is available to private tier and above.</span>
-          ) : watchLoading ? (
-            <span>Loading watch state...</span>
           ) : (
-            <>
-              <button
-                type="button"
-                onClick={toggleThreadWatch}
-                disabled={watchUpdating}
-                style={utilityButton}
-              >
-                {watchUpdating ? "Saving..." : watchState?.isWatching ? "Unwatch thread" : "Watch thread"}
-              </button>
-              <span>{watchState?.isWatching ? "Watching replies" : "Not watching"}</span>
-            </>
+            <WatchStatePanel
+              state={watchState}
+              onRetry={retryWatchState}
+              onToggle={toggleThreadWatch}
+            />
           )}
           {watchFeedback && <span>{watchFeedback}</span>}
         </div>
@@ -582,6 +600,60 @@ export default function ThreadPage() {
       )}
     </main>
   );
+}
+
+function parseThreadWatchResponse(value: unknown): ThreadWatchResponse | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const candidate = value as Partial<ThreadWatchResponse>;
+  if (typeof candidate.isWatching !== "boolean") return null;
+  if (candidate.watch !== null && candidate.watch !== undefined && typeof candidate.watch !== "object") return null;
+  return {
+    isWatching: candidate.isWatching,
+    watch: candidate.watch ?? null,
+  };
+}
+
+function WatchStatePanel({
+  state,
+  onRetry,
+  onToggle,
+}: {
+  state: WatchViewState;
+  onRetry: () => void;
+  onToggle: () => void;
+}) {
+  if (state.status === "idle" || state.status === "loading") {
+    return <span>Loading watch state...</span>;
+  }
+
+  if (state.status === "updating") {
+    return <span>Saving watch state...</span>;
+  }
+
+  if (state.status === "error") {
+    const title = state.kind === "load" ? WATCH_LOAD_ERROR_TITLE : WATCH_UPDATE_ERROR_TITLE;
+    const copy = state.kind === "load" ? WATCH_LOAD_ERROR_COPY : WATCH_UPDATE_ERROR_COPY;
+    return (
+      <>
+        <strong>{title}</strong>
+        <span>{copy}</span>
+        <button type="button" onClick={onRetry} style={utilityButton}>Retry watch state</button>
+      </>
+    );
+  }
+
+  if (state.status === "ready") {
+    return (
+      <>
+        <button type="button" onClick={onToggle} style={utilityButton}>
+          {state.isWatching ? "Unwatch thread" : "Watch thread"}
+        </button>
+        <span>{state.isWatching ? "Watching replies" : "Not watching"}</span>
+      </>
+    );
+  }
+
+  return null;
 }
 
 function WitnessControls({

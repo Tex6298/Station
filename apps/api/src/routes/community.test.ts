@@ -3513,6 +3513,77 @@ test("thread watches and notifications are owner-scoped and comment fanout is pa
   }
 });
 
+test("thread watch routes hide unavailable threads and keep owner rows idempotent", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const hiddenGet = await requestJson(app, "GET", `/threads/${HIDDEN_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenGet.status, 404);
+
+    const hiddenPut = await requestJson(app, "PUT", `/threads/${HIDDEN_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenPut.status, 404);
+
+    const hiddenDelete = await requestJson(app, "DELETE", `/threads/${HIDDEN_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(hiddenDelete.status, 404);
+
+    db.insertRow("community_thread_watches", {
+      user_id: OTHER_ID,
+      thread_id: PUBLIC_THREAD_ID,
+      is_muted: false,
+    });
+
+    const memberInitial = await requestJson(app, "GET", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(memberInitial.status, 200);
+    assert.equal(memberInitial.body.isWatching, false);
+
+    const memberWatch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(memberWatch.status, 200);
+    assert.equal(memberWatch.body.isWatching, true);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.thread_id === PUBLIC_THREAD_ID).length, 2);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === MEMBER_ID).length, 1);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === OTHER_ID).length, 1);
+
+    const memberDuplicateWatch = await requestJson(app, "PUT", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(memberDuplicateWatch.status, 200);
+    assert.equal(memberDuplicateWatch.body.isWatching, true);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.thread_id === PUBLIC_THREAD_ID).length, 2);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === MEMBER_ID).length, 1);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === OTHER_ID).length, 1);
+
+    const memberUnwatch = await requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(memberUnwatch.status, 200);
+    assert.equal(memberUnwatch.body.isWatching, false);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === MEMBER_ID).length, 0);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === OTHER_ID).length, 1);
+
+    const repeatedUnwatch = await requestJson(app, "DELETE", `/threads/${PUBLIC_THREAD_ID}/watch`, {
+      token: "member-token",
+    });
+    assert.equal(repeatedUnwatch.status, 200);
+    assert.equal(repeatedUnwatch.body.isWatching, false);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === MEMBER_ID).length, 0);
+    assert.equal(db.tables.community_thread_watches.filter((row) => row.user_id === OTHER_ID).length, 1);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("thread detail keeps moderation actions admin-only", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);

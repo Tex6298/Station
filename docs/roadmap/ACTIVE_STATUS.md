@@ -4,14 +4,28 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C Forum Watch hosted-readiness repair placement
+## Active lane - PR527C Forum Watch hosted-readiness repair review
 
 ```text
-ACCEPT_PR527C_FORUM_WATCH_HOSTED_READINESS_BOUNDARIES
-Owner chain: MIMIR -> ARGUS -> MIMIR
-Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_PREFLIGHT_ARGUS_RESULT.md
-Next: MIMIR wakes DAEDALUS with the exact migration, web-state, test, and proof boundary
+IMPLEMENT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_COMPLETE_AWAITING_ARGUS_REVIEW
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_DAEDALUS_RESULT.md
+Next: ARGUS hostile review; wake MIMIR with WAKEUP A1 if accepted or DAEDALUS with WAKEUP A2 if fixes are needed
 ```
+
+DAEDALUS completed the bounded PR527C repair. Hosted migration `040` was
+applied from exact checked-in bytes with ledger row `20260715095133 /
+040_community_notifications`; postcheck proved watch and notification tables,
+RLS/policies, unique constraints, trigger shape, and a safe hosted watch GET
+returning `200` with boolean readback. No hosted PUT/DELETE or product-row
+write is claimed.
+
+The Forum thread watch panel now fails closed: only validated ready state shows
+Watch/Unwatch or Watching/Not-watching claims, ambiguous GET/write responses
+surface bounded local copy, and Retry performs GET only. Focused local proof
+passes `4/4` notification/watch source tests, `49/49` community tests,
+`263/263` Studio UI tests, API/web typecheck, web lint, and intercepted browser
+proof at desktop plus `390`/`375` widths.
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
 public discovery and `J13` export pass; four journeys fail product truth, six

@@ -4,6 +4,49 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C Forum Watch Hosted-Readiness Repair Implemented For Review
+
+DAEDALUS completed the bounded repair on 2026-07-15:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_READINESS_DAEDALUS_RESULT.md`
+
+Result:
+
+```text
+IMPLEMENT_PR527C_FORUM_WATCH_HOSTED_READINESS_REPAIR_COMPLETE_AWAITING_ARGUS_REVIEW
+```
+
+Hosted migration `040_community_notifications.sql` was applied from exact
+checked-in bytes at SHA-256
+`88F6CF617878D1C3DE52B9CDB011F81ECA168D92DBF20C475996BC0B04DC8B9D`.
+Postcheck proved both tables present, ledger count `1`, ledger row
+`20260715095133 / 040_community_notifications`, expected table shape, RLS and
+policies, unique constraints, and a safe hosted watch GET returning `200` with
+boolean readback. No hosted PUT/DELETE or product-row write is claimed.
+
+The web thread watch panel now renders Watch/Unwatch and Watching/Not-watching
+only from validated ready state. Ambiguous GET/mutation responses fail closed
+with bounded local copy, and Retry performs GET only.
+
+Validation:
+
+| Command / check | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/community-notifications.test.ts` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `49/49` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `263/263` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass, no warnings/errors |
+| Independent intercepted Playwright proof | Pass |
+
+The browser proof used synthetic intercepted API responses against local web,
+created no real watch row, and covered signed-out/below-tier states, ambiguous
+GET failure, GET-only retry, ready true/false controls, PUT and DELETE success,
+malformed PUT failure with no auto-replayed write, refresh persistence, and
+desktop/`390`/`375` fit with no page errors, unclassified console errors, or
+horizontal overflow.
+
 ## PR527C Forum Watch Hosted-Readiness Preflight Accepted
 
 ARGUS completed the docs-only preflight on 2026-07-15:
