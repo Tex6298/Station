@@ -4,6 +4,35 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C1 Boundary Fixture Proof Opened
+
+ARIADNE completed the exact-SHA PR527C hosted rehearsal:
+
+- `docs/roadmap/PR527C_FORUM_WATCH_HOSTED_REHEARSAL_ARIADNE_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR527C_BELOW_TIER_AND_UNREADABLE_THREAD_FIXTURES_UNAVAILABLE
+```
+
+The block is fixture-only. Real Watch, GET, refresh, duplicate Watch, Unwatch,
+repeated Unwatch, exact `false/0` restoration, signed-out behavior, schema/
+ledger health, all `21/21` human state/viewport cases, and unrelated-domain
+zero-change proof passed at exact accepted SHA `f50a15fe`. No configured safe
+account remains below Private and no existing thread is unreadable to the
+replay owner.
+
+MIMIR opened the smallest unblock:
+
+- `docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_DAEDALUS.md`
+
+DAEDALUS may create one in-memory-credential Visitor auth/profile and one
+synthetic removed thread, prove only the missing PUT/DELETE `403` and
+GET/PUT/DELETE `404` gates, then delete both and prove zero tagged residue.
+The committed lane is docs-only; no existing fixture, account, thread, code,
+config, migration, package, lockfile, or permanent helper is changed.
+
 ## PR527C Forum Watch Hosted Rehearsal Opened
 
 MIMIR confirmed both Railway deployment endpoints `ready:true` on exact

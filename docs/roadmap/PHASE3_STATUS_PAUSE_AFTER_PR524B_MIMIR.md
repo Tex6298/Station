@@ -74,7 +74,8 @@ schema accepts generated scopes.
 PR527A has closed the deceptive `/studio/notes` page-memory editor as a
 truthfully unavailable route, and PR527B has closed the `/space/new`
 entitlement and Private-default repair after exact-SHA hosted proof. PR527C is
-now the active correction: ARGUS must diagnose the visible Forum Watch
-load/write/cleanup failure and lock the hosted schema, ownership, restoration,
-and proof boundaries before repair. This correction does not resume PR524B or
-the wider Phase 3 lane.
+locally accepted and its real hosted Watch lifecycle plus human-eye states
+pass with exact restoration. PR527C1 is the active smallest unblock for the
+two missing below-tier and unreadable-thread boundary fixtures; it authorizes
+only disposable proof data and exact cleanup. This correction does not resume
+PR524B or the wider Phase 3 lane.

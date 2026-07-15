@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527C Forum Watch hosted rehearsal
+## Active lane - PR527C1 Forum Watch boundary-fixture proof
 
 ```text
-REHEARSE_PR527C_FORUM_WATCH_ON_HOSTED
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
-Source: docs/roadmap/PR527C_FORUM_WATCH_HOSTED_REHEARSAL_ARIADNE.md
-Next: ARIADNE proves exact-SHA reversible Watch/refresh/Unwatch/restoration
+OPEN_PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF
+Owner chain: MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_DAEDALUS.md
+Next: DAEDALUS proves the missing disposable Visitor 403 and removed-thread 404 gates, then removes every fixture
 ```
 
 ARGUS accepts PR527C as
@@ -26,11 +26,18 @@ thread behind generic loading; eligible owners now see
 `Loading watch state...` with no command or state claim. Final validation passes focused
 `4/4`, community `49/49`, Studio `263/263`, typecheck/lint, and `12/12`
 independent intercepted browser groups across desktop, `390`, and `375`.
-Railway web and API now report ready on exact accepted review SHA `f50a15fe`.
-ARIADNE owns the reversible Watch/refresh/duplicate/Unwatch/repeat lifecycle,
-exact initial-state restoration, auth/readability boundaries, three-viewport
-human-eye review, and unrelated-domain zero-change proof. PR527D remains
-separate.
+Railway web and API reported ready on exact accepted review SHA `f50a15fe`.
+ARIADNE passed the real reversible Watch/refresh/duplicate/Unwatch/repeat
+lifecycle, exact `false/0` restoration, signed-out boundary, all three
+viewports, honest loading/ready/saving/failure/reconciliation states, and
+unrelated-domain zero-change proof. The run is blocked only because no safe
+below-Private account or existing unreadable thread remained available.
+
+PR527C1 is the smallest direct unblock. DAEDALUS may create one disposable
+Visitor auth/profile and one synthetic removed thread, prove only the missing
+PUT/DELETE `403` and GET/PUT/DELETE `404` gates, then delete both and prove
+zero tagged residue. No existing account/thread, product code, permanent
+script, config, or PR527D presentation scope may change.
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
 public discovery and `J13` export pass; four journeys fail product truth, six
