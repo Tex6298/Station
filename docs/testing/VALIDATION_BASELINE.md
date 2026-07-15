@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527C1 Boundary Fixture Proof Blocked
+
+DAEDALUS attempted the authorized disposable hosted fixture proof on
+2026-07-15:
+
+- `docs/roadmap/PR527C1_FORUM_WATCH_BOUNDARY_FIXTURE_PROOF_DAEDALUS_RESULT.md`
+
+Result:
+
+```text
+BLOCK_PR527C1_SUPABASE_AUTH_ADMIN_CREATE_USER_UNEXPECTED_FAILURE_ZERO_RESIDUE
+```
+
+Preflight passed on exact hosted SHA `f50a15fe`: API/web readiness, service
+names, watch/notification table presence, zero fixture prefixes, zero watch
+and notification baseline, replay-owner sign-in `200`, and replay-owner watch
+GET `200` with boolean readback. The public PostgREST `schema_migrations`
+name count returned `0`, so retained PR527C/ARIADNE evidence remains the
+accepted migration-ledger source.
+
+The fixture proof then blocked at the first disposable creation step:
+Supabase Auth admin `createUser` returned status `500` and code
+`unexpected_failure` twice, including after a shorter `.test` email and
+shorter username. No disposable auth user, profile, or removed thread was
+created, so the below-tier `403` and unreadable-thread `404` probes did not
+run.
+
+Cleanup/final residue proof remained green: tagged auth users, profiles,
+threads, watches, and notifications were all `0`; global watch and
+notification counts remained `0`; the selected real thread was still present;
+watch, notification, thread, profile, and comment baselines were restored or
+unchanged. The temporary harness and env overrides were removed before commit.
+
 ## PR527C1 Boundary Fixture Proof Opened
 
 ARIADNE completed the exact-SHA PR527C hosted rehearsal:
