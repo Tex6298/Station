@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527A | Notes Truth Repair Hosted Rehearsal | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE | `REHEARSE_PR527A_NOTES_TRUTH_ON_HOSTED`; ARIADNE owns signed-out auth plus the exact-SHA nine-case System/Light/Dark matrix at accepted review SHA `77c66f91`. The route remains `FAIL_PRODUCT` until hosted proof passes. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md` |
+| PR527B | Space Entitlement And Visibility Boundary Preflight | MIMIR -> ARGUS -> MIMIR | `OPEN_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT`; lock existing-read preflight, Private web/API defaults, no-entitlement truth, server-race behavior, and exact local/hosted gates before DAEDALUS implementation. | `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527A closeout | Notes Truth Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR | Closed as `CLOSE_PR527A_NOTES_TRUTH_REPAIR_AS_TRUTHFULLY_UNAVAILABLE`; exact-SHA hosted auth, copy, inventory removal, two real links, Archive separation, nine-case dual-theme proof, zero-write behavior, and mobile fit pass. This does not claim working Notes. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_CLOSEOUT_MIMIR.md` |
 | PR527A review | Notes Truth Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH`; exact route truth, owner/auth, inventory removal, Archive separation, full tests, and nine-case local browser proof pass after ARGUS removed floating/viewport-scaled Notes presentation. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md` |
 | PR527A preflight | Notes Truth Repair Boundary Preflight | MIMIR -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_BOUNDARIES`; remove the advertised faux editor, retain the owner-gated deep link, disclose page-memory loss, keep Archive separate, and require exact local plus hosted proof. | `docs/roadmap/PR527A_NOTES_TRUTH_BOUNDARY_PREFLIGHT_ARGUS_RESULT.md` |
 | PR527 inventory | UI Product Completeness Hosted Journey Inventory | MIMIR -> ARIADNE -> MIMIR | Complete as `PR527_INVENTORY_COMPLETE_CORRECTIONS_REQUIRED`; 2 pass, 4 fail, 6 exact blockers, 1 truthful tier-unavailable, with PR527A ranked first. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |

@@ -70,3 +70,9 @@ PR527 does not remove or widen the PR524B generated-material publication
 blocker and does not resume unrelated Phase 3 product expansion. The next valid
 PR524B action remains the hosted proof rerun after the hosted Supabase/RPC/
 schema accepts generated scopes.
+
+PR527A has closed the deceptive `/studio/notes` page-memory editor as a
+truthfully unavailable route after exact-SHA hosted proof. PR527B is now the
+active correction: ARGUS must lock `/space/new` entitlement preflight and
+Private-by-default web/API creation before implementation. This correction
+does not resume PR524B or the wider Phase 3 lane.

@@ -4,6 +4,55 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527B Space Entitlement And Visibility Preflight Opened
+
+MIMIR opened the boundary review on 2026-07-15:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS.md`
+
+Current defect evidence:
+
+- `/space/new` renders the complete live builder before loading owner tier,
+  Space limit, or current owner count;
+- the web form initializes `isPublic: true`;
+- the API create schema defaults omitted `isPublic` to `true`;
+- the server correctly retains Creator-tier and count checks, but the replay
+  owner sees the zero-Space limit only after full form submission.
+
+The proposed repair uses existing current-user/billing/owner-Space reads for a
+no-write preflight, with no form during loading/failure/no-entitlement states,
+Private defaults at web and API boundaries, explicit owner selection for
+Public, and unchanged authoritative server checks. ARGUS must accept or block
+the exact boundary before implementation.
+
+No product code changed in this docs-only opening. Required checks are
+`git diff --check`, changed-path review, secret-shaped diff scan, and wakeup
+message verification.
+
+## PR527A Notes Truth Repair Hosted Acceptance
+
+ARIADNE completed the exact-SHA hosted rehearsal on 2026-07-15:
+
+- `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_HOSTED_REHEARSAL_ARIADNE_RESULT.md`
+
+Result: `PASS_PR527A_NOTES_TRUTH_REPAIR_HOSTED_REHEARSAL`.
+
+- Railway web/API readiness matched accepted review SHA `77c66f91`.
+- Signed-out `/studio/notes` redirected to login and exposed no private route
+  state.
+- The replay owner passed all nine System/Light/Dark cases at `1440x900`,
+  `390x844`, and `375x812`.
+- Exact unavailable copy, owner-only context, Studio inventory removal, two
+  real destinations, Archive separation, fixed heading, focus, contrast,
+  clipping, and overflow checks passed.
+- The matrix emitted zero product/data writes, page errors, or unclassified
+  console errors.
+
+PR527A is closed as
+`CLOSE_PR527A_NOTES_TRUTH_REPAIR_AS_TRUTHFULLY_UNAVAILABLE`. This does not
+claim durable Notes; it closes only the deceptive editor and silent-loss
+defect. The wider PR527 programme remains open.
+
 ## PR527A Notes Truth Repair Accepted Locally
 
 ARGUS completed hostile review on 2026-07-15:
@@ -34,10 +83,9 @@ Result: `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH`.
 | Local owner browser matrix | Pass; System/Light/Dark at `1440x900`, `390x844`, and `375x812`, exact copy/context/inventory, both links, fixed heading, focus, contrast, clipping, and overflow all passed with zero write, page error, or browser-console error. |
 | Changed-path, secret, scope, and whitespace scans | Pass |
 
-This is not hosted acceptance and does not claim working Notes. ARIADNE now
-owns exact-SHA hosted proof at accepted review SHA `77c66f91`.
-`/studio/notes` remains `FAIL_PRODUCT` until that rehearsal passes; only then
-may it become `TRUTHFULLY_UNAVAILABLE`.
+This local review evidence remains part of the accepted chain. Hosted
+acceptance is recorded above; `/studio/notes` is now
+`TRUTHFULLY_UNAVAILABLE`, not a working Notes feature.
 
 ## PR527A Notes Truth Repair Implemented For Review
 

@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527A Notes truth hosted rehearsal
+## Active lane - PR527B Space entitlement and visibility boundary preflight
 
 ```text
-REHEARSE_PR527A_NOTES_TRUTH_ON_HOSTED
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
-Source: docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md
-Next: ARIADNE proves exact accepted SHA 77c66f91 and wakes MIMIR with verdict
+OPEN_PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT
+Owner chain: MIMIR -> ARGUS -> MIMIR
+Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_BOUNDARY_PREFLIGHT_ARGUS.md
+Next: ARGUS locks the preflight, private-default, race, and proof boundaries
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -18,35 +18,32 @@ public discovery and `J13` export pass; four journeys fail product truth, six
 have exact hosted/fixture blockers, and one is truthfully tier-unavailable.
 Station is not product-journey complete.
 
-The first correction is `/studio/notes`. Its local-only editor silently loses
-private writing on refresh, restores seeded faux notes, does not filter search,
-and presents nine inert commands. ARGUS accepts a route-only truth repair:
-remove the unsupported editor and general navigation promise, retain the
-owner-gated deep link, disclose that the former scratchpad created no durable
-Notes record, and link only to real Global Archive and Studio destinations.
-Global Archive must remain explicitly separate from Notes storage.
+PR527A is closed as
+`CLOSE_PR527A_NOTES_TRUTH_REPAIR_AS_TRUTHFULLY_UNAVAILABLE`. Railway web and API
+reported exact accepted SHA `77c66f91`; signed-out auth, owner deep link, exact
+unavailable copy, two real destinations, Archive separation, general Studio
+inventory removal, and the nine-case System/Light/Dark matrix passed with zero
+product writes, page errors, unclassified console errors, or horizontal
+overflow. This removes the deceptive page-memory editor and does not claim a
+working Notes feature.
 
-DAEDALUS implemented the bounded patch at
-`docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_DAEDALUS_RESULT.md`: the old local-only
-scratchpad, seeded faux notes, and inert controls are removed; `/studio/notes`
-now states Notes are unavailable, explains that the former scratchpad created no
-durable record, keeps Global Archive separate from Notes storage, links only to
-Global Archive and Studio, removes Notes from the general Studio inventory, and
-retains the owner-gated deep-link context.
+PR527B now addresses `/space/new`. Current web and API creation defaults are
+Public, while the complete live builder renders before the owner plan and Space
+count are checked. The replay owner discovers the zero-Space Private-tier limit
+only after completing and submitting the form.
 
-ARGUS accepts the implementation after a narrow CSS/test patch. The review
-removed the floating page-section treatment, replaced viewport-scaled heading
-text with a stable `32px`, and locked those semantic/unframed rules in the
-focused test. Exact copy, owner/auth boundary, two destinations, inventory
-removal, Archive non-equivalence, focused `19/19`, Studio `262/262`, auth
-`22/22`, typecheck, lint, and an independent nine-case browser matrix pass.
+MIMIR proposes a bounded repair: load existing owner-safe entitlement/count
+signals before rendering a live builder; show no form during loading, failure,
+below-tier, or at-limit states; use only Billing and My Spaces as unavailable
+destinations; default entitled web and API creation to Private; require an
+explicit owner action for Public; and retain the current authoritative server
+tier/count checks. A stale-preflight `403` must preserve entered values,
+refresh gating, and create no orphan.
 
-The page, layout, middleware, auth helper, APIs, schema, Archive contract,
-dependencies, providers, queues, billing, hosted runtime, Discern source, and
-unrelated routes remain frozen. ARIADNE now owns the exact-SHA
-System/Light/Dark hosted rehearsal at accepted review SHA `77c66f91`.
-`/studio/notes` remains `FAIL_PRODUCT` until that proof passes; only then may
-it be classified `TRUTHFULLY_UNAVAILABLE`, not as a working Notes feature.
+ARGUS must decide the exact boundary before implementation. PR527B does not
+claim the full J07 create/edit/public/cleanup journey; after truth repair it
+should remain blocked on an accepted entitled disposable lifecycle unless that
+proof already exists.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product
