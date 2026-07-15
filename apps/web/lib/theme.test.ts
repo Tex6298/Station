@@ -86,3 +86,20 @@ test("layout boots appearance before the client navigation and no API or cookie 
   assert.match(theme, /\["system", "light", "dark"\]/);
   assert.doesNotMatch(source, /document\.cookie|apiPost|apiPut|apiDelete|\/api\/theme/);
 });
+
+test("dark treatment preserves Discover selection contrast and the bounded observatory canvas", () => {
+  const discover = readFileSync("apps/web/components/discover/discover-front-door.tsx", "utf8");
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+  const canvasBlock = css.match(/\.node-field-panel,\s*\.world-map-panel,\s*\.constellation-panel\s*\{([^}]+)\}/s)?.[1] ?? "";
+  const nodeBlocks = Array.from(css.matchAll(/\.node-bubble\s*\{([^}]+)\}/gs), (match) => match[1]);
+  const nodeBlock = nodeBlocks.at(-1) ?? "";
+
+  assert.match(discover, /background: tab === t \? "var\(--public-home-surface\)"/);
+  assert.match(canvasBlock, /#ffffff/);
+  assert.match(canvasBlock, /#d8d3c8/);
+  assert.match(canvasBlock, /#1f2529/);
+  assert.doesNotMatch(canvasBlock, /--station-page-/);
+  assert.match(nodeBlock, /#d8d3c8/);
+  assert.match(nodeBlock, /#1f2529/);
+  assert.doesNotMatch(nodeBlock, /--station-page-/);
+});

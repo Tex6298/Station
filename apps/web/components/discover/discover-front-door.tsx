@@ -579,7 +579,7 @@ export default function DiscoverFrontDoor() {
                     setActiveFilter("all");
                   }}
                   style={{
-                    padding: "0.4rem 0.9rem", background: tab === t ? "#fff" : "transparent", border: "1px solid",
+                    padding: "0.4rem 0.9rem", background: tab === t ? "var(--public-home-surface)" : "transparent", border: "1px solid",
                     borderColor: tab === t ? "var(--public-home-text)" : "var(--public-home-border)",
                     color: tab === t ? "var(--public-home-text)" : "var(--public-home-muted)", cursor: "pointer",
                     fontSize: "0.875rem", fontWeight: tab === t ? 650 : 400,

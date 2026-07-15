@@ -29,7 +29,7 @@ backend, provider, or product-expansion lane. Mainline resumes only on a later
 explicit Marty instruction or a correction required to make this UI closeout
 truthful.
 
-## Current lane - PR525H Shared Light/Dark Theme Treatment
+## Current lane - PR525H Hosted Dual-Theme Rehearsal
 
 PR525C is closed accepted after ARGUS's narrow mobile-disclosure patch:
 
@@ -111,23 +111,26 @@ interiors remain the accepted deviation; provider/setup and live Forum
 loading/error/empty retain explicitly local-only state proof. No production
 patch was required.
 
-Active implementation:
+Local review result:
 
 ```text
 PR525H - Shared Light/Dark Theme Treatment
-Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS
-State: READY_FOR_ARGUS_REVIEW
-Source: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_DAEDALUS.md
-Result: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_MIMIR_RESULT.md
+Owner chain: MIMIR -> DAEDALUS (two unconsumed wakes) -> MIMIR -> ARGUS -> ARIADNE
+State: ACCEPT_PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_WITH_ARGUS_PATCH
+Source: docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_ARGUS_RESULT.md
+Next: ARIADNE hosted dual-theme rehearsal at the exact accepted SHA
 ```
 
 MIMIR completed PR525H after DAEDALUS did not consume either wake. One shared
 System/Light/Dark preference now resolves before first paint and the accepted
 PR525B-F surfaces use a complete semantic dual-theme contract. Light geometry
-and colors remain regression fixtures. Composition, routes, capabilities,
-data behavior, auth, and APIs remain frozen; no Developer Space component or
-visualisation selector changed. ARGUS now owns hostile review, then ARIADNE
-performs hosted dual-theme rehearsal in the same lane if accepted.
+and colors remain regression fixtures. ARGUS corrected three bounded misses:
+denied storage no longer strands auth/navigation, the dark Discover selected
+tab now measures `13.55:1` instead of `1.16:1`, and the accepted Developer
+Space canvas/bubble values no longer inherit global theme tokens. Composition,
+routes, capabilities, successful auth/session behavior, APIs, owner scope, and
+package dependencies remain frozen. Full local tests and the independent
+three-viewport dual-theme matrix pass; ARIADNE now owns hosted rehearsal.
 
 Parallel current-head audit result:
 
@@ -193,7 +196,7 @@ PR525F - Forums Three-Column Honest Composition                    CLOSED
 PR526A - Fresh-Head Conversational Flow Delta Audit                COMPLETE / PLACED
 PR526C-F - Guided-Task Implementation Proposals                    PARKED
 PR525G - Hosted Light-Parity Rehearsal                              CLOSED
-PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    ARGUS REVIEW
+PR525H - Shared Light/Dark Theme Treatment And Hosted Rehearsal    ARIADNE HOSTED REHEARSAL
 Final UI integration closeout                                      THEN PAUSE MAINLINE
 ```
 

@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   deriveUsername,
   parseStoredSession,
+  parseStoredSessionFromStorage,
   serializeSession,
   sessionFromAuthResponse,
   sessionWithUser,
@@ -53,6 +54,17 @@ test("stored session parsing rejects malformed values", () => {
   assert.equal(parseStoredSession("not-json"), null);
   assert.equal(parseStoredSession(JSON.stringify({ accessToken: "missing-user" })), null);
   assert.deepEqual(parseStoredSession(serializeSession(session))?.user, session.user);
+});
+
+test("stored session reads fail safely when browser storage is denied", () => {
+  const denied = {
+    getItem() {
+      throw new DOMException("Storage denied", "SecurityError");
+    },
+  };
+
+  assert.equal(parseStoredSessionFromStorage(null), null);
+  assert.equal(parseStoredSessionFromStorage(denied), null);
 });
 
 test("deriveUsername creates API-safe beta signup usernames", () => {

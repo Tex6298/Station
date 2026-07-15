@@ -102,6 +102,17 @@ export function parseStoredSession(value: string | null): StationSession | null 
   }
 }
 
+export function parseStoredSessionFromStorage(
+  storage: Pick<Storage, "getItem"> | null | undefined
+): StationSession | null {
+  if (!storage) return null;
+  try {
+    return parseStoredSession(storage.getItem(AUTH_STORAGE_KEY));
+  } catch {
+    return null;
+  }
+}
+
 export function serializeSession(session: StationSession): string {
   return JSON.stringify({
     accessToken: session.accessToken,

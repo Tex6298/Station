@@ -5759,17 +5759,20 @@ body {
 .node-field-panel,
 .world-map-panel,
 .constellation-panel {
+  /* Observatory canvases remain bounded visualisation surfaces in either theme. */
+  border-color: #d8d3c8;
   background:
     linear-gradient(90deg, rgba(31, 37, 41, 0.05) 1px, transparent 1px),
     linear-gradient(0deg, rgba(31, 37, 41, 0.05) 1px, transparent 1px),
-    var(--station-page-surface);
+    #ffffff;
   background-size: 48px 48px, 48px 48px, auto;
+  color: #1f2529;
 }
 
 .node-bubble {
-  border-color: var(--station-page-border);
+  border-color: #d8d3c8;
   background: rgba(255, 255, 255, 0.94);
-  color: var(--station-page-text);
+  color: #1f2529;
   box-shadow: 0 12px 32px rgba(31, 37, 41, 0.1);
 }
 

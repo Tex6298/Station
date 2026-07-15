@@ -143,3 +143,18 @@ Task:
 - Commit the verdict and wake ARIADNE for hosted dual-theme rehearsal if
   accepted; otherwise wake MIMIR with the exact blocker.
 ```
+
+## ARGUS Correction And Acceptance
+
+ARGUS found three bounded defects behind the original validation claims:
+denied browser storage stranded auth/navigation in its loading state, the dark
+Discover selected tab measured only `1.16:1`, and the Developer Space
+node-field canvas inherited theme tokens despite its unchanged selector source.
+
+The narrow review patch makes denied session reads fail to signed-out state,
+uses the semantic Discover surface token, and pins the accepted observatory
+canvas/bubble values outside global theme resolution. Full tests and an
+independent System/Light/Dark desktop/mobile matrix pass after the patch. The
+local acceptance and exact ARIADNE hosted-rehearsal handoff are recorded in:
+
+`docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_ARGUS_RESULT.md`

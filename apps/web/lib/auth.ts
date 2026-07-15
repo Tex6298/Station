@@ -5,7 +5,7 @@ import { STATION_AUTH_COOKIE } from "./auth-routes";
 import {
   AUTH_STORAGE_KEY,
   deriveUsername,
-  parseStoredSession,
+  parseStoredSessionFromStorage,
   serializeSession,
   sessionFromAuthResponse,
   sessionWithUser,
@@ -85,8 +85,7 @@ export async function signOut(): Promise<void> {
 }
 
 export function readStoredSession(): StationSession | null {
-  const storage = browserStorage();
-  return parseStoredSession(storage?.getItem(AUTH_STORAGE_KEY) ?? null);
+  return parseStoredSessionFromStorage(browserStorage());
 }
 
 export function saveSession(session: StationSession): void {
@@ -147,7 +146,11 @@ async function fetchCurrentUser(accessToken: string): Promise<AuthUser & { email
 
 function browserStorage(): Storage | null {
   if (typeof window === "undefined") return null;
-  return window.localStorage;
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
 }
 
 function setAuthCookie(authenticated: boolean): void {

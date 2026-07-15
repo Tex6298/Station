@@ -4,6 +4,45 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR525H ARGUS Review - Shared Light/Dark Theme Treatment
+
+ARGUS accepted PR525H locally on 2026-07-15 with a narrow review patch:
+
+- `docs/roadmap/PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_ARGUS_RESULT.md`
+
+Validation result:
+`ACCEPT_PR525H_SHARED_LIGHT_DARK_THEME_TREATMENT_WITH_ARGUS_PATCH`.
+
+Reason:
+
+- exactly System/Light/Dark resolve before first paint under one non-sensitive
+  browser-local key, with live System changes and explicit persistence;
+- denied storage now falls back to a usable signed-out navigation instead of
+  rejecting auth restoration and retaining a loading skeleton;
+- the dark Discover selected tab now uses the semantic surface and measures
+  `13.55:1`, up from the pre-patch `1.16:1`;
+- the accepted Developer Space canvas/bubble computed colors remain identical
+  across themes while the surrounding global frame changes;
+- exact `46px` navigation, `156px` rails, companion/chat workspace/composer,
+  `210px / 720px / 260px` Forums columns, and narrow widths remain frozen;
+- auth storage remains unchanged by appearance selection, with no API, schema,
+  cookie, telemetry, provider, billing, hosted-runtime, dependency, or lockfile
+  expansion.
+
+| Command / check | Result | Notes |
+| --- | --- | --- |
+| Focused theme/auth-session tests | Pass | `11/11` after the ARGUS patch. |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass | `261/261`. |
+| `npx --yes pnpm@10.32.1 test:community` | Pass | `48/48`. |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass | `61/61`. |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass | `22/22`. |
+| Web typecheck and lint | Pass | No TypeScript or ESLint warning/error. |
+| Local Playwright matrix | Pass after patch | System/live resolution, explicit persistence, denied APIs, auth isolation, signed-out/in control, both themes, three viewports, exact geometry, observatory boundary, contrast, overflow, and page errors passed. |
+| Changed-path/secret/whitespace scans | Pass | Changes remain bounded; no high-risk literal or whitespace error was found. |
+
+ARIADNE hosted exact-SHA dual-theme rehearsal remains required before MIMIR
+closes PR525H and the final UI integration sequence.
+
 ## PR525G Hosted Light-Parity Rehearsal
 
 ARIADNE completed the hosted rehearsal on 2026-07-14:
