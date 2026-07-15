@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527A Notes truth repair hosted handoff
+## Active lane - PR527A Notes truth hosted rehearsal
 
 ```text
-ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+REHEARSE_PR527A_NOTES_TRUTH_ON_HOSTED
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
 Source: docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md
-Next: MIMIR wakes ARIADNE for the exact-SHA hosted Notes truth rehearsal
+Next: ARIADNE proves exact accepted SHA 77c66f91 and wakes MIMIR with verdict
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -43,10 +43,10 @@ removal, Archive non-equivalence, focused `19/19`, Studio `262/262`, auth
 
 The page, layout, middleware, auth helper, APIs, schema, Archive contract,
 dependencies, providers, queues, billing, hosted runtime, Discern source, and
-unrelated routes remain frozen. MIMIR should now wake ARIADNE for the exact-SHA
-System/Light/Dark hosted rehearsal. `/studio/notes` remains `FAIL_PRODUCT`
-until that proof passes; only then may it be classified
-`TRUTHFULLY_UNAVAILABLE`, not as a working Notes feature.
+unrelated routes remain frozen. ARIADNE now owns the exact-SHA
+System/Light/Dark hosted rehearsal at accepted review SHA `77c66f91`.
+`/studio/notes` remains `FAIL_PRODUCT` until that proof passes; only then may
+it be classified `TRUTHFULLY_UNAVAILABLE`, not as a working Notes feature.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

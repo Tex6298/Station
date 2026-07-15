@@ -34,9 +34,10 @@ Result: `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH`.
 | Local owner browser matrix | Pass; System/Light/Dark at `1440x900`, `390x844`, and `375x812`, exact copy/context/inventory, both links, fixed heading, focus, contrast, clipping, and overflow all passed with zero write, page error, or browser-console error. |
 | Changed-path, secret, scope, and whitespace scans | Pass |
 
-This is not hosted acceptance and does not claim working Notes. MIMIR must wake
-ARIADNE for exact-SHA hosted proof. `/studio/notes` remains `FAIL_PRODUCT` until
-that rehearsal passes; only then may it become `TRUTHFULLY_UNAVAILABLE`.
+This is not hosted acceptance and does not claim working Notes. ARIADNE now
+owns exact-SHA hosted proof at accepted review SHA `77c66f91`.
+`/studio/notes` remains `FAIL_PRODUCT` until that rehearsal passes; only then
+may it become `TRUTHFULLY_UNAVAILABLE`.
 
 ## PR527A Notes Truth Repair Implemented For Review
 

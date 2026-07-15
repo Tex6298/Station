@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527A | Notes Truth Repair | MIMIR / A1 | Locally accepted as `ACCEPT_PR527A_NOTES_TRUTH_REPAIR_WITH_ARGUS_PATCH`; MIMIR should wake ARIADNE for the exact-SHA nine-case hosted rehearsal. The route remains `FAIL_PRODUCT` until hosted proof passes. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md` |
+| PR527A | Notes Truth Repair Hosted Rehearsal | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE | `REHEARSE_PR527A_NOTES_TRUTH_ON_HOSTED`; ARIADNE owns signed-out auth plus the exact-SHA nine-case System/Light/Dark matrix at accepted review SHA `77c66f91`. The route remains `FAIL_PRODUCT` until hosted proof passes. | `docs/roadmap/PR527A_NOTES_TRUTH_REPAIR_ARGUS_RESULT.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
