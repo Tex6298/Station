@@ -4,13 +4,13 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527B Space hosted rehearsal handoff
+## Active lane - PR527B Space entitlement and visibility hosted rehearsal
 
 ```text
-ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_WITH_ARGUS_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+REHEARSE_PR527B_SPACE_ENTITLEMENT_VISIBILITY_ON_HOSTED
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE
 Source: docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md
-Next: MIMIR closes local review and wakes ARIADNE for exact-SHA no-write hosted proof
+Next: ARIADNE proves the exact accepted SHA a36f55d0 with zero hosted writes
 ```
 
 ARIADNE completed the PR527 hosted product inventory at `745ff4ca`: `J08`
@@ -37,12 +37,18 @@ automatic POST replay or response-detail disclosure.
 
 ARGUS also corrected stale in-progress/completed copy, fixed-dark create-only
 controls, invalid multi-control labels, and inherited public theme claims in
-the Private form. All command gates and an independent 26-group browser proof
-pass. This is local implementation acceptance, not hosted acceptance. PR527B
-does not claim the full J07 create/edit/public/cleanup journey. Negative
-replay-owner hosted proof may establish truthful unavailability for that owner,
-but J07 remains `BLOCKED_HOSTED_DEPENDENCY` until an entitled disposable
-lifecycle and cleanup are proved.
+the Private form. Focused entitlement `5/5`, Space `11/11`, billing `16/16`,
+auth `22/22`, Studio `262/262`, web/API typecheck, web lint, scope/secret
+checks, and an independent `26/26` browser proof pass. All browser POSTs were
+intercepted synthetic requests; no real Space or database write occurred.
+
+ARIADNE now owns the exact-SHA hosted replay-owner proof. It must remain
+negative and no-write: signed-out redirect, Private-tier unavailable truth,
+exact Billing/My Spaces destinations, nine System/Light/Dark viewport cases,
+and zero `POST /spaces` or product mutation. PR527B does not claim the full J07
+create/edit/public/cleanup journey; after a hosted pass J07 remains
+`BLOCKED_HOSTED_DEPENDENCY` until an entitled disposable lifecycle and cleanup
+are separately accepted and proved.
 
 PR524B and unrelated Phase 3 product expansion remain paused. PR526C-F are not
 automatically mandatory implementations, but their underlying current product

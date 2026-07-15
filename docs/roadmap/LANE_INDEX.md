@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527B | Space Entitlement And Visibility Repair | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted locally as `ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_WITH_ARGUS_PATCH`; canonical fail-closed policy, Private web/API defaults, stale-race truth, denial no-write tests, full commands, and independent 26-group browser proof pass. MIMIR must open exact-SHA replay-owner no-write hosted proof; no hosted lifecycle is accepted yet. | `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md` |
+| PR527B | Space Entitlement And Visibility Hosted Rehearsal | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE | `REHEARSE_PR527B_SPACE_ENTITLEMENT_VISIBILITY_ON_HOSTED`; local implementation is accepted with ARGUS patch at `a36f55d0`, and ARIADNE owns exact-SHA signed-out/replay-owner nine-case proof with zero `POST /spaces` or product mutation. | `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_HOSTED_REHEARSAL_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527B Hosted Rehearsal Opened
+
+ARGUS accepted the local implementation with a narrow patch at review SHA
+`a36f55d0`:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_ARGUS_RESULT.md`
+
+Result:
+
+```text
+ACCEPT_PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_WITH_ARGUS_PATCH
+```
+
+Local validation passes focused entitlement `5/5`, Space `11/11`, billing
+`16/16`, auth `22/22`, Studio `262/262`, web/API typecheck, web lint,
+scope/secret/whitespace checks, and `26/26` independent browser groups. All
+browser writes were intercepted synthetic POSTs; no real Space or database
+write occurred.
+
+ARIADNE now owns:
+
+- `docs/roadmap/PR527B_SPACE_ENTITLEMENT_VISIBILITY_REPAIR_HOSTED_REHEARSAL_ARIADNE.md`
+
+The hosted gate is exact-SHA, signed-out plus replay-owner, System/Light/Dark at
+`1440x900`, `390x844`, and `375x812`, and strictly no-write. It must assert zero
+`POST /spaces`, follow the two real destinations, and make no positive entitled
+creation or J07 lifecycle claim.
+
 ## PR527B Space Entitlement And Visibility Repair Accepted Locally
 
 ARGUS accepted the implementation with a narrow review patch on 2026-07-15:
