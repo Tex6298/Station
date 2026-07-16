@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2A blocked by retained replay Auth state
+## Active lane - PR527F2B exact retained replay-session cleanup
 
 ```text
 BLOCK_PR527F2A_RETAINED_REPLAY_AUTH_SESSION_AND_SIGN_IN_DRIFT
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -19,8 +19,10 @@ Hosted lifecycle: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARI
 Hosted lifecycle result: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md
 Cleanup audit: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS.md
 Cleanup audit result: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md
+Session cleanup: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.md
+Fresh disposition: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR routes exact retained replay-session cleanup and irreversible Auth last_sign_in_at disposition; no PR527F2 rerun before fresh ARGUS acceptance
+Next: DAEDALUS removes only the exact failed-run session/refresh pair, then ARGUS re-audits the retained baseline read-only
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -101,6 +103,14 @@ linked session/refresh pair created in that interval remains active and
 unrevoked. These untagged retained-owner rows escaped exact-tag cleanup. MIMIR
 must route exact pair cleanup and separately disposition the irreversible Auth
 timestamp before any fresh ARGUS audit or PR527F2 rerun.
+
+MIMIR has routed that as PR527F2B followed by PR527F2C. DAEDALUS may remove only
+the exact active session and linked refresh row created in the failed-run
+interval, with every other replay-owner session held byte-for-byte unchanged.
+Auth `last_sign_in_at` and community `updated_at` must not be guessed or
+backdated. ARGUS then independently proves whether those two audit timestamps
+are the sole retained differences and may become the honest new baseline. No
+PR527F2 rerun is authorized before that verdict.
 
 ## Previous PR527E hosted rehearsal blocker history
 

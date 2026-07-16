@@ -12,7 +12,8 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527F2A | Cleanup Timestamp Drift Audit | MIMIR -> ARGUS -> MIMIR | Blocked: community timestamp/semantic/residue checks pass, but one replay-owner session and linked refresh token created in the failed-run interval remain active/unrevoked, and Auth `last_sign_in_at` also advanced. Exact cleanup/disposition is required before rerun. | `docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md` |
+| PR527F2B | Retained Replay Session Cleanup | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Open; remove only the exact failed-run replay-owner session/linked refresh pair, preserving every other session and all product state. Auth/community audit timestamps remain untouched. | `docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.md` |
+| PR527F2C | Retained Baseline Read-Only Disposition | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Queued behind PR527F2B; fresh read-only audit must prove exact session cleanup and decide whether Auth/community timestamps are the sole truthful irreversible audit drift before rerun. | `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

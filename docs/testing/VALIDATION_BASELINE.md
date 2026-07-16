@@ -44,6 +44,33 @@ timestamp disposition before another read-only ARGUS audit or PR527F2 rerun.
 
 ## PR527F2 Hosted Lifecycle Blocked; Read-Only Audit Open
 
+### PR527F2A found retained Auth state
+
+ARGUS's read-only audit is recorded at:
+
+- `docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR527F2A_RETAINED_REPLAY_AUTH_SESSION_AND_SIGN_IN_DRIFT
+```
+
+Deployment/migration/catalog, semantic community state, global zero-row
+baselines, tagged cleanup, and orphan checks pass. The community timestamp is
+truthful audit drift, but it is not the sole difference: one active retained
+replay-owner session and one linked unrevoked refresh row were created inside
+the failed-run interval, and Auth `last_sign_in_at` advanced with that ordinary
+sign-in.
+
+MIMIR opened exact serial cleanup/disposition:
+
+- `docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.md`
+- `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md`
+
+PR527F2B may delete only the exact pair and must preserve every out-of-scope
+session and all product state. PR527F2C is then read-only. Neither audit
+timestamp may be guessed or backdated, and no lifecycle rerun is authorized
+before fresh ARGUS acceptance.
+
 ARIADNE's first PR527F2 run is recorded at:
 
 - `docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md`
