@@ -8,7 +8,7 @@ when a PR lands, or when validation truth changes.
 
 ```text
 OPEN_PR528_IMPORTANT_ROUTES_PARTNER_PASS
-Owner chain: MIMIR -> DAEDALUS / ARGUS -> MIMIR
+Owner chain: MIMIR -> DAEDALUS / ARGUS -> ARIADNE -> DAEDALUS / ARGUS -> MIMIR
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
 Preflight result: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE_RESULT.md
@@ -34,9 +34,11 @@ Accepted search deploy/public completion: docs/roadmap/PR528B11_ACCEPTED_SEARCH_
 Public corpus hosted review: docs/roadmap/PR528C8_PUBLIC_PARTNER_CORPUS_HOSTED_REVIEW_ARGUS.md
 Auth sign-out deploy/session cleanup: docs/roadmap/PR528B12_AUTH_SIGNOUT_DEPLOY_AND_SESSION_CLEANUP_DAEDALUS.md
 Auth sign-out/probe audit disposition: docs/roadmap/PR528C9_AUTH_SIGNOUT_AND_PROBE_AUDIT_DISPOSITION_ARGUS.md
+Final partner route rehearsal: docs/roadmap/PR528D_PARTNER_ROUTE_HOSTED_REHEARSAL_ARIADNE.md
+Queued probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGIENE_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS performs read-only PR528C9 disposition of the successful Station Guide sign-out repair, irreversible dedicated-probe audit drift, and legacy probe-session baseline before ARIADNE rehearsal
+Next: ARIADNE runs the final 44-case human partner rehearsal on exact accepted hosted SHA 67da511f; PR528B13 is queued afterward so global probe-session cleanup cannot interrupt her authenticated browser run
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -144,6 +146,15 @@ live artifacts were exactly removed, but two dedicated probe accounts retain
 irreversible advanced `last_sign_in_at` audit history and a large pre-existing
 session baseline. PR528C9 now owns a read-only disposition of those separate
 facts before ARIADNE rehearsal or any explicitly authorized cleanup lane.
+
+PR528C9 accepts the deployed Station Guide sign-out repair and classifies the
+two dedicated probe accounts' advanced `last_sign_in_at` values as truthful,
+non-blocking test-audit history. Their 258 older active sessions are unjustified
+test artifacts but isolated from the partner corpus. PR528D now owns the final
+44-case human rehearsal at exact hosted SHA `67da511f`. PR528B13 is documented
+and deliberately queued until ARIADNE signs out; it will then revoke only the
+two dedicated probe owners' session/refresh state and add the smallest durable
+Auth-read-only verifier guard before PR528 closeout.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
