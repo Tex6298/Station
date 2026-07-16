@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | PR528C8 accepts the retained public chain and all non-session gates, but found three active retained-owner sessions after false-success product sign-out. ARGUS patched exact server-side local-session revocation at `67da511f`; PR528B12 now deploys it, revokes only Station Guide sessions, and proves a fresh product sign-out before C8 replay. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
+| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | PR528B12 deployed exact server-side local-session revocation, cleared Station Guide sessions to zero, and passed a hosted product sign-out canary. PR528C9 now performs read-only disposition of irreversible dedicated-probe audit drift and the pre-existing probe-session baseline before ARIADNE rehearsal or a separately authorized cleanup lane. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

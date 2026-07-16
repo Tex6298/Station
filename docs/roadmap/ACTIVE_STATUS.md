@@ -33,9 +33,10 @@ Public document search review: docs/roadmap/PR528C7_PUBLIC_DOCUMENT_DISCOVER_TEX
 Accepted search deploy/public completion: docs/roadmap/PR528B11_ACCEPTED_SEARCH_DEPLOY_AND_PUBLIC_CORPUS_COMPLETION_DAEDALUS.md
 Public corpus hosted review: docs/roadmap/PR528C8_PUBLIC_PARTNER_CORPUS_HOSTED_REVIEW_ARGUS.md
 Auth sign-out deploy/session cleanup: docs/roadmap/PR528B12_AUTH_SIGNOUT_DEPLOY_AND_SESSION_CLEANUP_DAEDALUS.md
+Auth sign-out/probe audit disposition: docs/roadmap/PR528C9_AUTH_SIGNOUT_AND_PROBE_AUDIT_DISPOSITION_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS deploys accepted Auth sign-out patch 67da511f, revokes exactly the retained Station Guide sessions, proves zero, and runs a fresh product sign-out canary; ARGUS then reruns C8
+Next: ARGUS performs read-only PR528C9 disposition of the successful Station Guide sign-out repair, irreversible dedicated-probe audit drift, and legacy probe-session baseline before ARIADNE rehearsal
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -136,8 +137,13 @@ acceptance because the retained owner still has three active sessions and three
 unrevoked refresh tokens after recorded product sign-out. ARGUS reproduced the
 false `204` with one fresh session, cleaned only that review session, and
 patched sign-out at `67da511f` to use the server-side Auth admin local scope.
-PR528B12 now deploys that patch, revokes exactly the retained owner's sessions,
-and proves a fresh product sign-out before C8 rerun.
+PR528B12 deployed that patch, revoked exactly the retained owner's sessions,
+and proved a fresh product sign-out leaves Station Guide at zero. Its legacy
+private verifier also created six non-target probe session/refresh pairs; those
+live artifacts were exactly removed, but two dedicated probe accounts retain
+irreversible advanced `last_sign_in_at` audit history and a large pre-existing
+session baseline. PR528C9 now owns a read-only disposition of those separate
+facts before ARIADNE rehearsal or any explicitly authorized cleanup lane.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
