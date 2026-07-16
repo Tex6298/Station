@@ -4,38 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2G serialized direct RLS proof ready for MIMIR
+## Active lane - PR528A Important Routes Partner Preflight
 
 ```text
-PASS_PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR
-Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
-Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
-Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
-Review result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md
-Hosted schema: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS.md
-Hosted schema result: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS_RESULT.md
-Hosted lifecycle: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md
-Hosted lifecycle result: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md
-Cleanup audit: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS.md
-Cleanup audit result: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md
-Session cleanup: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.md
-Session cleanup result: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS_RESULT.md
-Fresh disposition: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md
-Fresh disposition result: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md
-Hardened rerun: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md
-Hardened rerun result: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE_RESULT.md
-RLS evidence rerun: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md
-RLS evidence takeover: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER.md
-RLS evidence result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER_RESULT.md
-Late overlapping result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE_RESULT.md
-Combined audit: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS.md
-Combined audit result: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS_RESULT.md
-Serialized RLS proof: docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS.md
-Serialized RLS proof result: docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS_RESULT.md
-Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR closes PR527F truthfully, then opens Marty's Important Routes Partner Pass from sequencing commit 7c14c1b9
+OPEN_PR528_IMPORTANT_ROUTES_PARTNER_PASS
+Owner chain: MIMIR -> ARIADNE
+PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
+Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
+Active preflight: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE.md
+Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
+Hosted review URL: https://stationweb-production.up.railway.app
+Next: ARIADNE selects and rehearses the principal partner routes, returns only fix-now blockers, and records every non-blocking deferment in PR529
 ```
+
+PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
+PR527F2D remains the full hosted product/browser lifecycle authority and
+PR527F2G is the sole provenance-bound direct-RLS authority. Current hosted
+preferences, Watches, notifications, tagged residue, disposable residue, and
+checked orphans are zero after exact cleanup.
+
+Sequencing commit `7c14c1b9` supersedes the next ranked PR527 micro-fix. PR528
+now prepares only the principal hosted routes for Marty and his partner to
+judge. PR529 is already named and paused so non-blocking details can be
+deferred durably without consuming the partner pass or disappearing.
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
 owner-only `community_notification_preferences` table because `profiles` is

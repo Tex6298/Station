@@ -4,6 +4,31 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F Settings Persistence Truth Closed
+
+MIMIR closed PR527F on 2026-07-16:
+
+- `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md`
+
+```text
+CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED
+```
+
+The accepted closeout composes ARGUS's local implementation/safety acceptance,
+DAEDALUS's hosted migration/catalog/RLS proof, PR527F2D's complete hosted
+product/browser lifecycle gates, and PR527F2G's sole-owner provenance-bound
+direct-RLS proof. The prior PR527F2/2D/2E/2F blockers remain truthful history;
+PR527F2G supersedes only the ambiguous PR527F2E direct-RLS authority.
+
+Final hosted proof has exact source/migration/catalog/owner boundaries and zero
+preferences, Watches, notifications, tagged residue, disposable residue, and
+checked orphans after cleanup. Retained owner and out-of-scope session/refresh
+metadata are exact. No temporary lock, credential, journal, screenshot,
+runner, or recovery state remains.
+
+PR528 now owns the Important Routes Partner Pass. PR529 is the named paused
+post-partner detail lane; this transition does not claim overall UI completion.
+
 ## PR527F2G Serialized Direct RLS Proof Passed
 
 DAEDALUS completed the sole-owner serialized proof on 2026-07-16:
