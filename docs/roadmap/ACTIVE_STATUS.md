@@ -4,18 +4,29 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR528A Important Routes Partner Preflight
+## Active lane - PR528B partner-route preparation
 
 ```text
 OPEN_PR528_IMPORTANT_ROUTES_PARTNER_PASS
-Owner chain: MIMIR -> ARIADNE
+Owner chain: MIMIR -> ARIADNE -> MIMIR -> DAEDALUS / ARGUS
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
-Active preflight: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE.md
+Preflight result: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE_RESULT.md
+Theme repairs: docs/roadmap/PR528B1_PRINCIPAL_ROUTE_THEME_REPAIRS_DAEDALUS.md
+Corpus/provider brief: docs/roadmap/PR528B_PARTNER_CORPUS_CONTENT_BRIEF_MIMIR.md
+Corpus/provider preflight: docs/roadmap/PR528B2_PARTNER_CORPUS_PROVIDER_PREFLIGHT_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE selects and rehearses the principal partner routes, returns only fix-now blockers, and records every non-blocking deferment in PR529
+Next: DAEDALUS repairs the three exact principal-route contrast failures while ARGUS independently locks the public/private corpus, provider, retention, and cleanup boundary
 ```
+
+PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
+zero page, non-aborted request, HTTP, write, geometry, or theme-resolution
+failure. It selected the public discovery chain, Forums, Studio, companion,
+Memory Inbox, Continuity, and Global Archive. Six fix-now slices remain: three
+route-scoped contrast defects plus curated public corpus, isolated private
+corpus, and one accepted private provider. Nine non-blocking findings are
+durably recorded in paused PR529.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
