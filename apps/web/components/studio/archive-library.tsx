@@ -254,7 +254,7 @@ export function ArchiveLibrary() {
           </div>
           <div style={{ display: "flex", gap: 8, alignItems: "center", justifyContent: "flex-end", flexWrap: "wrap" }}>
             <span style={ownerOnlyPill}>Live owner-only</span>
-            <Link href="/studio/assistant" style={primaryButton}>Ask Assistant</Link>
+            <Link href="/studio/assistant" className="archive-primary-action" style={primaryButton}>Ask Assistant</Link>
           </div>
         </header>
 
@@ -814,10 +814,10 @@ const primaryButton = {
   alignItems: "center",
   justifyContent: "center",
   minHeight: 40,
-  border: "1px solid var(--station-page-text)",
+  border: "1px solid var(--archive-primary-border, var(--station-page-text))",
   borderRadius: 8,
-  background: "var(--station-page-text)",
-  color: "#fff",
+  background: "var(--archive-primary-background, var(--station-page-text))",
+  color: "var(--station-page-on-strong)",
   padding: "0 14px",
   fontSize: 14,
   fontWeight: 800,

@@ -2482,9 +2482,19 @@ html, body {
 
 .archive-trust-copy {
   margin: 0;
-  color: #a8b4c7;
+  color: var(--station-page-muted);
   font-size: 0.9rem;
   line-height: 1.65;
+}
+
+.archive-primary-action:hover {
+  --archive-primary-border: var(--station-page-accent);
+  --archive-primary-background: var(--station-page-accent);
+}
+
+.archive-primary-action:focus-visible {
+  outline: 2px solid var(--station-page-accent);
+  outline-offset: 3px;
 }
 
 .archive-trust-stats {

@@ -12,6 +12,33 @@ import {
   resolveStationTheme,
 } from "./theme";
 
+function hexLuminance(hex: string) {
+  const channels = [1, 3, 5].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16) / 255);
+  const linear = channels.map((channel) => (
+    channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4
+  ));
+  return 0.2126 * linear[0]! + 0.7152 * linear[1]! + 0.0722 * linear[2]!;
+}
+
+function contrastRatio(first: string, second: string) {
+  const luminances = [hexLuminance(first), hexLuminance(second)].sort((left, right) => right - left);
+  return (luminances[0]! + 0.05) / (luminances[1]! + 0.05);
+}
+
+function stationThemeTokens(css: string, theme: "light" | "dark") {
+  const blocks = theme === "light"
+    ? Array.from(css.matchAll(/:root\s*\{([^}]+)\}/gs), (match) => match[1]!)
+    : Array.from(css.matchAll(/html\[data-station-theme="dark"\]\s*\{([^}]+)\}/gs), (match) => match[1]!);
+  const block = blocks.find((candidate) => candidate.includes("--station-page-text"));
+  assert.ok(block, `${theme} Station theme tokens should exist`);
+
+  return (name: string) => {
+    const value = block.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, "i"))?.[1];
+    assert.ok(value, `${theme} ${name} should be a six-digit hex colour`);
+    return value;
+  };
+}
+
 test("theme preference accepts only System, Light, and Dark values", () => {
   assert.equal(normalizeStationThemePreference("system"), "system");
   assert.equal(normalizeStationThemePreference("light"), "light");
@@ -102,4 +129,61 @@ test("dark treatment preserves Discover selection contrast and the bounded obser
   assert.match(nodeBlock, /#d8d3c8/);
   assert.match(nodeBlock, /#1f2529/);
   assert.doesNotMatch(nodeBlock, /--station-page-/);
+});
+
+test("principal partner routes use semantic theme contracts without changing their destinations", () => {
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+  const documentPage = readFileSync("apps/web/app/space/[slug]/documents/[documentId]/page.tsx", "utf8");
+  const archiveLibrary = readFileSync("apps/web/components/studio/archive-library.tsx", "utf8");
+  const documentTrust = documentPage.slice(
+    documentPage.indexOf("function DocumentTrustReadback"),
+    documentPage.indexOf("function trustRowStyle"),
+  );
+  const trustRows = documentPage.slice(documentPage.indexOf("function trustRowStyle"));
+  const archiveCopy = css.match(/\.archive-trust-copy\s*\{([^}]+)\}/s)?.[1] ?? "";
+  const primaryButton = archiveLibrary.slice(archiveLibrary.indexOf("const primaryButton"));
+
+  assert.match(documentTrust, /var\(--station-page-accent\)/);
+  assert.match(documentTrust, /var\(--station-page-text\)/);
+  assert.match(documentTrust, /var\(--station-page-muted\)/);
+  assert.doesNotMatch(documentTrust, /color:\s*["']#/);
+  assert.match(trustRows, /var\(--station-page-soft-2\)/);
+  assert.match(trustRows, /var\(--station-page-success-bg\)/);
+  assert.match(trustRows, /var\(--station-page-warning-bg\)/);
+  assert.doesNotMatch(trustRows, /background:\s*["']#|borderColor:\s*["'](?:#|rgba)/);
+
+  assert.match(archiveCopy, /color:\s*var\(--station-page-muted\)/);
+  assert.doesNotMatch(archiveCopy, /#[0-9a-f]{3,8}/i);
+  assert.match(archiveLibrary, /href="\/studio\/assistant" className="archive-primary-action" style=\{primaryButton\}>Ask Assistant<\/Link>/);
+  assert.match(primaryButton, /var\(--archive-primary-border, var\(--station-page-text\)\)/);
+  assert.match(primaryButton, /var\(--archive-primary-background, var\(--station-page-text\)\)/);
+  assert.match(primaryButton, /color:\s*"var\(--station-page-on-strong\)"/);
+  assert.match(css, /\.archive-primary-action:hover\s*\{[^}]*--archive-primary-border:\s*var\(--station-page-accent\)[^}]*--archive-primary-background:\s*var\(--station-page-accent\)/s);
+  assert.match(css, /\.archive-primary-action:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--station-page-accent\)/s);
+});
+
+test("principal partner route token pairs retain meaningful text contrast in Light and Dark", () => {
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+
+  for (const theme of ["light", "dark"] as const) {
+    const token = stationThemeTokens(css, theme);
+    const backgrounds = [
+      "--station-page-surface",
+      "--station-page-soft-2",
+      "--station-page-success-bg",
+      "--station-page-warning-bg",
+    ];
+
+    for (const background of backgrounds) {
+      for (const foreground of ["--station-page-text", "--station-page-muted", "--station-page-accent"]) {
+        const ratio = contrastRatio(token(foreground), token(background));
+        assert.ok(ratio >= 4.5, `${theme} ${foreground} on ${background} was ${ratio.toFixed(2)}:1`);
+      }
+    }
+
+    for (const background of ["--station-page-text", "--station-page-accent"]) {
+      const ratio = contrastRatio(token("--station-page-on-strong"), token(background));
+      assert.ok(ratio >= 4.5, `${theme} strong action on ${background} was ${ratio.toFixed(2)}:1`);
+    }
+  }
 });

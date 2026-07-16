@@ -404,25 +404,25 @@ export default function DocumentPage() {
 function DocumentTrustReadback({ rows }: { rows: PublishingTrustRow[] }) {
   return (
     <section className="card" style={{ marginBottom: "1.5rem", padding: "1rem 1.1rem" }}>
-      <div style={{ fontSize: "0.72rem", color: "#687078", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
+      <div style={{ fontSize: "0.72rem", color: "var(--station-page-accent)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.35rem" }}>
         Document trust
       </div>
-      <div style={{ color: "#1f2529", fontWeight: 650, marginBottom: "0.35rem" }}>
+      <div style={{ color: "var(--station-page-text)", fontWeight: 650, marginBottom: "0.35rem" }}>
         Provenance, visibility, and discussion readback
       </div>
-      <div style={{ color: "#687078", fontSize: "0.82rem", marginBottom: "0.75rem", lineHeight: 1.55 }}>
+      <div style={{ color: "var(--station-page-muted)", fontSize: "0.82rem", marginBottom: "0.75rem", lineHeight: 1.55 }}>
         This panel explains the public copy without exposing private Studio source rows.
       </div>
       <div style={{ display: "grid", gap: "0.55rem" }}>
         {rows.map((row) => (
           <div key={row.id} style={trustRowStyle(row.tone)}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: "0.75rem", flexWrap: "wrap", alignItems: "flex-start" }}>
-              <span style={{ color: "#687078", fontSize: "0.72rem", fontWeight: 760, textTransform: "uppercase" }}>
+              <span style={{ color: "var(--station-page-accent)", fontSize: "0.72rem", fontWeight: 760, textTransform: "uppercase" }}>
                 {row.label}
               </span>
-              <strong style={{ color: "#1f2529", fontSize: "0.82rem" }}>{row.value}</strong>
+              <strong style={{ color: "var(--station-page-text)", fontSize: "0.82rem" }}>{row.value}</strong>
             </div>
-            <p style={{ margin: "0.35rem 0 0", color: "#687078", fontSize: "0.82rem", lineHeight: 1.55 }}>
+            <p style={{ margin: "0.35rem 0 0", color: "var(--station-page-muted)", fontSize: "0.82rem", lineHeight: 1.55 }}>
               {row.body}
             </p>
           </div>
@@ -434,9 +434,9 @@ function DocumentTrustReadback({ rows }: { rows: PublishingTrustRow[] }) {
 
 function trustRowStyle(tone: PublishingTrustRow["tone"]) {
   const toneStyles = {
-    info: { background: "#f8f7f4", borderColor: "#d8d3c8" },
-    good: { background: "#e9f5ee", borderColor: "rgba(59, 143, 99, 0.35)" },
-    warning: { background: "#fff7ed", borderColor: "#fed7aa" },
+    info: { background: "var(--station-page-soft-2)", borderColor: "var(--station-page-border)" },
+    good: { background: "var(--station-page-success-bg)", borderColor: "var(--station-page-success-border)" },
+    warning: { background: "var(--station-page-warning-bg)", borderColor: "var(--station-page-warning-border)" },
   }[tone];
 
   return {
