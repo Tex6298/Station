@@ -25,9 +25,10 @@ Fractional weight review: docs/roadmap/PR528C4_FRACTIONAL_MEMORY_WEIGHT_REVIEW_A
 Schema deploy/correction result: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_DEPLOY_AND_CORRECTION_DAEDALUS_RESULT.md
 Hosted deploy/correction review: docs/roadmap/PR528C5_SERIALIZED_SCHEMA_DEPLOY_AND_CORRECTION_REVIEW_ARGUS.md
 Public partner corpus: docs/roadmap/PR528B7_PUBLIC_PARTNER_CORPUS_DAEDALUS.md
+Document discussion repair: docs/roadmap/PR528B8_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS creates the exact bounded public Station Guide Space/document/discussion chain on accepted hosted SHA c13d8ea0; ARGUS review follows before human rehearsal
+Next: DAEDALUS implements the bounded owner-only existing document-discussion customization route; ARGUS review and accepted deployment follow before PR528B7 resumes
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -66,6 +67,15 @@ PR528C5 independently accepts PR528B6. PR528B7 is now authorized to create only
 the exact public Station Guide owner, Continuity Field Notes Space, summarized
 essay, and linked forum thread. The retained private Aster corpus remains an
 invariant. Public corpus does not authorize chat/provider configuration.
+
+PR528B7 stopped before all hosted writes because the approved sequence required
+creating a custom linked thread while document comments were disabled, which
+the product API correctly rejects; enabling comments first auto-creates the
+default linked discussion. PR528B8 is the smallest product-level repair: an
+owner-only document discussion PATCH that customizes the one existing linked
+thread without weakening comment eligibility, adding a general forum edit
+surface, creating a duplicate, or using service-role writes. ARGUS review and
+accepted deployment are required before the public corpus retry.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
