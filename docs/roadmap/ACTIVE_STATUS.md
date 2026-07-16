@@ -32,9 +32,10 @@ Public document text search repair: docs/roadmap/PR528B10_PUBLIC_DOCUMENT_DISCOV
 Public document search review: docs/roadmap/PR528C7_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_REVIEW_ARGUS.md
 Accepted search deploy/public completion: docs/roadmap/PR528B11_ACCEPTED_SEARCH_DEPLOY_AND_PUBLIC_CORPUS_COMPLETION_DAEDALUS.md
 Public corpus hosted review: docs/roadmap/PR528C8_PUBLIC_PARTNER_CORPUS_HOSTED_REVIEW_ARGUS.md
+Auth sign-out deploy/session cleanup: docs/roadmap/PR528B12_AUTH_SIGNOUT_DEPLOY_AND_SESSION_CLEANUP_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently audits accepted deployment, cleaned first attempt, exact retained Station Guide owner/Space/versioned document/one thread, public routes/search, forbidden scopes, and private Aster before ARIADNE rehearsal
+Next: DAEDALUS deploys accepted Auth sign-out patch 67da511f, revokes exactly the retained Station Guide sessions, proves zero, and runs a fresh product sign-out canary; ARGUS then reruns C8
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -128,6 +129,15 @@ versions/current version 3, and one customized linked discussion with zero
 engagement. Seven anonymous API surfaces, title/body search, the visible route
 chain, 51 available forbidden scopes, cleanup rehearsal, and private Aster
 invariants pass. PR528C8 now owns independent hosted review before ARIADNE.
+
+PR528C8 independently accepts deployment, corpus, public route/search,
+forbidden-scope, cleanup-residue, and private Aster truth, but blocks final
+acceptance because the retained owner still has three active sessions and three
+unrevoked refresh tokens after recorded product sign-out. ARGUS reproduced the
+false `204` with one fresh session, cleaned only that review session, and
+patched sign-out at `67da511f` to use the server-side Auth admin local scope.
+PR528B12 now deploys that patch, revokes exactly the retained owner's sessions,
+and proves a fresh product sign-out before C8 rerun.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
