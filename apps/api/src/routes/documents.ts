@@ -41,6 +41,14 @@ const publishSchema = z.object({
   visibility: visibilitySchema.optional(),
 });
 
+const discussionCustomizationSchema = z.object({
+  title: z.string().trim().min(1).max(300).optional(),
+  body: z.string().trim().min(1).max(50000).optional(),
+}).strict().refine(
+  (value) => value.title !== undefined || value.body !== undefined,
+  { message: "At least one of title or body is required." },
+);
+
 const publishFromContinuitySchema = z.object({
   sourceType: sourceTypeSchema,
   sourceId: z.string().uuid(),
@@ -69,6 +77,7 @@ const DOCUMENT_ERROR_RESPONSES = {
   publishFromContinuity: { error: "Could not publish continuity document.", code: "document_continuity_publish_failed" },
   publish: { error: "Could not publish document.", code: "document_publish_failed" },
   discussionCreate: { error: "Could not create discussion thread.", code: "document_discussion_create_failed" },
+  discussionUpdate: { error: "Could not update discussion thread.", code: "document_discussion_update_failed" },
   discussionCleanup: { error: "Could not clean up linked document discussion.", code: "document_discussion_cleanup_failed" },
   delete: { error: "Could not delete document.", code: "document_delete_failed" },
 } as const;
@@ -474,6 +483,15 @@ async function loadDiscussionThreadById(threadId: string) {
   };
 }
 
+async function resolveExistingDocumentDiscussion(document: any) {
+  if (document.discussion_thread_id) {
+    const { data } = await loadDiscussionThreadById(document.discussion_thread_id);
+    if (data?.linked_document_id === document.id) return data;
+  }
+
+  return loadLinkedDocumentDiscussion(document);
+}
+
 function withLegacyThreadAuthorship(row: any) {
   return {
     authorship_kind: "user_authored",
@@ -802,6 +820,52 @@ documentsRouter.post("/:id/discussion", requireAuth, requireTier("private"), asy
   const thread = await ensureDocumentDiscussion(document);
   if (!thread) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.discussionCreate);
   return res.status(document.discussion_thread_id ? 200 : 201).json({ discussion: thread });
+});
+
+// -- Authenticated: customize an existing document discussion -----------------
+documentsRouter.patch("/:id/discussion", requireAuth, requireTier("private"), async (req, res) => {
+  const parsed = discussionCustomizationSchema.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+  const sb = getSupabaseAdmin();
+  const { data: document, error } = await sb
+    .from("documents")
+    .select("*")
+    .eq("id", req.params.id)
+    .single();
+
+  if (error || !document || !canReadDocument(document, req.user)) {
+    return res.status(404).json({ error: "Document not found." });
+  }
+
+  if (document.author_user_id !== req.user!.id && !req.user!.isAdmin) {
+    return res.status(403).json({ error: "Only the document owner can customize its discussion." });
+  }
+
+  if (!canHaveDiscussion(document)) {
+    return res.status(400).json({ error: "This document is not eligible for public discussion." });
+  }
+
+  const thread = await resolveExistingDocumentDiscussion(document);
+  if (!thread) return res.status(404).json({ error: "Document discussion not found." });
+
+  const update: Record<string, string> = {};
+  if (parsed.data.title !== undefined) update.title = parsed.data.title;
+  if (parsed.data.body !== undefined) update.body = parsed.data.body;
+
+  const { data: updated, error: updateError } = await sb
+    .from("threads")
+    .update(update)
+    .eq("id", thread.id)
+    .eq("linked_document_id", document.id)
+    .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
+    .single();
+
+  if (updateError || !updated) {
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.discussionUpdate);
+  }
+
+  return res.json({ discussion: serializeDocumentDiscussionThread(updated, document) });
 });
 
 // -- Authenticated routes ------------------------------------------------------

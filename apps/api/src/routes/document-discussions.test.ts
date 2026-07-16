@@ -14,6 +14,8 @@ type Row = Record<string, any>;
 
 const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
+const ADMIN_ID = "22222222-2222-4222-8222-222222222223";
+const VISITOR_ID = "22222222-2222-4222-8222-222222222224";
 const SPACE_ID = "33333333-3333-4333-8333-333333333333";
 const PUBLIC_DOC_ID = "44444444-4444-4444-8444-444444444444";
 const COMMUNITY_DOC_ID = "55555555-5555-4555-8555-555555555555";
@@ -44,6 +46,26 @@ class InMemorySupabase {
         avatar_url: null,
         bio: null,
         tier: "private",
+        is_admin: false,
+      },
+      {
+        id: ADMIN_ID,
+        email: "admin@example.test",
+        username: "admin",
+        display_name: "Admin",
+        avatar_url: null,
+        bio: null,
+        tier: "creator",
+        is_admin: true,
+      },
+      {
+        id: VISITOR_ID,
+        email: "visitor@example.test",
+        username: "visitor",
+        display_name: "Visitor",
+        avatar_url: null,
+        bio: null,
+        tier: "visitor",
         is_admin: false,
       },
     ],
@@ -81,6 +103,8 @@ class InMemorySupabase {
   private usersByToken = new Map([
     ["owner-token", { id: OWNER_ID, email: "owner@example.test" }],
     ["member-token", { id: MEMBER_ID, email: "member@example.test" }],
+    ["admin-token", { id: ADMIN_ID, email: "admin@example.test" }],
+    ["visitor-token", { id: VISITOR_ID, email: "visitor@example.test" }],
   ]);
 
   client = {
@@ -540,6 +564,43 @@ function hostileDocumentError(operation: string) {
   };
 }
 
+function seedDocumentDiscussion(
+  db: InMemorySupabase,
+  documentId: string,
+  options: { pointDocument?: boolean; thread?: Row } = {}
+) {
+  const document = db.rows("documents").find((row) => row.id === documentId);
+  assert.ok(document);
+  const category = db.rows("forum_categories").find((row) => row.slug === "documents-and-codexes")
+    ?? db.insertRow("forum_categories", {
+      slug: "documents-and-codexes",
+      title: "Documents & Codexes",
+    });
+  const thread = db.insertRow("threads", {
+    category_id: category.id,
+    author_user_id: document.author_user_id,
+    linked_space_id: document.space_id,
+    linked_persona_id: document.persona_id,
+    linked_document_id: document.id,
+    title: `Discuss: ${document.title}`,
+    body: `Discussion attached to ${document.title}.`,
+    visibility: document.visibility === "members" ? "community" : document.visibility,
+    status: "active",
+    is_hidden: false,
+    ...options.thread,
+  });
+  if (options.pointDocument !== false) document.discussion_thread_id = thread.id;
+  return { document, thread };
+}
+
+function stableDiscussionFields(thread: Row) {
+  const copy = clone(thread);
+  delete copy.title;
+  delete copy.body;
+  delete copy.updated_at;
+  return copy;
+}
+
 function assertSafeDocumentRouteError(body: unknown) {
   const text = JSON.stringify(body);
   for (const unsafe of [
@@ -687,6 +748,18 @@ test("document route errors return stable public copy without private details", 
   );
 
   await expectRouteError(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID);
+      db.operationErrors.set("update:threads", hostileDocumentError("discussion update"));
+    },
+    (app) => requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: { title: "Updated discussion title" },
+    }),
+    { error: "Could not update discussion thread.", code: "document_discussion_update_failed" }
+  );
+
+  await expectRouteError(
     (db) => db.operationErrors.set("select:threads", hostileDocumentError("discussion cleanup")),
     (app) => requestJson(app, "DELETE", `/documents/${PUBLIC_DOC_ID}`, { token: "owner-token" }),
     { error: "Could not clean up linked document discussion.", code: "document_discussion_cleanup_failed" }
@@ -746,6 +819,225 @@ test("published document discussion readback recovers an existing linked thread 
   } finally {
     setSupabaseAdminForTests(null);
   }
+});
+
+test("owner customizes one helper-created document discussion without linkage or moderation drift", async () => {
+  const db = new InMemorySupabase();
+  const document = db.rows("documents").find((row) => row.id === PUBLIC_DOC_ID)!;
+  document.comments_enabled = false;
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createDiscussionApp();
+
+  try {
+    const enabled = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { commentsEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(db.rows("threads").length, 1);
+    const threadId = enabled.body.discussion.id;
+    assert.equal(document.discussion_thread_id, threadId);
+
+    const stored = db.rows("threads").find((row) => row.id === threadId)!;
+    Object.assign(stored, {
+      status: "locked",
+      moderation_state: "reviewing",
+      score: 7,
+      comment_count: 3,
+      vote_count: 4,
+      hot_score: 8.05,
+      is_pinned: true,
+      reported_count: 2,
+    });
+    const stableBefore = stableDiscussionFields(stored);
+    const pointerBefore = document.discussion_thread_id;
+
+    const customized = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: {
+        title: "  What belongs in continuity?  ",
+        body: "  Share a principle for deciding what should remain durable.  ",
+      },
+    });
+    assert.equal(customized.status, 200);
+    assert.equal(customized.body.discussion.id, threadId);
+    assert.equal(customized.body.discussion.title, "What belongs in continuity?");
+    assert.equal(customized.body.discussion.body, "Share a principle for deciding what should remain durable.");
+    assert.deepEqual(customized.body.discussion.authorship_provenance, {
+      kind: "user_authored",
+      label: "User-authored",
+    });
+    assert.equal(db.rows("threads").length, 1);
+    assert.equal(document.discussion_thread_id, pointerBefore);
+    assert.deepEqual(stableDiscussionFields(stored), stableBefore);
+
+    const discussionRead = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
+    assert.equal(discussionRead.status, 200);
+    assert.equal(discussionRead.body.discussion.id, threadId);
+    assert.equal(discussionRead.body.discussion.title, "What belongs in continuity?");
+    assert.equal(discussionRead.body.discussion.body, "Share a principle for deciding what should remain durable.");
+
+    const threadRead = await requestJson(app, "GET", `/threads/${threadId}`);
+    assert.equal(threadRead.status, 200);
+    assert.equal(threadRead.body.thread.title, "What belongs in continuity?");
+    assert.equal(threadRead.body.thread.body, "Share a principle for deciding what should remain durable.");
+
+    const repeated = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: {
+        title: "What belongs in continuity?",
+        body: "Share a principle for deciding what should remain durable.",
+      },
+    });
+    assert.equal(repeated.status, 200);
+    assert.equal(repeated.body.discussion.id, threadId);
+    assert.equal(db.rows("threads").length, 1);
+    assert.deepEqual(stableDiscussionFields(stored), stableBefore);
+
+    const titleOnly = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: { title: "A narrower continuity question" },
+    });
+    assert.equal(titleOnly.status, 200);
+    assert.equal(titleOnly.body.discussion.title, "A narrower continuity question");
+    assert.equal(titleOnly.body.discussion.body, "Share a principle for deciding what should remain durable.");
+
+    const bodyOnly = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: { body: "A revised prompt that leaves the title intact." },
+    });
+    assert.equal(bodyOnly.status, 200);
+    assert.equal(bodyOnly.body.discussion.title, "A narrower continuity question");
+    assert.equal(bodyOnly.body.discussion.body, "A revised prompt that leaves the title intact.");
+    assert.equal(db.rows("threads").length, 1);
+    assert.equal(document.discussion_thread_id, pointerBefore);
+    assert.deepEqual(stableDiscussionFields(stored), stableBefore);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("document discussion customization is owner or admin only and recovers an unpointed linked thread", async () => {
+  const db = new InMemorySupabase();
+  const { document, thread } = seedDocumentDiscussion(db, PUBLIC_DOC_ID, { pointDocument: false });
+  const original = clone(thread);
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createDiscussionApp();
+
+  try {
+    const anonymous = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      body: { title: "Anonymous edit" },
+    });
+    assert.equal(anonymous.status, 401);
+
+    const visitor = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "visitor-token",
+      body: { title: "Visitor edit" },
+    });
+    assert.equal(visitor.status, 403);
+
+    const nonOwner = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "member-token",
+      body: { title: "Member edit" },
+    });
+    assert.equal(nonOwner.status, 403);
+    assert.deepEqual(thread, original);
+
+    const admin = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "admin-token",
+      body: { body: "Administrator correction on the existing linked discussion." },
+    });
+    assert.equal(admin.status, 200);
+    assert.equal(admin.body.discussion.id, thread.id);
+    assert.equal(admin.body.discussion.title, original.title);
+    assert.equal(admin.body.discussion.body, "Administrator correction on the existing linked discussion.");
+    assert.equal(document.discussion_thread_id, null);
+    assert.equal(db.rows("threads").length, 1);
+
+    const owner = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: { title: "Owner-approved discussion title" },
+    });
+    assert.equal(owner.status, 200);
+    assert.equal(owner.body.discussion.id, thread.id);
+    assert.equal(owner.body.discussion.title, "Owner-approved discussion title");
+    assert.equal(owner.body.discussion.body, "Administrator correction on the existing linked discussion.");
+    assert.equal(document.discussion_thread_id, null);
+    assert.equal(db.rows("threads").length, 1);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("document discussion customization fails closed for ineligible, missing, and malformed targets", async () => {
+  async function expectFailClosed(
+    configure: (db: InMemorySupabase) => void,
+    body: unknown,
+    expectedStatus: number,
+  ) {
+    const db = new InMemorySupabase();
+    configure(db);
+    const before = clone(db.tables);
+    setSupabaseAdminForTests(db.client as any);
+    const app = await createDiscussionApp();
+
+    try {
+      const response = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(response.status, expectedStatus);
+      assert.deepEqual(db.tables, before);
+    } finally {
+      setSupabaseAdminForTests(null);
+    }
+  }
+
+  await expectFailClosed(
+    (db) => {
+      const { document } = seedDocumentDiscussion(db, PUBLIC_DOC_ID);
+      document.comments_enabled = false;
+    },
+    { title: "Disabled discussion edit" },
+    400,
+  );
+
+  await expectFailClosed(
+    (db) => {
+      const { document, thread } = seedDocumentDiscussion(db, PUBLIC_DOC_ID);
+      document.visibility = "private";
+      thread.visibility = "private";
+    },
+    { body: "Private discussion edit" },
+    400,
+  );
+
+  await expectFailClosed(
+    () => undefined,
+    { title: "Missing discussion edit" },
+    404,
+  );
+
+  await expectFailClosed(
+    (db) => {
+      const unrelated = seedDocumentDiscussion(db, COMMUNITY_DOC_ID).thread;
+      const document = db.rows("documents").find((row) => row.id === PUBLIC_DOC_ID)!;
+      document.discussion_thread_id = unrelated.id;
+    },
+    { title: "Cross-document pointer edit" },
+    404,
+  );
+
+  await expectFailClosed(() => undefined, {}, 400);
+  await expectFailClosed(() => undefined, { title: "   " }, 400);
+  await expectFailClosed(() => undefined, { body: 42 }, 400);
+  await expectFailClosed(() => undefined, { title: "x".repeat(301) }, 400);
+  await expectFailClosed(() => undefined, { body: "x".repeat(50001) }, 400);
+  await expectFailClosed(
+    () => undefined,
+    { title: "Valid title", status: "locked" },
+    400,
+  );
 });
 
 test("owner document deletion tombstones only its linked discussion artifact", async () => {
