@@ -281,6 +281,23 @@ test("publishing version compare is wired into Studio publish without mutation s
   assert.doesNotMatch(source, /versions\/compare|restoreVersion|revertVersion|apiPost<.*versions|apiPatch<.*versions/i);
 });
 
+test("public document surfaces render summary separately and keep legacy body fallback", () => {
+  const detailSource = readFileSync("apps/web/app/space/[slug]/documents/[documentId]/page.tsx", "utf8");
+  const spaceSource = readFileSync("apps/web/app/space/[slug]/page.tsx", "utf8");
+  const discoverSource = readFileSync("apps/web/components/discover/discover-home.tsx", "utf8");
+  const cardSource = readFileSync("apps/web/components/documents/document-card.tsx", "utf8");
+
+  assert.match(detailSource, /summary\?: string \| null/);
+  assert.match(detailSource, /data-document-summary/);
+  assert.match(detailSource, /\{doc\.summary\}/);
+  assert.match(detailSource, /\{doc\.body \?\?/);
+  assert.ok(detailSource.indexOf("data-document-summary") < detailSource.indexOf("{doc.body ??"));
+  assert.match(spaceSource, /doc\.summary \?\? doc\.body/);
+  assert.match(discoverSource, /document\.summary \?\? document\.body/);
+  assert.match(cardSource, /document\.summary \?\? document\.body/);
+  assert.doesNotMatch(detailSource, /doc\.body\s*=|summary\s*=\s*doc\.body|derive.*summary/i);
+});
+
 test("publishing helpers describe Station-native authoring intent and readiness", () => {
   assert.deepEqual(documentTypeAuthoringIntent("constitution"), {
     label: "Codex",

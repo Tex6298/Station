@@ -12,8 +12,8 @@ const SUPABASE_MANAGEMENT_TIMEOUT_MS = 5000;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
-  version: "025-037",
-  name: "public_schema_object_rpc_and_document_version_proof",
+  version: "025-085",
+  name: "public_schema_object_rpc_document_version_and_summary_proof",
 };
 
 type CheckStatus = {
@@ -288,7 +288,7 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
       sb.from("developer_spaces").select("provider_policy", { head: true }).limit(1)
     ),
     checkMigrationQueryProof("documents_version", () =>
-      sb.from("documents").select("version", { head: true }).limit(1)
+      sb.from("documents").select("version,summary", { head: true }).limit(1)
     ),
     checkMigrationQueryProof("document_versions", () =>
       sb

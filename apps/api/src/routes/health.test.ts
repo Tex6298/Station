@@ -200,13 +200,13 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.database.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-037",
-      name: "public_schema_object_rpc_and_document_version_proof",
+      version: "025-085",
+      name: "public_schema_object_rpc_document_version_and_summary_proof",
     });
     assert.deepEqual(db.objectProofQueries.map((query) => [query.table, query.columns]), [
       ["memory_items", "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version"],
       ["developer_spaces", "provider_policy"],
-      ["documents", "version"],
+      ["documents", "version,summary"],
       ["document_versions", "id,document_id,owner_user_id,version_number"],
     ]);
     assert.equal(deployment.body.readiness.storage.exists, true);
@@ -463,8 +463,8 @@ test("/health/deployment proves backend migrations through public schema objects
     assert.equal(deployment.body.readiness.migrations.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-037",
-      name: "public_schema_object_rpc_and_document_version_proof",
+      version: "025-085",
+      name: "public_schema_object_rpc_document_version_and_summary_proof",
     });
     assert.deepEqual(deployment.body.readiness.migrations.proofs, [
       { id: "memory_columns", ok: true, checked: true },
@@ -504,7 +504,7 @@ test("/health/deployment blocks readiness when PR30 document version objects are
       error: "query_failed",
     });
     assert.equal(
-      db.objectProofQueries.some((query) => query.table === "documents" && query.columns === "version"),
+      db.objectProofQueries.some((query) => query.table === "documents" && query.columns === "version,summary"),
       true
     );
     assert.equal(

@@ -15,6 +15,8 @@ const documentTypeSchema = z.preprocess(
   (value) => typeof value === "string" ? normalizeDocumentType(value) : value,
   z.enum(STATION_DOCUMENT_TYPES),
 );
+const DOCUMENT_SUMMARY_MAX_CHARS = 500;
+const documentSummarySchema = z.string().trim().max(DOCUMENT_SUMMARY_MAX_CHARS).nullable().optional();
 const createSchema = z.object({
   spaceId: z.string().uuid().optional(),
   personaId: z.string().uuid().optional().nullable(),
@@ -25,6 +27,7 @@ const createSchema = z.object({
     .max(120)
     .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers, and hyphens."),
   body: z.string().max(100000).optional(),
+  summary: documentSummarySchema,
   documentType: documentTypeSchema.default("essay"),
   visibility: visibilitySchema.default("public"),
   commentsEnabled: z.boolean().default(true),
@@ -61,6 +64,7 @@ const DOCUMENT_ERROR_RESPONSES = {
   create: { error: "Could not create document.", code: "document_create_failed" },
   loadForWrite: { error: "Could not load document.", code: "document_load_failed" },
   snapshot: { error: "Could not capture document version.", code: "document_snapshot_failed" },
+  restore: { error: "Could not restore document version.", code: "document_restore_failed" },
   update: { error: "Could not update document.", code: "document_update_failed" },
   publishFromContinuity: { error: "Could not publish continuity document.", code: "document_continuity_publish_failed" },
   publish: { error: "Could not publish document.", code: "document_publish_failed" },
@@ -94,6 +98,7 @@ const VERSIONED_DOCUMENT_FIELDS = [
   "title",
   "slug",
   "body",
+  "summary",
   "document_type",
   "status",
   "visibility",
@@ -111,6 +116,12 @@ const VERSIONED_DOCUMENT_FIELDS = [
 
 function normalizeVisibility(visibility: z.infer<typeof visibilitySchema>) {
   return visibility === "members" ? "community" : visibility;
+}
+
+function normalizeDocumentSummary(value: string | null | undefined) {
+  if (value == null) return null;
+  const normalized = value.trim();
+  return normalized || null;
 }
 
 function isCommunityEligible(user?: AuthenticatedUser | null) {
@@ -205,6 +216,27 @@ function serializeDocumentVersion(row: any) {
     documentUpdatedAt: row.document_updated_at ?? null,
     capturedAt: row.captured_at,
     createdAt: row.created_at,
+  };
+}
+
+function documentVersionRestoreUpdate(version: any) {
+  return {
+    title: version.title,
+    slug: version.slug,
+    body: version.body ?? null,
+    summary: version.summary ?? null,
+    document_type: version.document_type,
+    status: version.status,
+    visibility: version.visibility,
+    comments_enabled: version.comments_enabled !== false,
+    space_id: version.space_id ?? null,
+    persona_id: version.persona_id ?? null,
+    published_at: version.published_at ?? null,
+    provenance_type: version.provenance_type ?? "user_authored",
+    source_type: version.source_type ?? null,
+    source_id: version.source_id ?? null,
+    source_label: version.source_label ?? null,
+    source_persona_id: version.source_persona_id ?? null,
   };
 }
 
@@ -702,7 +734,7 @@ documentsRouter.get("/public/:id", optionalAuth, async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("documents")
-    .select("id, title, slug, body, document_type, status, visibility, comments_enabled, version, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
+    .select("id, title, slug, body, summary, document_type, status, visibility, comments_enabled, version, published_at, created_at, author_user_id, persona_id, space_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("id", req.params.id)
     .single();
 
@@ -782,7 +814,7 @@ documentsRouter.get("/", async (req, res) => {
 
   let query = sb
     .from("documents")
-    .select("id, title, slug, document_type, status, visibility, version, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
+    .select("id, title, slug, summary, document_type, status, visibility, version, published_at, created_at, updated_at, space_id, persona_id, provenance_type, source_type, source_id, source_label, source_persona_id, discussion_thread_id")
     .eq("author_user_id", req.user!.id)
     .order("updated_at", { ascending: false });
 
@@ -821,6 +853,76 @@ documentsRouter.get("/:id/versions", async (req, res) => {
   return res.json({
     currentVersion: currentDocumentVersion(document),
     versions: (data ?? []).map(serializeDocumentVersion),
+  });
+});
+
+// POST /documents/:id/versions/:versionId/restore - restore an owner-only snapshot
+documentsRouter.post("/:id/versions/:versionId/restore", async (req, res) => {
+  const sb = getSupabaseAdmin();
+  const userId = req.user!.id;
+  const current = await loadOwnedDocumentForUpdate(req.params.id, userId).catch(() => {
+    res.status(500).json(DOCUMENT_ERROR_RESPONSES.loadForWrite);
+    return undefined;
+  });
+  if (current === undefined) return;
+  if (!current) return res.status(404).json({ error: "Document not found." });
+
+  const { data: version, error: versionError } = await sb
+    .from("document_versions")
+    .select("*")
+    .eq("id", req.params.versionId)
+    .eq("document_id", current.id)
+    .eq("owner_user_id", userId)
+    .single();
+
+  if (versionError && !isMissingSingleError(versionError)) {
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.restore);
+  }
+  if (!version) return res.status(404).json({ error: "Document version not found." });
+
+  if (version.space_id && !await loadOwnedSpace(version.space_id, userId)) {
+    return res.status(409).json({ error: "Document version links to an unavailable Space." });
+  }
+  const versionPersonaIds = [...new Set([version.persona_id, version.source_persona_id].filter(Boolean))];
+  for (const personaId of versionPersonaIds) {
+    if (!await loadOwnedPersona(personaId, userId)) {
+      return res.status(409).json({ error: "Document version links to an unavailable persona." });
+    }
+  }
+
+  const snapshot = await snapshotDocumentVersion(current);
+  if (snapshot.error) return res.status(500).json(DOCUMENT_ERROR_RESPONSES.snapshot);
+  const snapshotId = snapshot.data?.id ?? null;
+  const update: Record<string, unknown> = {
+    ...documentVersionRestoreUpdate(version),
+    version: currentDocumentVersion(current) + 1,
+  };
+
+  // Discussion threads are live artifacts; historical content restore must not rewire them.
+  const { data, error } = await sb
+    .from("documents")
+    .update(update)
+    .eq("id", current.id)
+    .eq("author_user_id", userId)
+    .select("*")
+    .single();
+
+  if (error && !isMissingSingleError(error)) {
+    await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
+    return res.status(500).json(DOCUMENT_ERROR_RESPONSES.restore);
+  }
+  if (!data) {
+    await deleteDocumentVersionSnapshot(snapshotId, userId).catch(() => undefined);
+    return res.status(404).json({ error: "Document not found." });
+  }
+
+  const discussion = canHaveDiscussion(data)
+    ? await ensureDocumentDiscussion(data)
+    : await syncExistingDiscussion(data);
+  return res.json({
+    document: discussion && !data.discussion_thread_id ? { ...data, discussion_thread_id: discussion.id } : data,
+    restoredVersion: serializeDocumentVersion(version),
+    discussion,
   });
 });
 
@@ -884,6 +986,7 @@ documentsRouter.post("/", requireTier("creator"), async (req, res) => {
       title: parsed.data.title,
       slug: parsed.data.slug,
       body: parsed.data.body ?? "",
+      summary: normalizeDocumentSummary(parsed.data.summary),
       document_type: parsed.data.documentType,
       status: "draft",
       visibility: normalizeVisibility(parsed.data.visibility),
@@ -912,6 +1015,7 @@ documentsRouter.patch("/:id", async (req, res) => {
   if (parsed.data.title !== undefined)          update.title = parsed.data.title;
   if (parsed.data.slug !== undefined)           update.slug = parsed.data.slug;
   if (parsed.data.body !== undefined)           update.body = parsed.data.body;
+  if (parsed.data.summary !== undefined)        update.summary = normalizeDocumentSummary(parsed.data.summary);
   if (parsed.data.visibility !== undefined)     update.visibility = normalizeVisibility(parsed.data.visibility);
   if (parsed.data.documentType !== undefined)   update.document_type = parsed.data.documentType;
   if (parsed.data.commentsEnabled !== undefined) update.comments_enabled = parsed.data.commentsEnabled;

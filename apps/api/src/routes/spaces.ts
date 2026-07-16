@@ -166,7 +166,7 @@ spacesRouter.get("/:slug", optionalAuth, async (req, res) => {
     Promise.all(documentVisibilities.map((visibility) =>
       sb
         .from("documents")
-        .select("id, title, slug, document_type, body, visibility, published_at, created_at, provenance_type, source_type, source_label, discussion_thread_id")
+        .select("id, title, slug, document_type, body, summary, visibility, published_at, created_at, provenance_type, source_type, source_label, discussion_thread_id")
         .eq("space_id", space.id)
         .eq("status", "published")
         .eq("visibility", visibility)

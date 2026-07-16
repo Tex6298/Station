@@ -245,6 +245,7 @@ function publicDocumentSearchResults(rows: any[], limit = 8) {
     id: row.id,
     title: row.title,
     body: row.body,
+    summary: row.summary ?? null,
     document_type: row.document_type,
     visibility: row.visibility,
     provenance_type: row.provenance_type,
@@ -704,7 +705,7 @@ function documentFeedQuery(
   return sb
     .from("documents")
     .select(`
-      id, title, body, document_type, published_at, created_at, visibility,
+      id, title, body, summary, document_type, published_at, created_at, visibility,
       provenance_type, source_type, source_label, discussion_thread_id,
       space:spaces!space_id(slug, title),
       author:profiles!author_user_id(username, display_name, avatar_url),
@@ -983,7 +984,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
         id:          d.id,
         type:        "document" as const,
         title:       d.title,
-        excerpt:     excerpt(d.body),
+        excerpt:     excerpt(d.summary ?? d.body),
         href,
         meta:        d.document_type,
         visibility:  d.visibility,
@@ -1169,7 +1170,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
       sb
         .from("documents")
-        .select("id, title, body, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)")
+        .select("id, title, body, summary, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)")
         .eq("status", "published")
         .eq("visibility", visibility)
         .ilike("title", `%${q}%`)

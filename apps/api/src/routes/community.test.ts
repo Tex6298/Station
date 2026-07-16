@@ -63,6 +63,7 @@ const UNLISTED_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab06";
 const UNSAFE_PROJECT_ID = "abababab-abab-4bab-8bab-ababababab07";
 const MIGRATION_083_PATH = "infra/supabase/migrations/083_forum_visible_reply_count_integrity.sql";
 const MIGRATION_084_PATH = "infra/supabase/migrations/084_community_notification_preferences.sql";
+const MIGRATION_085_PATH = "infra/supabase/migrations/085_documents_summary.sql";
 const PR527D2A_RESULT_PATH = "docs/roadmap/PR527D2A_FORUM_REPLY_COUNT_TRUSTED_ACTIVITY_REPAIR_DAEDALUS_RESULT.md";
 
 function migrationFunctionDefinition(sql: string, functionName: string) {
@@ -157,6 +158,23 @@ test("migration 084 creates only owner notification preferences with exact RLS b
   assert.doesNotMatch(sql, /alter table public\.profiles/i);
   assert.doesNotMatch(sql, /insert into public\.community_notification_preferences/i);
   assert.doesNotMatch(sql, /community_notification_preferences.*preference_key/i);
+});
+
+test("migration 085 adds only the bounded nullable document summary contract", () => {
+  const sql = readFileSync(MIGRATION_085_PATH, "utf8");
+
+  assert.match(sql, /\bbegin;\s*select pg_advisory_xact_lock\(hashtextextended\('station\.pr528b3\.documents_summary\.085'/i);
+  assert.match(sql, /to_regclass\('public\.documents'\)/i);
+  assert.match(sql, /alter table public\.documents\s+add column if not exists summary text/i);
+  assert.match(sql, /drop constraint if exists documents_summary_length_check/i);
+  assert.match(sql, /add constraint documents_summary_length_check\s+check \(summary is null or char_length\(btrim\(summary\)\) between 1 and 500\)/i);
+  assert.match(sql, /Optional owner-authored public-facing summary/i);
+  assert.match(sql, /Station does not derive this field from the document body/i);
+  assert.match(sql, /notify pgrst, 'reload schema';[\s\S]*commit;/i);
+  assert.doesNotMatch(sql, /create\s+(unique\s+)?index/i);
+  assert.doesNotMatch(sql, /update\s+public\.documents/i);
+  assert.doesNotMatch(sql, /insert\s+into\s+public\.documents/i);
+  assert.doesNotMatch(sql, /policy|row level security/i);
 });
 
 class CommunitySupabase {
@@ -507,6 +525,7 @@ class CommunitySupabase {
 
     if (table === "documents") {
       row.body ??= "";
+      row.summary ??= null;
       row.status ??= "draft";
       row.visibility ??= "private";
       row.document_type ??= "essay";
@@ -4278,6 +4297,143 @@ test("documents protect persona ownership and owner-only updates", async () => {
     assert.equal(publishAttached.status, 200);
     assert.equal(publishAttached.body.document.status, "published");
     assert.equal(publishAttached.body.document.space_id, PUBLIC_SPACE_ID);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("document summaries stay bounded, public-safe, excerpt-aware, and restorable", async () => {
+  const db = new CommunitySupabase();
+  const publicDocument = db.rows("documents").find((row) => row.id === PUBLIC_DOC_ID)!;
+  const privateDocument = db.rows("documents").find((row) => row.id === PRIVATE_DOC_ID)!;
+  publicDocument.summary = "A practical public summary.";
+  privateDocument.summary = "Private summary must stay private.";
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const publicRead = await requestJson(app, "GET", `/documents/public/${PUBLIC_DOC_ID}`);
+    assert.equal(publicRead.status, 200);
+    assert.equal(publicRead.body.document.summary, "A practical public summary.");
+
+    const privateRead = await requestJson(app, "GET", `/documents/public/${PRIVATE_DOC_ID}`);
+    assert.equal(privateRead.status, 404);
+    assert.equal(JSON.stringify(privateRead.body).includes("Private summary must stay private."), false);
+
+    const feed = await requestJson(app, "GET", "/discover/feed?tab=new&limit=30");
+    assert.equal(feed.status, 200);
+    assert.equal(
+      feed.body.items.find((row: Row) => row.id === PUBLIC_DOC_ID)?.excerpt,
+      "A practical public summary."
+    );
+    assert.equal(
+      feed.body.items.find((row: Row) => row.id === AI_DOC_ID)?.excerpt,
+      "AI Assisted Document body."
+    );
+
+    const search = await requestJson(app, "GET", "/discover/search?q=Public%20Document");
+    assert.equal(search.status, 200);
+    const publicSearchResult = search.body.documents.find((row: Row) => row.id === PUBLIC_DOC_ID);
+    assert.equal(publicSearchResult.summary, "A practical public summary.");
+    assert.equal(publicSearchResult.body, "Public Document body.");
+
+    const oversized = await requestJson(app, "POST", "/documents", {
+      token: "owner-token",
+      body: {
+        title: "Oversized summary",
+        slug: "oversized-summary",
+        summary: "x".repeat(501),
+      },
+    });
+    assert.equal(oversized.status, 400);
+
+    const created = await requestJson(app, "POST", "/documents", {
+      token: "owner-token",
+      body: {
+        title: "Summary restore draft",
+        slug: "summary-restore-draft",
+        body: "Stable canonical body.",
+        summary: "  First-class summary.  ",
+      },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.document.summary, "First-class summary.");
+    assert.equal(created.body.document.body, "Stable canonical body.");
+
+    const ownerList = await requestJson(app, "GET", "/documents", { token: "owner-token" });
+    assert.equal(ownerList.status, 200);
+    assert.equal(
+      ownerList.body.documents.find((row: Row) => row.id === created.body.document.id)?.summary,
+      "First-class summary."
+    );
+
+    const cleared = await requestJson(app, "PATCH", `/documents/${created.body.document.id}`, {
+      token: "owner-token",
+      body: { summary: null },
+    });
+    assert.equal(cleared.status, 200);
+    assert.equal(cleared.body.document.summary, null);
+    assert.equal(cleared.body.document.version, 2);
+
+    const firstHistory = await requestJson(app, "GET", `/documents/${created.body.document.id}/versions`, {
+      token: "owner-token",
+    });
+    assert.equal(firstHistory.status, 200);
+    const versionOne = firstHistory.body.versions.find((row: Row) => row.versionNumber === 1);
+    assert.equal(versionOne.summary, "First-class summary.");
+
+    const forgedVersion = db.insertRow("document_versions", {
+      ...db.rows("document_versions").find((row) => row.id === versionOne.id),
+      id: "88888888-8888-4888-9888-888888888899",
+      version_number: 99,
+      space_id: OTHER_SPACE_ID,
+    });
+    const forgedRestore = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${forgedVersion.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(forgedRestore.status, 409);
+    assert.equal(forgedRestore.body.error, "Document version links to an unavailable Space.");
+
+    const crossOwnerRestore = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${versionOne.id}/restore`,
+      { token: "member-token" }
+    );
+    assert.equal(crossOwnerRestore.status, 404);
+
+    const restoredSummary = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${versionOne.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(restoredSummary.status, 200);
+    assert.equal(restoredSummary.body.document.summary, "First-class summary.");
+    assert.equal(restoredSummary.body.document.body, "Stable canonical body.");
+    assert.equal(restoredSummary.body.document.version, 3);
+    assert.equal(restoredSummary.body.restoredVersion.summary, "First-class summary.");
+
+    const secondHistory = await requestJson(app, "GET", `/documents/${created.body.document.id}/versions`, {
+      token: "owner-token",
+    });
+    const versionTwo = secondHistory.body.versions.find((row: Row) => row.versionNumber === 2);
+    assert.equal(versionTwo.summary, null);
+
+    const restoredNull = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${versionTwo.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(restoredNull.status, 200);
+    assert.equal(restoredNull.body.document.summary, null);
+    assert.equal(restoredNull.body.document.body, "Stable canonical body.");
+    assert.equal(restoredNull.body.document.version, 4);
+    assert.equal(restoredNull.body.restoredVersion.summary, null);
   } finally {
     setSupabaseAdminForTests(null);
   }

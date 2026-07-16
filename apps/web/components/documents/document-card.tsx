@@ -2,7 +2,7 @@ import type { DocumentRecord } from '@station/types';
 
 export function DocumentCard({ document, spaceSlug }: { document: DocumentRecord; spaceSlug?: string }) {
   const href = spaceSlug ? `/space/${spaceSlug}/documents/${document.id}` : '#';
-  const body = document.body ?? '';
+  const body = document.summary ?? document.body ?? '';
   return (
     <div className="card">
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>

@@ -32,6 +32,7 @@ interface Document {
   slug: string;
   document_type: string;
   body: string | null;
+  summary?: string | null;
   published_at: string | null;
   created_at: string | null;
   visibility?: string | null;
@@ -297,7 +298,7 @@ function FeaturedDocuments({ documents, spaceSlug }: { documents: Document[]; sp
             {discussionCue && (
               <small style={{ color: "#86efac" }}>{discussionCue}</small>
             )}
-            {doc.body && <p>{excerpt(doc.body, 150)}</p>}
+            {(doc.summary ?? doc.body) && <p>{excerpt(doc.summary ?? doc.body ?? "", 150)}</p>}
           </Link>
         );
       })}

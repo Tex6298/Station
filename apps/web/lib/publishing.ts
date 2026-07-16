@@ -21,6 +21,7 @@ export interface PublishingDocument {
   id: string;
   title: string;
   slug?: string | null;
+  summary?: string | null;
   document_type: string;
   status: string;
   visibility: string;
@@ -41,6 +42,7 @@ export interface PublishingDocumentVersion {
   versionNumber: number;
   title: string;
   slug: string;
+  summary?: string | null;
   documentType: string;
   status: string;
   visibility: string;

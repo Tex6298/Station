@@ -149,7 +149,7 @@ function WritingCardView({ document, spaceSlug }: { document: DocumentRecord; sp
         <div style={{ padding: 12, display: "grid", gap: 7 }}>
           <span style={{ color: "#fca5a5", fontSize: 10, fontWeight: 700, textTransform: "uppercase" }}>{tag}</span>
           <h3 style={{ ...cardTitle, WebkitLineClamp: 2 }}>{document.title}</h3>
-          <p style={{ ...cardCopy, WebkitLineClamp: 1 }}>{document.body || "No excerpt available."}</p>
+          <p style={{ ...cardCopy, WebkitLineClamp: 1 }}>{document.summary ?? document.body ?? "No excerpt available."}</p>
           <span style={{ color: "#7d8796", fontSize: 11 }}>{formatShortDate(date)}</span>
         </div>
       </article>

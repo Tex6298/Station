@@ -18,7 +18,7 @@ import {
 import { publicDocumentDiscussionEntrypointCopy } from "@/lib/public-story-polish";
 
 interface Document {
-  id: string; title: string; slug: string; body: string | null;
+  id: string; title: string; slug: string; body: string | null; summary?: string | null;
   document_type: string; status: string; visibility: string;
   published_at: string | null; updated_at?: string | null; created_at?: string | null;
   author_user_id: string; version?: number | null;
@@ -271,6 +271,21 @@ export default function DocumentPage() {
         </div>
 
         <h1 style={{ margin: "0 0 0.75rem", fontSize: "1.9rem", lineHeight: 1.2 }}>{doc.title}</h1>
+
+        {doc.summary && (
+          <p
+            data-document-summary
+            style={{
+              maxWidth: "48rem",
+              margin: "0 0 1rem",
+              color: "var(--station-page-muted)",
+              fontSize: "1rem",
+              lineHeight: 1.65,
+            }}
+          >
+            {doc.summary}
+          </p>
+        )}
 
         {discussionHref && (
           <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap", margin: "0.35rem 0 0.85rem" }}>

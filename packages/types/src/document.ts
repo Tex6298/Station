@@ -47,6 +47,7 @@ export interface DocumentRecord {
   title: string;
   slug: string;
   body: string | null;
+  summary?: string | null;
   documentType: StationDocumentType;
   status: 'draft' | 'published' | 'archived';
   visibility: 'private' | 'unlisted' | 'community' | 'public' | 'members';

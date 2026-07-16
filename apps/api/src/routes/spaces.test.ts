@@ -143,6 +143,7 @@ class InMemorySupabase {
 
     if (table === "documents") {
       row.body ??= "";
+      row.summary ??= null;
       row.status ??= "draft";
       row.visibility ??= "private";
       row.published_at ??= null;
@@ -602,6 +603,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       slug: "published-essay",
       document_type: "essay",
       body: "A visitor-readable document.",
+      summary: "A visitor-readable summary.",
       status: "published",
       visibility: "public",
       published_at: "2026-05-25T10:00:00.000Z",
@@ -613,6 +615,7 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
       slug: "private-draft",
       document_type: "essay",
       body: "This must not render publicly.",
+      summary: "This private summary must not render publicly.",
       status: "draft",
       visibility: "private",
     });
@@ -641,6 +644,8 @@ test("Public Spaces smoke covers authored microsite config and owner/private vis
     assert.equal(publicDetail.body.access, "public");
     assert.equal(publicDetail.body.space.presentation.theme, "garden");
     assert.deepEqual(publicDetail.body.documents.map((doc: Row) => doc.title), ["Published Essay"]);
+    assert.equal(publicDetail.body.documents[0].summary, "A visitor-readable summary.");
+    assert.equal(JSON.stringify(publicDetail.body.documents).includes("This private summary must not render publicly."), false);
     assert.deepEqual(publicDetail.body.personas.map((persona: Row) => persona.name), ["Public Persona"]);
     assert.deepEqual(publicDetail.body.personas, [{
       name: "Public Persona",
