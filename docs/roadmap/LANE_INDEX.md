@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | PR528B9 remains zero-state after proving the deployed API's public document search was title-only. DAEDALUS implemented bounded title/summary/body matching at `da520604`; PR528C7 now reviews query bounds, field priority, dedupe, visibility, and private-search separation before deploy/retry. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
+| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | ARGUS accepted bounded public document title/summary/body search at `6794ac99` with no production review patch. PR528B11 now serializes accepted API deployment and the still-zero-state exact one-thread Station Guide public corpus completion; independent ARGUS review precedes ARIADNE rehearsal. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

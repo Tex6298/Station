@@ -30,9 +30,10 @@ Document discussion review: docs/roadmap/PR528C6_DOCUMENT_DISCUSSION_OWNER_CUSTO
 Accepted API deploy/public retry: docs/roadmap/PR528B9_ACCEPTED_API_DEPLOY_AND_PUBLIC_CORPUS_RETRY_DAEDALUS.md
 Public document text search repair: docs/roadmap/PR528B10_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_DAEDALUS.md
 Public document search review: docs/roadmap/PR528C7_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_REVIEW_ARGUS.md
+Accepted search deploy/public completion: docs/roadmap/PR528B11_ACCEPTED_SEARCH_DEPLOY_AND_PUBLIC_CORPUS_COMPLETION_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS hostile-reviews DAEDALUS commit da520604 for visibility, query-bound, priority, dedupe, and private-search separation; accepted deploy then resumes zero-state PR528B9
+Next: DAEDALUS deploys acceptance head 6794ac99/runtime search da520604, then completes the still-zero-state one-thread Station Guide public corpus; ARGUS independently reviews before human rehearsal
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -110,6 +111,14 @@ body queries run in field/visibility priority order, deduplicate by document id
 before the existing eight-result cap, and preserve the serializer and separate
 title-only owner-private bucket. Focused suites and API typecheck pass. PR528C7
 now owns hostile review before deployment.
+
+ARGUS accepts PR528B10 for deployment at `6794ac99`; the production search
+source required no review patch. Exact query logging proves three anonymous and
+nine eligible-member public document queries in title/summary/body and
+visibility order, dedupe-before-cap behavior, and a separate tenth title-only
+owner-private query. PR528B11 is the fresh serialized deployment/public-corpus
+run; it must either retain the exact complete chain or clean public state to
+zero.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
