@@ -27,9 +27,10 @@ Hosted deploy/correction review: docs/roadmap/PR528C5_SERIALIZED_SCHEMA_DEPLOY_A
 Public partner corpus: docs/roadmap/PR528B7_PUBLIC_PARTNER_CORPUS_DAEDALUS.md
 Document discussion repair: docs/roadmap/PR528B8_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_DAEDALUS.md
 Document discussion review: docs/roadmap/PR528C6_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_REVIEW_ARGUS.md
+Accepted API deploy/public retry: docs/roadmap/PR528B9_ACCEPTED_API_DEPLOY_AND_PUBLIC_CORPUS_RETRY_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS hostile-reviews DAEDALUS commit ec15564c, including moderated-thread mutation policy; accepted deployment follows before PR528B7 resumes
+Next: DAEDALUS serializes accepted API source f8349f09 deployment, then runs the revised exact one-thread public Station Guide corpus path; ARGUS independently reviews before human rehearsal
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -85,6 +86,14 @@ discussion, constrains the update by thread and document ids, and keeps the
 one-thread boundary. Focused suites and API typecheck pass. PR528C6 now owns
 hostile review, including the explicit question of whether hidden or removed
 canonical discussions must reject owner copy changes.
+
+ARGUS accepted PR528B8 at `f8349f09` after a narrow safety patch. Cross-owner,
+hidden, and removed discussions now fail closed; active/locked normal or
+needs-review discussions retain moderation state; synchronization helpers no
+longer restore or mutate moderation-restricted or forged-pointer targets.
+PR528B9 now serializes the accepted API deployment and revised PR528B7 retry:
+enable comments to create one helper discussion, customize that exact row
+through the new owner endpoint, and require no duplicate/default thread.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
