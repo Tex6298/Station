@@ -18,9 +18,10 @@ Corpus/provider preflight: docs/roadmap/PR528B2_PARTNER_CORPUS_PROVIDER_PREFLIGH
 Document summary contract: docs/roadmap/PR528B3_DOCUMENT_SUMMARY_CONTRACT_DAEDALUS.md
 Queued private corpus: docs/roadmap/PR528B4_PRIVATE_PARTNER_CORPUS_DAEDALUS.md
 Theme review: docs/roadmap/PR528C1_THEME_REPAIRS_REVIEW_ARGUS.md
+Summary review: docs/roadmap/PR528C2_DOCUMENT_SUMMARY_CONTRACT_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS implements the bounded document-summary contract while ARGUS reviews the completed theme repairs; private corpus follows immediately, public corpus follows accepted summary deployment, and chat waits only for an accepted non-NVIDIA provider
+Next: ARGUS reviews the completed document-summary source/migration contract; accepted theme repairs remain preserved for combined deployment, private corpus follows immediately, public corpus follows accepted summary deployment, and chat waits only for an accepted non-NVIDIA provider
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -31,13 +32,14 @@ route-scoped contrast defects plus curated public corpus, isolated private
 corpus, and one accepted private provider. Nine non-blocking findings are
 durably recorded in paused PR529.
 
-PR528B1 is implemented at `497cb5f4` and awaits ARGUS review. PR528B2 found
+PR528B1 is accepted for combined deployment by PR528C1. PR528B2 found
 three independent truths: the private Aster corpus is ready now; the public
 corpus needs a first-class nullable document summary; and private chat remains
 safely blocked because hosted NVIDIA is forbidden for private context while no
 accepted Anthropic, DeepSeek, or owner BYOK route is configured. PR528B3 removes
-only the public summary blocker. PR528B4 is durably queued behind it and does
-not wait on chat configuration.
+only the public summary blocker and is now under PR528C2 source/migration
+review. PR528B4 is durably queued behind it and does not wait on chat
+configuration.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and

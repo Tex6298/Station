@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | PR528A preflight complete; PR528B1 theme repairs await PR528C1 review, PR528B3 adds the blocked document-summary contract, and PR528B4 private corpus is queued next. Public corpus follows accepted summary deployment; private chat waits independently for an accepted non-NVIDIA provider. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
+| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | PR528B1 theme repairs are accepted for combined deployment; PR528B3 document-summary contract is under PR528C2 review, and PR528B4 private corpus is queued next. Public corpus follows accepted summary deployment; private chat waits independently for an accepted non-NVIDIA provider. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
