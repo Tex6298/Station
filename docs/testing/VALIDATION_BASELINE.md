@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2E Direct RLS Evidence Rerun Open
+
+ARIADNE's complete hardened product/browser run is recorded at:
+
+- `docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE_RESULT.md`
+
+```text
+BLOCK_PR527F2D_RLS_EXPECTATION_AND_DURABLE_JOURNAL_GATE
+```
+
+The complete signup/default/fanout/off/suppressed/on/no-backfill/keyboard/theme/
+viewport lifecycle passed, as did parent cleanup, independent idempotent
+recovery, and separate exact-restoration proof. It cannot pass because the RLS
+harness rejected the correct anonymous `401`, skipped anonymous write, and did
+not fsync each direct-RLS status before the next route.
+
+MIMIR opened only the missing gate:
+
+- `docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md`
+
+PR527F2E permits one disposable preference row and one exact temporary replay
+session. Owner read, cross-owner read/update denial, and anonymous read/write
+denial must be fsynced in order; anonymous `401`/`403` is expected. The already
+passed hosted product lifecycle does not repeat. A zero-hosted-write intercepted
+browser pass must fsync each state and its consolidated result to repair the
+late browser evidence object. Exact external cleanup and two fresh restoration
+proofs remain mandatory.
+
 ## PR527F2D Evidence-Hardened Hosted Rerun Open
 
 ARGUS accepted the retained baseline after exact session cleanup:

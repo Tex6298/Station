@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527F2D | Settings Persistence Evidence-Hardened Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Open; execute the complete preference/fanout/RLS/refresh/keyboard/theme lifecycle under a locally preflighted external watchdog and durable recovery journal, then prove exact restoration twice. | `docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md` |
+| PR527F2E | Direct RLS Durable Evidence Rerun | MIMIR -> ARIADNE -> MIMIR | Open; rerun only owner read, cross-owner read/update denial, and anonymous read/write denial with each status fsynced before the next request, then prove exact restoration twice. | `docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR527F2D blocked rerun | Settings Persistence Evidence-Hardened Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Blocked as `BLOCK_PR527F2D_RLS_EXPECTATION_AND_DURABLE_JOURNAL_GATE`; complete product/browser lifecycle and exact restoration passed, but anonymous write was skipped after correct anonymous `401` and direct-RLS statuses were not fsynced individually. | `docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE_RESULT.md` |
 | PR527F2C ARGUS disposition | Retained Baseline Read-Only Disposition | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted as `ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS`; target Auth rows are gone, out-of-scope rows stable, all other baselines exact, and exactly two non-authoritative audit timestamps remain. | `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md` |
 | PR527F2B session cleanup | Retained Replay Session Cleanup | MIMIR -> DAEDALUS -> ARGUS | Passed as `PASS_PR527F2B_EXACT_REPLAY_SESSION_REFRESH_CLEANUP`; exact target session removed, exact active refresh row deleted, one already-revoked linked row removed by catalog cascade, out-of-scope sessions/refresh rows and all product baselines unchanged. | `docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS_RESULT.md` |
 | PR527F2A ARGUS audit | Cleanup Timestamp Drift Audit | MIMIR -> ARGUS -> MIMIR | Blocked as `BLOCK_PR527F2A_RETAINED_REPLAY_AUTH_SESSION_AND_SIGN_IN_DRIFT`; all timestamp, semantic, migration, residue, and dependency checks pass except the sole-drift condition because one active linked replay session/refresh pair and Auth sign-in timestamp remain from the failed-run interval. | `docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md` |

@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2D evidence-hardened hosted rerun
+## Active lane - PR527F2E direct RLS durable evidence rerun
 
 ```text
 ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -24,8 +24,10 @@ Session cleanup result: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DA
 Fresh disposition: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md
 Fresh disposition result: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md
 Hardened rerun: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md
+Hardened rerun result: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE_RESULT.md
+RLS evidence rerun: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARIADNE reruns the complete hosted lifecycle under an external watchdog and durable recovery journal, then wakes MIMIR
+Next: ARIADNE reruns only the missing direct-RLS matrix with each status fsynced, then restores the accepted baseline and wakes MIMIR
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -138,6 +140,22 @@ lifecycle reruns from zero; partial evidence is not reused. Cleanup must remove
 the rerun's exact Auth/product artifacts, restore replay Auth/community fields
 from the durable pre-snapshot, prove the accepted baseline twice in fresh
 processes, and only then delete recovery state.
+
+PR527F2D completed that full product/browser lifecycle and exact restoration,
+but remains blocked as
+`BLOCK_PR527F2D_RLS_EXPECTATION_AND_DURABLE_JOURNAL_GATE`. Owner read,
+cross-owner read, and cross-owner update denial were observed; anonymous read
+correctly returned `401`, but the harness expected `200`, so anonymous write
+did not run. Direct-RLS aggregate statuses and the consolidated browser object
+also remained in child memory instead of being fsynced before the next route.
+
+MIMIR opened PR527F2E as the smallest repair. It creates one disposable false
+preference row and one exact temporary replay session, journals owner read,
+cross-owner read/write, and anonymous read/write in order, accepts anonymous
+`401`/`403`, then restores the accepted baseline under the already-proven
+external watchdog. No comment, notification, or full hosted product lifecycle
+repeats. A fully intercepted zero-hosted-write browser pass durably closes the
+late consolidated-browser evidence object before the RLS writes begin.
 
 ## Previous PR527E hosted rehearsal blocker history
 
