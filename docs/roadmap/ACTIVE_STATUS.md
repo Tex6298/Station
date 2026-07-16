@@ -4,17 +4,19 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F Settings Persistence Truth accepted locally
+## Active lane - PR527F hosted schema and lifecycle proof
 
 ```text
 ACCEPT_PR527F_OWNER_ONLY_FORUM_REPLY_PREFERENCE_WITH_ARGUS_SAFETY_PATCH
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
 Review result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md
+Hosted schema: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS.md
+Hosted lifecycle: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR routes the exact hosted migration/deployment/proof lifecycle; local acceptance is not hosted acceptance
+Next: DAEDALUS applies/proves exact migration 084, then ARIADNE runs the disposable hosted lifecycle and wakes MIMIR
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -57,7 +59,15 @@ typecheck, web lint, the executable migration matrix, and an independent
 `21/21` intercepted local render including exact pointer, Space, and Enter
 PATCH proof. Hosted read-only postcheck still shows no table, no `084` ledger
 row, zero Watches, and zero notifications. Hosted migration and product-data
-mutation remain a separate MIMIR-routed lifecycle.
+mutation are now routed as PR527F1 then PR527F2.
+
+MIMIR observed the accepted API/web source already deployed at `e542423bc07a`
+before schema `084` existed. This is the bounded fail-closed inversion described
+by the accepted preflight, not schema-first ordering, and must be recorded
+honestly. DAEDALUS owns the exact migration hash, ledger, catalog/RLS/grant,
+deployment-drift, and zero-product-write proof. Only after that passes may
+ARIADNE create one tagged disposable Visitor to prove on/off fanout, refresh,
+RLS, human-eye Settings states, and exact cleanup/restoration.
 
 ## Previous PR527E hosted rehearsal blocker history
 

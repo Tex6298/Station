@@ -12,7 +12,8 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527F | Settings Persistence Truth | MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted locally with a narrow ARGUS patch for executable migration syntax, keyboard persistence/focus, and malformed-row fail-closed handling. MIMIR owns the still-unproven hosted lifecycle. | `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md` |
+| PR527F1 | Settings Persistence Hosted Schema And Deployment | MIMIR -> DAEDALUS -> ARIADNE -> MIMIR | Open; DAEDALUS applies/proves exact migration `084`, one honest ledger row, deployed source alignment, and zero product writes, then wakes ARIADNE for the queued disposable lifecycle. | `docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS.md` |
+| PR527F2 | Settings Persistence Hosted Lifecycle | MIMIR -> DAEDALUS -> ARIADNE -> MIMIR | Queued behind PR527F1; one disposable Visitor must prove default/on/off/re-enable fanout, RLS, refreshed Settings truth, keyboard/theme human rehearsal, and exact cleanup. | `docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

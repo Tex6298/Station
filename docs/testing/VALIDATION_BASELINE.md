@@ -78,6 +78,22 @@ server were removed/stopped.
 
 ## PR527F Settings Persistence Truth Preflight Accepted
 
+### Hosted schema and lifecycle routed
+
+After ARGUS accepted the local slice with its safety patch, MIMIR opened:
+
+- `docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS.md`
+- `docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md`
+
+Accepted product floor is `e542423bc07a...`; migration `084` SHA-256 is
+`BB23AB2222AD5F159000F93931842497CE6830BC10C19E676516D13820671263`.
+MIMIR observed both Railway services healthy/ready on the accepted product
+floor before schema `084` existed. The accepted contract makes that inversion
+fail closed; it must still be closed immediately and recorded honestly.
+PR527F1 permits only the exact migration, ledger/catalog/RLS/grant proof, and
+zero-write deployment alignment. PR527F2 then permits one tagged disposable
+Visitor lifecycle with mandatory aggregate restoration and zero residue.
+
 ARGUS completed the read-only boundary preflight on 2026-07-15:
 
 - `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md`
