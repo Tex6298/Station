@@ -26,9 +26,10 @@ Schema deploy/correction result: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_
 Hosted deploy/correction review: docs/roadmap/PR528C5_SERIALIZED_SCHEMA_DEPLOY_AND_CORRECTION_REVIEW_ARGUS.md
 Public partner corpus: docs/roadmap/PR528B7_PUBLIC_PARTNER_CORPUS_DAEDALUS.md
 Document discussion repair: docs/roadmap/PR528B8_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_DAEDALUS.md
+Document discussion review: docs/roadmap/PR528C6_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS implements the bounded owner-only existing document-discussion customization route; ARGUS review and accepted deployment follow before PR528B7 resumes
+Next: ARGUS hostile-reviews DAEDALUS commit ec15564c, including moderated-thread mutation policy; accepted deployment follows before PR528B7 resumes
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -76,6 +77,14 @@ owner-only document discussion PATCH that customizes the one existing linked
 thread without weakening comment eligibility, adding a general forum edit
 surface, creating a duplicate, or using service-role writes. ARGUS review and
 accepted deployment are required before the public corpus retry.
+
+DAEDALUS implemented PR528B8 at `ec15564c`: the new PATCH accepts only bounded
+title/body updates, requires the owner or platform admin and an eligible
+comments-enabled document, resolves but never creates the existing linked
+discussion, constrains the update by thread and document ids, and keeps the
+one-thread boundary. Focused suites and API typecheck pass. PR528C6 now owns
+hostile review, including the explicit question of whether hidden or removed
+canonical discussions must reject owner copy changes.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
