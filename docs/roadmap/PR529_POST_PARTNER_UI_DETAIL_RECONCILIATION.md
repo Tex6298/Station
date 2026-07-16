@@ -34,18 +34,23 @@ owned by its roadmap lane.
 
 | Route | User impact | Evidence or originating commit | Reason deferred from PR528 | Likely owner | Explicit resume trigger |
 | --- | --- | --- | --- | --- | --- |
-| _No findings deferred yet_ | - | - | PR528A must append complete rows before deferring work. | - | After Marty/partner review |
+| `/studio/personas/:personaId` failed-provider send | A policy-blocked send truthfully restores the composer and shows provider setup, but the backend leaves a user-only conversation shell that appears after refresh until explicitly removed. | PR528A live provider probe at runtime `e542423bc07a`; accepted PR527 `J03` conversation-shell cleanup evidence. | Accepted-provider configuration is fix-now for the isolated partner account. Failure-transaction semantics do not block that configured pass and require a separate API ownership/rollback review. | DAEDALUS with ARGUS transaction and cleanup gate | Resume after partner review, or earlier only if the configured provider still exposes a failed-send shell. |
+| `/studio/personas/:personaId/memory-inbox` and Integrity mutation lifecycle | Owners cannot yet rehearse accept/reject/edit and Integrity creation without touching retained candidate/session history. | Accepted PR527 `J04`; PR528A read-only Memory Inbox and Continuity pass. | The selected partner pass can judge orientation, privacy, and continuity accumulation read-only. A disposable parent/candidate/session cleanup contract remains separate. | MIMIR -> DAEDALUS; ARGUS lifecycle gate; ARIADNE flow review | Resume if partner feedback asks to perform candidate or Integrity writes, or when an isolated disposable lifecycle is approved. |
+| Persona Archive and `/studio/archive` retention decision copy | An owner can import/search private source material without being told at the intake decision that source/chunk removal is outside the current accepted retention contract. | Accepted PR527 `J05`; PR528A Global Archive human-eye review. | Current import/search/private-boundary truth works and does not block partner judgment. Ad hoc deletion must not be introduced during the partner pass. | ARIADNE copy; DAEDALUS implementation; ARGUS retention gate | Resume after partner archive feedback or when the formal source-removal policy is opened. |
+| `/billing` Checkout and Dark detail | A reviewer cannot complete hosted Checkout and some Dark plan/status/portal details remain difficult to read. | Accepted PR527 `J12` at hosted inventory runtime. | Billing is not one of the selected principal routes and does not block the private/public/community product-shape review. Prices, tiers, and Stripe state stay untouched. | DAEDALUS; ARGUS billing gate; ARIADNE visual review | Resume after partner review if commercial flow is requested, or before a separately authorized paid-path rehearsal. |
+| `/developer-spaces` owner lifecycle | Existing public observatory reads work, but create/key rotate/ingest/cleanup cannot be rehearsed safely against the active fixture. | Accepted PR527 `J10`. | Developer Space is not required for the smallest partner route set; the missing entitled disposable observatory and key cleanup contract are broader than PR528. | DAEDALUS; ARGUS key/entitlement gate; ARIADNE observatory review | Resume if partner feedback prioritizes Developer Spaces or an isolated entitled fixture and cleanup contract become available. |
+| `/projects` and `/projects/:slug` lifecycle truth | Historical synthetic Projects accumulate while creation has no visible owner removal/lifecycle command. | PR527 route-family appendix and ranked correction backlog. | Projects are not in the selected principal route set. Creating another fixture would worsen the current evidence without an accepted lifecycle. | MIMIR product decision; DAEDALUS; ARGUS ownership gate | Resume after partner review if Projects enter the judged product shape, or when lifecycle truth is explicitly authorized. |
+| `/personas/:publicSlug` discoverability | Public identity architecture exists, but Discover currently reports no public persona card and a visitor cannot naturally reach one from the selected public chain. | Accepted PR527 `J08`/public-persona appendix; PR528A Discover human-eye review. | Public Space already demonstrates the public presentation layer needed for the bounded pass. Adding public-persona fixtures now would broaden the fix-now corpus beyond the selected chain. | MIMIR content decision; DAEDALUS corpus; ARGUS privacy gate; ARIADNE review | Resume after partner feedback identifies public persona as a missing principal surface. |
+| Signup, confirmation, and password recovery with a disposable inbox | Delivery, confirmation, password update, and full account cleanup remain unproved without risking the retained owner credential. | Accepted PR527 `J01`. | Ordinary retained-owner sign-in is sufficient for PR528. Provisioning an inbox/account lifecycle is not required to judge the principal product surfaces. | DAEDALUS fixture; ARGUS Auth/cleanup gate; ARIADNE account-flow review | Resume if partner feedback targets onboarding/account recovery or an isolated inbox lifecycle becomes available. |
+| Forum recognition/report/moderation with a second actor | Own-content boundaries are truthful, but cross-actor recognition, reporting, delegated moderation, and cleanup cannot be judged end to end. | Accepted PR527 Forum appendix and second-actor blocker. | Signed-out public reading and source-document return are sufficient for the selected community view. Manufacturing another actor/report would broaden PR528. | MIMIR role brief; DAEDALUS fixture; ARGUS moderation/privacy gate; ARIADNE review | Resume after partner community feedback or when two disposable consenting roles and exact cleanup are approved. |
 
-## Source Candidates, Not Yet Deferred
+## PR528A Source Candidate Disposition
 
 The remaining ranked items in
 `PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md`
-are inputs to PR528A, not automatic PR529 entries. They include Billing
-checkout/contrast, accepted-provider rehearsal, disposable persona/candidate/
-Integrity and Developer Space fixtures, Archive retention truth, Project
-lifecycle truth, public-persona discoverability, disposable auth/inbox, and a
-second-actor community fixture.
-
-ARIADNE must decide whether any candidate blocks the selected partner routes.
-Fix-now candidates stay in PR528; only non-blocking findings with a complete
-ledger row move here.
+were inputs to PR528A, not automatic deferrals. ARIADNE has now classified
+them. Accepted-provider rehearsal is `FIX_NOW_PR528`; Billing, disposable
+candidate/Integrity and Developer Space lifecycles, Archive retention truth,
+Project lifecycle, public-persona discoverability, disposable auth/inbox, and
+the second-actor community fixture are the complete ledger rows above. The
+failed-provider conversation shell is a new PR528A deferment.
