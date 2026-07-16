@@ -4382,8 +4382,9 @@ test("document summaries stay bounded, public-safe, excerpt-aware, and restorabl
     const versionOne = firstHistory.body.versions.find((row: Row) => row.versionNumber === 1);
     assert.equal(versionOne.summary, "First-class summary.");
 
+    const versionOneRow = db.rows("document_versions").find((row) => row.id === versionOne.id)!;
     const forgedVersion = db.insertRow("document_versions", {
-      ...db.rows("document_versions").find((row) => row.id === versionOne.id),
+      ...versionOneRow,
       id: "88888888-8888-4888-9888-888888888899",
       version_number: 99,
       space_id: OTHER_SPACE_ID,
@@ -4396,6 +4397,40 @@ test("document summaries stay bounded, public-safe, excerpt-aware, and restorabl
     );
     assert.equal(forgedRestore.status, 409);
     assert.equal(forgedRestore.body.error, "Document version links to an unavailable Space.");
+
+    const forgedPersonaVersion = db.insertRow("document_versions", {
+      ...versionOneRow,
+      id: "88888888-8888-4888-9888-888888888898",
+      version_number: 98,
+      space_id: null,
+      persona_id: OTHER_PERSONA_ID,
+      source_persona_id: null,
+    });
+    const forgedPersonaRestore = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${forgedPersonaVersion.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(forgedPersonaRestore.status, 409);
+    assert.equal(forgedPersonaRestore.body.error, "Document version links to an unavailable persona.");
+
+    const forgedSourcePersonaVersion = db.insertRow("document_versions", {
+      ...versionOneRow,
+      id: "88888888-8888-4888-9888-888888888897",
+      version_number: 97,
+      space_id: null,
+      persona_id: null,
+      source_persona_id: OTHER_PERSONA_ID,
+    });
+    const forgedSourcePersonaRestore = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${forgedSourcePersonaVersion.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(forgedSourcePersonaRestore.status, 409);
+    assert.equal(forgedSourcePersonaRestore.body.error, "Document version links to an unavailable persona.");
 
     const crossOwnerRestore = await requestJson(
       app,
@@ -4434,6 +4469,37 @@ test("document summaries stay bounded, public-safe, excerpt-aware, and restorabl
     assert.equal(restoredNull.body.document.body, "Stable canonical body.");
     assert.equal(restoredNull.body.document.version, 4);
     assert.equal(restoredNull.body.restoredVersion.summary, null);
+
+    const liveThreadId = "dddddddd-dddd-4ddd-8ddd-ddddddddddd1";
+    const historicalThreadId = "dddddddd-dddd-4ddd-8ddd-ddddddddddd2";
+    db.insertRow("threads", thread(liveThreadId, "Live summary discussion", "public", {
+      linked_document_id: created.body.document.id,
+    }));
+    db.insertRow("threads", thread(historicalThreadId, "Historical summary discussion", "public", {
+      linked_document_id: PUBLIC_DOC_ID,
+    }));
+    const currentDocument = db.rows("documents").find((row) => row.id === created.body.document.id)!;
+    currentDocument.discussion_thread_id = liveThreadId;
+
+    const forgedDiscussionVersion = db.insertRow("document_versions", {
+      ...versionOneRow,
+      id: "88888888-8888-4888-9888-888888888896",
+      version_number: 96,
+      discussion_thread_id: historicalThreadId,
+    });
+    const restoredHistoricalDiscussion = await requestJson(
+      app,
+      "POST",
+      `/documents/${created.body.document.id}/versions/${forgedDiscussionVersion.id}/restore`,
+      { token: "owner-token" }
+    );
+    assert.equal(restoredHistoricalDiscussion.status, 200);
+    assert.equal(restoredHistoricalDiscussion.body.document.discussion_thread_id, liveThreadId);
+    assert.notEqual(restoredHistoricalDiscussion.body.document.discussion_thread_id, historicalThreadId);
+    assert.equal(db.rows("threads").find((row) => row.id === liveThreadId)?.status, "locked");
+    assert.equal(db.rows("threads").find((row) => row.id === liveThreadId)?.is_hidden, true);
+    assert.equal(db.rows("threads").find((row) => row.id === historicalThreadId)?.status, "active");
+    assert.equal(db.rows("threads").find((row) => row.id === historicalThreadId)?.is_hidden, false);
   } finally {
     setSupabaseAdminForTests(null);
   }
