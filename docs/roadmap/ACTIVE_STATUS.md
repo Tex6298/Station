@@ -31,9 +31,10 @@ Accepted API deploy/public retry: docs/roadmap/PR528B9_ACCEPTED_API_DEPLOY_AND_P
 Public document text search repair: docs/roadmap/PR528B10_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_DAEDALUS.md
 Public document search review: docs/roadmap/PR528C7_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_REVIEW_ARGUS.md
 Accepted search deploy/public completion: docs/roadmap/PR528B11_ACCEPTED_SEARCH_DEPLOY_AND_PUBLIC_CORPUS_COMPLETION_DAEDALUS.md
+Public corpus hosted review: docs/roadmap/PR528C8_PUBLIC_PARTNER_CORPUS_HOSTED_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS deploys acceptance head 6794ac99/runtime search da520604, then completes the still-zero-state one-thread Station Guide public corpus; ARGUS independently reviews before human rehearsal
+Next: ARGUS independently audits accepted deployment, cleaned first attempt, exact retained Station Guide owner/Space/versioned document/one thread, public routes/search, forbidden scopes, and private Aster before ARIADNE rehearsal
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -119,6 +120,14 @@ visibility order, dedupe-before-cap behavior, and a separate tenth title-only
 owner-private query. PR528B11 is the fresh serialized deployment/public-corpus
 run; it must either retain the exact complete chain or clean public state to
 zero.
+
+DAEDALUS completed PR528B11 and retained the exact approved public chain on
+hosted acceptance head `6794ac99`: one tagged nonbilling Creator owner, one
+Space with four standard pages, one summarized document with two prior
+versions/current version 3, and one customized linked discussion with zero
+engagement. Seven anonymous API surfaces, title/body search, the visible route
+chain, 51 available forbidden scopes, cleanup rehearsal, and private Aster
+invariants pass. PR528C8 now owns independent hosted review before ARIADNE.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
