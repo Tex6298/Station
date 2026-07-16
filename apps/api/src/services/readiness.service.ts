@@ -12,8 +12,8 @@ const SUPABASE_MANAGEMENT_TIMEOUT_MS = 5000;
 const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
 const SUPABASE_MANAGEMENT_API_BASE = "https://api.supabase.com";
 const BACKEND_MIGRATION_OBJECT_PROOF_LATEST = {
-  version: "025-085",
-  name: "public_schema_object_rpc_document_version_and_summary_proof",
+  version: "025-086",
+  name: "public_schema_object_rpc_fractional_memory_weight_proof",
 };
 
 type CheckStatus = {
@@ -24,6 +24,7 @@ type CheckStatus = {
 
 type MigrationProofId =
   | "memory_columns"
+  | "memory_weight_contract"
   | "developer_space_policy"
   | "documents_version"
   | "document_versions"
@@ -284,6 +285,7 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
     checkMigrationQueryProof("memory_columns", () =>
       sb.from("memory_items").select(memoryColumns, { head: true }).limit(1)
     ),
+    memoryWeightMigrationProof(sb),
     checkMigrationQueryProof("developer_space_policy", () =>
       sb.from("developer_spaces").select("provider_policy", { head: true }).limit(1)
     ),
@@ -318,6 +320,26 @@ async function checkBackendMigrationObjects(sb: any): Promise<MigrationReadiness
     latest: BACKEND_MIGRATION_OBJECT_PROOF_LATEST,
     proofs,
   };
+}
+
+function memoryWeightMigrationProof(sb: any): Promise<MigrationProofStatus> {
+  if (typeof sb.rpc !== "function") {
+    return Promise.resolve(failedMigrationProof("memory_weight_contract", "not_supported", false));
+  }
+
+  return checkMigrationQueryProof("memory_weight_contract", async () => {
+    const result = await sb.rpc("memory_relevance_weight_contract", {});
+    const row = Array.isArray(result.data) ? result.data[0] : result.data;
+    const ready =
+      row?.ready === true &&
+      row?.memory_column_type === "numeric" &&
+      row?.memory_rpc_relevance_type === "numeric" &&
+      row?.archive_rpc_relevance_type === "numeric";
+
+    return {
+      error: result.error ?? (ready ? null : { message: "fractional memory weight contract is not ready" }),
+    };
+  });
 }
 
 function embeddingProfileMigrationProofs(sb: any): Array<Promise<MigrationProofStatus>> {

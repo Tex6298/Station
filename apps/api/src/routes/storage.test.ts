@@ -1714,6 +1714,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.match(db.tables.memory_items[0].content, /\[user\]: The question came first\./);
     assert.match(db.tables.memory_items[0].content, /\[assistant\]: The answer came second\./);
     assert.equal(db.tables.memory_items[0].archive_source_name, "chatgpt.json (chatgpt import)");
+    assert.equal(db.tables.memory_items[0].relevance_weight, 1.5);
     assert.equal(
       db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === db.tables.memory_items[0].id)?.status,
       "quarantined"
@@ -1754,6 +1755,7 @@ test("uploaded ChatGPT and Claude JSON parse explicitly while unknown JSON fails
     assert.match(db.tables.memory_items[1].content, /\[user\]: Claude first\./);
     assert.match(db.tables.memory_items[1].content, /\[assistant\]: Claude second\./);
     assert.equal(db.tables.memory_items[1].archive_source_name, "claude.json (claude import)");
+    assert.equal(db.tables.memory_items[1].relevance_weight, 1.5);
     assert.equal(
       db.tables.memory_item_lifecycle.find((row) => row.memory_item_id === db.tables.memory_items[1].id)?.status,
       "quarantined"
@@ -2392,6 +2394,7 @@ test("archive memory writes reserve bytes and release them on insert rollback", 
   const { addMemoryItem } = await import("../services/archive.service.js");
   const db = new InMemorySupabase();
   setSupabaseAdminForTests(db.client as any);
+  storageRow(db).bytes_limit = 10_000;
 
   try {
     const memory = await addMemoryItem({
@@ -2401,13 +2404,45 @@ test("archive memory writes reserve bytes and release them on insert rollback", 
       content: "Remember this archive fact.",
       summary: "Archive fact.",
       sourceType: "chat",
+      relevanceWeight: 1.25,
     });
 
     assert.equal(memory.title, "Archive memory");
+    assert.equal(memory.relevance_weight, 1.25);
     assert.equal(
       storageRow(db).bytes_used,
       estimateStorageBytes("Archive memory\nRemember this archive fact.\nArchive fact.")
     );
+
+    const zeroWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Zero-weight internal memory",
+      content: "Trusted internal callers may preserve a non-negative zero weight.",
+      sourceType: "chat",
+      relevanceWeight: 0,
+    });
+    assert.equal(zeroWeight.relevance_weight, 0);
+
+    const broadInternalWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Broad internal-weight memory",
+      content: "Trusted internal callers may preserve weights above the owner route maximum.",
+      sourceType: "chat",
+      relevanceWeight: 6.25,
+    });
+    assert.equal(broadInternalWeight.relevance_weight, 6.25);
+
+    const invalidWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Invalid-weight fallback memory",
+      content: "Invalid internal input falls back to the existing default.",
+      sourceType: "chat",
+      relevanceWeight: Number.NaN,
+    });
+    assert.equal(invalidWeight.relevance_weight, 1);
   } finally {
     resetStorageFake();
   }

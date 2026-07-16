@@ -59,6 +59,7 @@ test("memory and private archive vector search keep the active 1536-vector RPC c
 
     assert.equal(memory.length, 1);
     assert.equal(memory[0].id, "memory-1");
+    assert.equal(memory[0].relevanceWeight, 1.25);
 
     const archive = await retrievePrivateArchive({
       supabase: db.client as any,
@@ -478,7 +479,7 @@ class VectorSupabase {
               content: "Continuity should stay searchable.",
               summary: "Continuity",
               source_type: "manual",
-              relevance_weight: 2,
+              relevance_weight: 1.25,
               similarity: 0.98,
             },
             {
@@ -528,7 +529,7 @@ class VectorSupabase {
               content: "The blue notebook is preserved as private archive evidence.",
               summary: "Blue notebook",
               source_type: "import",
-              relevance_weight: 3,
+              relevance_weight: 1.5,
               archive_source_type: "import_job",
               archive_source_id: "import-1",
               archive_source_name: "Archive import",

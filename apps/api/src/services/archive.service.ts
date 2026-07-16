@@ -63,8 +63,8 @@ function embeddingApiKey() {
 }
 
 function memoryRelevanceWeight(value: number | undefined) {
-  if (value === undefined || !Number.isFinite(value)) return 1;
-  return Math.max(0, Math.round(value));
+  if (value === undefined || !Number.isFinite(value) || value < 0) return 1;
+  return value;
 }
 
 /**

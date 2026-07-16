@@ -2255,6 +2255,15 @@ export interface Database {
         };
         Returns: Database["public"]["Tables"]["public_persona_interaction_counters"]["Row"];
       };
+      memory_relevance_weight_contract: {
+        Args: Record<string, never>;
+        Returns: Array<{
+          memory_column_type: string;
+          memory_rpc_relevance_type: string;
+          archive_rpc_relevance_type: string;
+          ready: boolean;
+        }>;
+      };
       match_memory_items: {
         Args: {
           p_persona_id: string;

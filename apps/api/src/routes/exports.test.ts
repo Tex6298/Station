@@ -109,7 +109,7 @@ class InMemorySupabase {
         content: "Harbor remembers the owner values grounded continuity.",
         summary: "A stable private memory.",
         source_type: "manual",
-        relevance_weight: 2,
+        relevance_weight: 1.25,
         embedding: null,
         created_at: "2026-05-26T09:01:00.000Z",
         updated_at: "2026-05-26T09:01:00.000Z",
@@ -1188,6 +1188,7 @@ test("owner can export persona archive while preserving provenance and privacy b
     assert.equal(created.body.manifest.schema, "station.persona.export.v1");
     assert.equal(created.body.manifest.persona.name, "Harbor");
     assert.equal(created.body.manifest.counts.memory, 1);
+    assert.equal(created.body.manifest.continuity.memory[0].relevanceWeight, 1.25);
     assert.equal(created.body.manifest.counts.canon, 1);
     assert.equal(created.body.manifest.counts.archiveFiles, 1);
     assert.equal(created.body.manifest.counts.archiveImports, 1);

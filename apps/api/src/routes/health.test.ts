@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import test from "node:test";
@@ -66,6 +67,7 @@ class ReadinessSupabase {
   failProfiles = false;
   migrationObjectProof = false;
   documentVersionObjectProof = true;
+  fractionalMemoryWeightContractProof = true;
   failEmbeddingProfileRpcProof = false;
   proofDelays: Record<string, number> = {};
   bucketPublic = false;
@@ -77,7 +79,29 @@ class ReadinessSupabase {
     from: (table: string) => new ReadinessQuery(this, "public", table),
     rpc: async (functionName: string, args: Record<string, unknown>) => {
       this.rpcCalls.push({ functionName, args });
-      await this.delayProof(functionName === "match_memory_items" ? "memory_rpc" : "archive_rpc");
+      const proofId = functionName === "memory_relevance_weight_contract"
+        ? "memory_weight_contract"
+        : functionName === "match_memory_items"
+          ? "memory_rpc"
+          : "archive_rpc";
+      await this.delayProof(proofId);
+
+      if (functionName === "memory_relevance_weight_contract") {
+        if (!this.migrationObjectProof) {
+          return { data: null, error: { message: "missing fractional weight contract with secret-service-role" } };
+        }
+        const type = this.fractionalMemoryWeightContractProof ? "numeric" : "integer";
+        return {
+          data: [{
+            memory_column_type: type,
+            memory_rpc_relevance_type: type,
+            archive_rpc_relevance_type: type,
+            ready: this.fractionalMemoryWeightContractProof,
+          }],
+          error: null,
+        };
+      }
+
       if (!["match_memory_items", "match_private_archive_chunks"].includes(functionName)) {
         return { data: null, error: { message: "unexpected rpc with secret-service-role" } };
       }
@@ -200,8 +224,8 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
     assert.equal(deployment.body.readiness.database.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-085",
-      name: "public_schema_object_rpc_document_version_and_summary_proof",
+      version: "025-086",
+      name: "public_schema_object_rpc_fractional_memory_weight_proof",
     });
     assert.deepEqual(db.objectProofQueries.map((query) => [query.table, query.columns]), [
       ["memory_items", "archive_source_type,archive_source_id,archive_source_name,chunk_index,chunk_count,embedding_provider,embedding_model,embedding_dimension,embedding_index_name,embedding_index_source,embedding_backfill_version"],
@@ -252,6 +276,7 @@ test("/health stays cheap while /health/deployment returns non-secret readiness"
       hostedCredentialProofReady: false,
     });
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "memory_relevance_weight_contract",
       "match_memory_items",
       "match_private_archive_chunks",
     ]);
@@ -463,11 +488,12 @@ test("/health/deployment proves backend migrations through public schema objects
     assert.equal(deployment.body.readiness.migrations.ok, true);
     assert.equal(deployment.body.readiness.migrations.count, null);
     assert.deepEqual(deployment.body.readiness.migrations.latest, {
-      version: "025-085",
-      name: "public_schema_object_rpc_document_version_and_summary_proof",
+      version: "025-086",
+      name: "public_schema_object_rpc_fractional_memory_weight_proof",
     });
     assert.deepEqual(deployment.body.readiness.migrations.proofs, [
       { id: "memory_columns", ok: true, checked: true },
+      { id: "memory_weight_contract", ok: true, checked: true },
       { id: "developer_space_policy", ok: true, checked: true },
       { id: "documents_version", ok: true, checked: true },
       { id: "document_versions", ok: true, checked: true },
@@ -475,6 +501,7 @@ test("/health/deployment proves backend migrations through public schema objects
       { id: "archive_rpc", ok: true, checked: true },
     ]);
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "memory_relevance_weight_contract",
       "match_memory_items",
       "match_private_archive_chunks",
     ]);
@@ -482,6 +509,74 @@ test("/health/deployment proves backend migrations through public schema objects
   } finally {
     await resetHealthFakes();
   }
+});
+
+test("/health/deployment rejects the old integer Memory weight catalog contract", async () => {
+  const db = new ReadinessSupabase();
+  db.migrationObjectProof = true;
+  db.fractionalMemoryWeightContractProof = false;
+  const { app } = await setupHealthApp(db);
+
+  try {
+    const deployment = await requestJson(app, "GET", "/health/deployment");
+    assert.equal(deployment.status, 200);
+    assert.equal(deployment.body.ok, true);
+    assert.equal(deployment.body.ready, false);
+    assert.equal(deployment.body.readiness.migrations.ok, false);
+    assert.equal(deployment.body.readiness.migrations.error, "query_failed");
+    assert.deepEqual(
+      deployment.body.readiness.migrations.proofs.find((proof: Row) => proof.id === "memory_weight_contract"),
+      { id: "memory_weight_contract", ok: false, checked: true, error: "query_failed" }
+    );
+    assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "memory_relevance_weight_contract",
+      "match_memory_items",
+      "match_private_archive_chunks",
+    ]);
+    assertNoSecrets(deployment.body);
+  } finally {
+    await resetHealthFakes();
+  }
+});
+
+test("migration 086 preserves fractional Memory weights and both retrieval boundaries", () => {
+  const migration = readFileSync(
+    "infra/supabase/migrations/086_fractional_memory_relevance_weight.sql",
+    "utf8"
+  );
+  const memoryRpc = migration.match(
+    /create function public\.match_memory_items\([\s\S]*?grant execute on function public\.match_memory_items\([^;]+;/i
+  )?.[0] ?? "";
+  const archiveRpc = migration.match(
+    /create function public\.match_private_archive_chunks\([\s\S]*?grant execute on function public\.match_private_archive_chunks\([^;]+;/i
+  )?.[0] ?? "";
+
+  assert.match(
+    migration,
+    /alter column relevance_weight type numeric\s+using relevance_weight::numeric/i
+  );
+  assert.match(migration, /alter column relevance_weight set default 1/i);
+  assert.match(migration, /alter column relevance_weight set not null/i);
+  assert.doesNotMatch(migration, /add constraint[^;]*relevance_weight[^;]*(?:between|<=)[^;]*5/is);
+
+  assert.match(memoryRpc, /relevance_weight numeric/i);
+  assert.match(memoryRpc, /m\.archive_source_type is null/i);
+  assert.match(memoryRpc, /coalesce\(ml\.status, 'active'\) = 'active'/i);
+  assert.match(memoryRpc, /ml\.superseded_by_memory_item_id is null/i);
+  assert.match(memoryRpc, /order by m\.embedding <=> query_embedding\s+limit match_count/i);
+  assert.match(memoryRpc, /to authenticated/i);
+
+  assert.match(archiveRpc, /relevance_weight numeric/i);
+  assert.match(archiveRpc, /m\.owner_user_id = p_owner_user_id/i);
+  assert.match(archiveRpc, /m\.archive_source_type is not null/i);
+  assert.match(archiveRpc, /order by m\.embedding <=> query_embedding\s+limit match_count/i);
+  assert.match(archiveRpc, /to authenticated/i);
+
+  assert.match(migration, /create or replace function public\.memory_relevance_weight_contract\(\)/i);
+  assert.match(migration, /memory_column_type = 'numeric'/i);
+  assert.match(migration, /memory_rpc_relevance_type = 'numeric'/i);
+  assert.match(migration, /archive_rpc_relevance_type = 'numeric'/i);
+  assert.match(migration, /grant execute on function public\.memory_relevance_weight_contract\(\) to service_role/i);
 });
 
 test("/health/deployment blocks readiness when PR30 document version objects are missing", async () => {
@@ -539,7 +634,9 @@ test("/health/deployment requires PR30 object proof even when migration history 
       assert.equal(deployment.body.readiness.migrations.ok, false);
       assert.equal(deployment.body.readiness.migrations.error, "query_failed");
       assert.equal(deployment.body.readiness.providers.embeddingProfileCode, "openai_1536");
-      assert.deepEqual(db.rpcCalls, []);
+      assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+        "memory_relevance_weight_contract",
+      ]);
       assertNoSecrets(deployment.body);
     } finally {
       await resetHealthFakes();
@@ -565,6 +662,7 @@ test("/health/deployment blocks free embedding profile readiness without migrati
       { id: "archive_rpc", ok: false, checked: true, error: "query_failed" },
     ]);
     assert.deepEqual(db.rpcCalls.map((call) => call.functionName), [
+      "memory_relevance_weight_contract",
       "match_memory_items",
       "match_private_archive_chunks",
     ]);

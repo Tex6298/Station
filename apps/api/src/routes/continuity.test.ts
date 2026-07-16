@@ -402,11 +402,41 @@ test("private continuity loop protects memory, canon, archive, and integrity wri
         title: "Anchor memory",
         summary: "A stable private memory.",
         content: "Harbor remembers the owner values grounded continuity.",
-        relevanceWeight: 2,
+        relevanceWeight: 1.25,
       },
     });
     assert.equal(memory.status, 201);
     assert.equal(memory.body.memoryItem.owner_user_id, OWNER_ID);
+    assert.equal(memory.body.memoryItem.relevance_weight, 1.25);
+
+    const updatedMemory = await requestJson(app, "PATCH", `/memory/${memory.body.memoryItem.id}`, {
+      token: "owner-token",
+      body: { relevanceWeight: 1.5 },
+    });
+    assert.equal(updatedMemory.status, 200);
+    assert.equal(updatedMemory.body.memoryItem.relevance_weight, 1.5);
+
+    const invalidMemoryWeight = await requestJson(app, "PATCH", `/memory/${memory.body.memoryItem.id}`, {
+      token: "owner-token",
+      body: { relevanceWeight: 5.01 },
+    });
+    assert.equal(invalidMemoryWeight.status, 400);
+
+    const invalidLowMemoryWeight = await requestJson(app, "PATCH", `/memory/${memory.body.memoryItem.id}`, {
+      token: "owner-token",
+      body: { relevanceWeight: 0.09 },
+    });
+    assert.equal(invalidLowMemoryWeight.status, 400);
+
+    const memoryReadback = await requestJson(app, "GET", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+    });
+    assert.equal(memoryReadback.status, 200);
+    const anchorMemory = memoryReadback.body.memory.find(
+      (item: Row) => item.id === memory.body.memoryItem.id
+    );
+    assert.equal(anchorMemory.relevance_weight, 1.5);
+    assert.equal(anchorMemory.lifecycle.status, "active");
 
     const canon = await requestJson(app, "POST", `/canon/persona/${PERSONA_ID}`, {
       token: "owner-token",

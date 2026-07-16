@@ -336,17 +336,6 @@ class QueryBuilder {
         };
       }
       const payloads = Array.isArray(this.payload) ? this.payload : [this.payload as Row];
-      if (this.table === "memory_items") {
-        const invalid = payloads.find((payload) =>
-          payload.relevance_weight !== undefined && !Number.isInteger(payload.relevance_weight)
-        );
-        if (invalid) {
-          return {
-            data: mode === "single" ? null : [],
-            error: { message: `invalid input syntax for type integer: "${invalid.relevance_weight}"` },
-          };
-        }
-      }
       rows = payloads.map((payload) => this.db.insertRow(this.table, payload));
     } else if (this.operation === "update") {
       rows = this.matchingRows();
@@ -752,6 +741,10 @@ test("owner can archive a chat into private continuity candidates", async () => 
     assert.match(archived.body.archive.transcript.transcriptMarkdown, /Always preserve continuity before novelty/);
     assert.equal(archived.body.archive.retrieval.chunksCreated > 0, true);
     assert.equal(db.tables.memory_items.some((row) => row.archive_source_type === "archived_chat_transcript"), true);
+    const archivedChatChunk = db.tables.memory_items.find(
+      (row) => row.archive_source_type === "archived_chat_transcript"
+    );
+    assert.equal(archivedChatChunk?.relevance_weight, 1.4);
     assert.equal(archived.body.archive.candidates.length, 2);
 
     const blockedChat = await requestJson(app, "POST", `/conversations/persona/${PERSONA_ID}/chat`, {
@@ -791,6 +784,7 @@ test("owner can archive a chat into private continuity candidates", async () => 
     assert.ok(acceptedMemory);
     assert.equal(acceptedMemory.owner_user_id, OWNER_ID);
     assert.equal(acceptedMemory.archive_source_type, "archived_chat_transcript");
+    assert.equal(acceptedMemory.relevance_weight, 1.5);
 
     const rejected = await requestJson(app, "PATCH", `/conversations/candidates/${canonCandidate.id}`, {
       token: "owner-token",
@@ -2201,8 +2195,7 @@ test("owner can review import-backed continuity candidates without exposing them
     assert.equal(acceptedMemory.body.target.source_type, "import");
     assert.equal(acceptedMemory.body.target.archive_source_type, "persona_file");
     assert.equal(acceptedMemory.body.target.archive_source_id, importFile.id);
-    assert.equal(Number.isInteger(acceptedMemory.body.target.relevance_weight), true);
-    assert.equal(acceptedMemory.body.target.relevance_weight, 2);
+    assert.equal(acceptedMemory.body.target.relevance_weight, 1.5);
     const acceptedMemoryRow = db.tables.memory_items.find((row) => row.id === acceptedMemory.body.target.id);
     assert.ok(acceptedMemoryRow);
     acceptedMemoryRow.archive_source_name = "private/storage/path/chatgpt-export.json?token=secret";
