@@ -4,6 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2B Retained Replay Session Cleanup Passed
+
+DAEDALUS completed the exact hosted Auth cleanup on 2026-07-16:
+
+- `docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS_RESULT.md`
+
+```text
+PASS_PR527F2B_EXACT_REPLAY_SESSION_REFRESH_CLEANUP
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Hosted Auth schema inspection | Pass; `auth.refresh_tokens.session_id` cascades on `auth.sessions(id)` delete |
+| Target cardinality | Pass; one replay Auth user, identity, ordinary Profile, community profile, failed-run target session, and active/unrevoked linked refresh row |
+| Linked revoked-row accounting | Pass; target session also had one already-revoked linked refresh row, removed only by catalog cascade when the exact target session was deleted |
+| Transaction row counts | Pass; active refresh delete `1`, target session delete `1` |
+| Pre-commit invariants | Pass; target absent, linked refresh rows absent, out-of-scope replay sessions/refresh rows unchanged, Auth/Profile/community/product baselines unchanged |
+| Fresh read-only postcheck | Pass; target sessions `0`, linked refresh rows `0`, cleanup-window unrevoked refresh rows `0` |
+| Product rows | Pass; preferences `0`, Watches `0`, notifications `0` |
+| PR527F/PR527F2 residue | Pass; Auth users `0`, identities `0`, sessions `0`, refresh tokens `0`, preferences `0`, threads `0`, comments `0`, notifications `0`, Watches `0` |
+| Temporary tooling cleanup | Pass; temp `pg` install and scripts removed |
+
+No sign-in, token refresh, global sign-out, broad revocation, Auth user update,
+identity update, Profile update, community-profile update, timestamp backdate,
+product data mutation, schema change, Railway variable change, or deployment
+change occurred. Auth `last_sign_in_at` and community `updated_at` remain
+truthful audit history for ARGUS's queued read-only PR527F2C disposition.
+
 ## PR527F2A Read-Only Audit Blocked By Retained Auth State
 
 ARGUS completed the read-only disposition on 2026-07-16:
