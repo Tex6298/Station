@@ -21,10 +21,11 @@ Theme review: docs/roadmap/PR528C1_THEME_REPAIRS_REVIEW_ARGUS.md
 Summary review: docs/roadmap/PR528C2_DOCUMENT_SUMMARY_CONTRACT_REVIEW_ARGUS.md
 Private corpus review: docs/roadmap/PR528C3_PRIVATE_PARTNER_CORPUS_REVIEW_ARGUS.md
 Fractional weight repair: docs/roadmap/PR528B5_FRACTIONAL_MEMORY_WEIGHT_CONTRACT_DAEDALUS.md
+Fractional weight review: docs/roadmap/PR528C4_FRACTIONAL_MEMORY_WEIGHT_REVIEW_ARGUS.md
 Queued schema deploy/correction: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_DEPLOY_AND_CORRECTION_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS implements PR528B5 fractional Memory weight persistence; PR528B6 keeps migrations 085/086, deployment, and the exact retained three-row correction serialized behind ARGUS source review
+Next: ARGUS reviews completed PR528B5 migration/RPC/source equivalence; PR528B6 keeps migrations 085/086, deployment, and the exact retained three-row correction serialized behind that acceptance
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -50,8 +51,9 @@ PR528C3 must decide the one discovered contract mismatch before acceptance: the
 Memory UI/API expose fractional weights such as `1.25`, while the hosted
 integer column and create service persisted the approved value as `1`.
 
-PR528C3 blocks corpus acceptance only on that precision mismatch. PR528B5 owns
-the smallest forward numeric-column/RPC/source repair. PR528B6 is queued to
+PR528C3 blocks corpus acceptance only on that precision mismatch. PR528B5 has
+implemented the smallest forward numeric-column/RPC/source repair and is under
+PR528C4 review. PR528B6 is queued to
 apply accepted migrations `085` and `086`, deploy one exact reviewed SHA, and
 correct only the two curated rows and one Archive row recorded in the encrypted
 ledger.
