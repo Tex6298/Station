@@ -4,10 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2A cleanup timestamp drift audit
+## Active lane - PR527F2A blocked by retained replay Auth state
 
 ```text
-PASS_PR527F1_HOSTED_SCHEMA_084_DEPLOYMENT_ALIGNMENT
+BLOCK_PR527F2A_RETAINED_REPLAY_AUTH_SESSION_AND_SIGN_IN_DRIFT
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
@@ -18,8 +18,9 @@ Hosted schema result: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DE
 Hosted lifecycle: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md
 Hosted lifecycle result: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md
 Cleanup audit: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS.md
+Cleanup audit result: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARGUS independently audits the sole known retained updated_at drift read-only; no hosted rerun or write before its verdict
+Next: MIMIR routes exact retained replay-session cleanup and irreversible Auth last_sign_in_at disposition; no PR527F2 rerun before fresh ARGUS acceptance
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -87,10 +88,19 @@ pre-run `community_user_profiles.updated_at` was lost with process memory, so
 exact timestamp restoration could not be proved. PR527F2 is blocked as
 `BLOCK_PR527F2_EVIDENCE_HARNESS_CLEANUP_TIMESTAMP_DRIFT`.
 
-MIMIR has opened PR527F2A for an independent zero-write ARGUS disposition. No
-timestamp may be guessed or backdated, and no hosted lifecycle may rerun until
-ARGUS proves whether the monotonic trigger-owned timestamp is the sole retained
-difference and may become the truthful current baseline.
+ARGUS completed PR527F2A read-only. Exact deployment/migration/catalog truth,
+zero global preferences/Watches/notifications, zero tagged or orphan residue,
+coherent replay community semantics, and the bounded trigger-owned community
+timestamp pass. The existing activity counters are application-maintained, not
+live-row aggregates; their current row mismatch is source-classified and not a
+cleanup blocker.
+
+The timestamp-only verdict is blocked. The retained replay owner's Auth
+`last_sign_in_at` advanced inside the failed-run interval, and exactly one
+linked session/refresh pair created in that interval remains active and
+unrevoked. These untagged retained-owner rows escaped exact-tag cleanup. MIMIR
+must route exact pair cleanup and separately disposition the irreversible Auth
+timestamp before any fresh ARGUS audit or PR527F2 rerun.
 
 ## Previous PR527E hosted rehearsal blocker history
 

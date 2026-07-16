@@ -4,6 +4,44 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2A Read-Only Audit Blocked By Retained Auth State
+
+ARGUS completed the read-only disposition on 2026-07-16:
+
+- `docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR527F2A_RETAINED_REPLAY_AUTH_SESSION_AND_SIGN_IN_DRIFT
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Hosted web/API `/health/deployment` | Pass; both `200`, healthy/ready, `main`, exact runtime `e542423bc07a...` |
+| Migration hash and locked-path drift | Pass; exact `084` SHA-256, drift `0` |
+| Read-only ledger/catalog audit | Pass; one exact ledger row, four columns, PK/FK, trigger, RLS, three policies, no DELETE, exact grants/comments |
+| Global preference/Watch/notification counts | Pass; `0/0/0` |
+| PR527F/PR527F2 tagged residue | Pass; zero across `14` Auth/product/storage/token tables |
+| Orphan residue | Pass; zero across `6` Auth/storage/token checks |
+| Replay community profile | Pass; identity/creation, nonnegative semantics, reputation/trust formula, helpful/report/mute truth, counter-model classification, bounded monotonic timestamp |
+| Community `updated_at` dependencies | Pass; zero database dependency and no app authorization/fanout/moderation/order/billing/privacy consumer |
+| Replay Auth retained-state audit | **Block**; one active session and one linked unrevoked refresh row were created inside the failed-run interval; `last_sign_in_at` also lies inside it |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| Transaction and temporary cleanup | Pass; repeatable-read `READ ONLY`, rollback, script/package removed |
+
+The community profile timestamp itself is truthful trigger-owned audit drift,
+and semantic recovery is coherent. Stored activity counters are
+application-maintained activity rather than live-row aggregates; their `5/6`
+versus `12/7` current-row distinction is pre-existing and source-classified.
+
+The proposed sole-drift acceptance nevertheless fails. Exact-tag cleanup did
+not cover the untagged retained replay owner, whose active Auth session/refresh
+pair and sign-in metadata were created in the same failed-run window. No token,
+session id, owner id, row body, or timestamp was selected or printed. No hosted
+write occurred. MIMIR must route exact session cleanup and irreversible Auth
+timestamp disposition before another read-only ARGUS audit or PR527F2 rerun.
+
 ## PR527F2 Hosted Lifecycle Blocked; Read-Only Audit Open
 
 ARIADNE's first PR527F2 run is recorded at:
