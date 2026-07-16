@@ -24,9 +24,10 @@ Fractional weight repair: docs/roadmap/PR528B5_FRACTIONAL_MEMORY_WEIGHT_CONTRACT
 Fractional weight review: docs/roadmap/PR528C4_FRACTIONAL_MEMORY_WEIGHT_REVIEW_ARGUS.md
 Schema deploy/correction result: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_DEPLOY_AND_CORRECTION_DAEDALUS_RESULT.md
 Hosted deploy/correction review: docs/roadmap/PR528C5_SERIALIZED_SCHEMA_DEPLOY_AND_CORRECTION_REVIEW_ARGUS.md
+Public partner corpus: docs/roadmap/PR528B7_PUBLIC_PARTNER_CORPUS_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently reviews completed PR528B6 migrations 085/086, exact accepted-SHA Railway deployment, and the three ledger-bound retained-row corrections before public corpus authorization
+Next: DAEDALUS creates the exact bounded public Station Guide Space/document/discussion chain on accepted hosted SHA c13d8ea0; ARGUS review follows before human rehearsal
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -60,6 +61,11 @@ and the three retained rows corrected to `1.25`, `1.25`, and `1.5`. PR528C5
 must bind that run independently because the completed DAEDALUS result was
 staged and then captured by MIMIR continuation commit `2bd58edb` before A2's
 normal handoff commit.
+
+PR528C5 independently accepts PR528B6. PR528B7 is now authorized to create only
+the exact public Station Guide owner, Continuity Field Notes Space, summarized
+essay, and linked forum thread. The retained private Aster corpus remains an
+invariant. Public corpus does not authorize chat/provider configuration.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
