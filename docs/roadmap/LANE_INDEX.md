@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR528 | Important Routes Partner Pass | MIMIR -> ARIADNE -> DAEDALUS -> ARGUS | PR528D passed `44/44` human route cases. PR528B13 removed only the two probe owners' 258 sessions, 765 refresh rows, and linked MFA AMR claims, proved zero residue, and added a focused protected-read guard. PR528C10 now owns final hostile read-only review before closeout. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
+| Review window | PR528 Partner Product Judgment | MIMIR / A1 | PR528 is accepted and closed. Retained public/private sample corpora are held without further UI churn until explicit partner feedback and a promote/replace/cleanup decision. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 
@@ -20,6 +20,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS -> ARIADNE -> DAEDALUS / ARGUS -> MIMIR | Closed as `CLOSE_PR528_IMPORTANT_ROUTES_PARTNER_PASS_ACCEPTED`; `44/44` final human cases, curated public/private corpora, exact sign-out/session hygiene, and protected-read guard review pass. Partner review window remains open; private chat/config and PR529 details remain explicit. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR527F closeout | Settings Persistence Truth | MIMIR -> ARGUS -> DAEDALUS -> ARIADNE -> ARGUS -> DAEDALUS -> MIMIR | Closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`; local behavior, migration/catalog/RLS, full hosted lifecycle, sole-owner provenance-bound direct-RLS proof, exact cleanup, and clean hosted baseline pass. | `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md` |
 | PR527 programme handoff | UI Product Completeness Correction Sequence | MIMIR / A1 | Sequencing closes the correction baton at PR527F without claiming overall UI completion; remaining inventory becomes PR528 fix-now candidates or durable paused PR529 details. | `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md` |
 | PR527F2G serialized RLS proof | Serialized Provenance-Bound Direct RLS Rerun | MIMIR -> DAEDALUS -> MIMIR | Passed as `PASS_PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN`; one public-safe receipt and local-gate digest bind the local gate, five direct-RLS statuses, exact cleanup, independent recovery, and two fresh restoration proofs. Supersedes both ambiguous PR527F2E artifacts as direct-RLS closeout authority. | `docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS_RESULT.md` |

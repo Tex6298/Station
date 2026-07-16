@@ -4,11 +4,12 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR528B/C partner-route implementation and review
+## Current gate - PR528 accepted; partner review window
 
 ```text
-OPEN_PR528_IMPORTANT_ROUTES_PARTNER_PASS
+CLOSE_PR528_IMPORTANT_ROUTES_PARTNER_PASS_ACCEPTED
 Owner chain: MIMIR -> DAEDALUS / ARGUS -> ARIADNE -> DAEDALUS / ARGUS -> MIMIR
+Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
 Preflight result: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE_RESULT.md
@@ -39,7 +40,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS performs read-only PR528C10 hostile review of the exact two-owner Auth cleanup and committed protected-read verifier guard; MIMIR closes PR528 if accepted
+Next: hold the accepted public/private corpora and pause PR529/UI churn for Marty and partner product judgment; then explicitly promote, replace, or clean the retained review data
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -171,6 +172,15 @@ all unrelated Auth state, every public/storage table, and both retained corpora
 remain exact; both targets now have zero session residue. It also adds a small
 committed protected-read verifier boundary with a focused `4/4` contract test.
 PR528C10 now owns the final hostile read-only review before PR528 closeout.
+
+PR528C10 accepts the exact two-owner cleanup after patching encoded Auth-path
+and verb-after-session bypasses in the verifier guard. Both dedicated probes,
+Station Guide, and ARIADNE's rehearsal session are now at zero session residue;
+all users, identities, profiles, truthful audit history, unrelated Auth state,
+and public/private product state remain exact. PR528 is closed as
+`CLOSE_PR528_IMPORTANT_ROUTES_PARTNER_PASS_ACCEPTED`. The curated public and
+private corpora remain only for Marty/partner judgment; PR529 and broad UI work
+stay paused until that feedback or another explicit numbered lane.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
