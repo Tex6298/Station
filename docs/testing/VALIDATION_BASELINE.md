@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2G Serialized Direct RLS Proof Passed
+
+DAEDALUS completed the sole-owner serialized proof on 2026-07-16:
+
+- `docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS_RESULT.md`
+
+```text
+PASS_PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Public-safe receipt | Pass; `PR527F2G-D466966F7730038D` |
+| Local-gate digest | Pass; `06F892526AD48DE60158AA1745B8A43954B68A9108D167B0F7F773C1FA9B4349` |
+| Serialization gate | Pass; competing runners `0`, repo `.tmp` artifacts `0`, retained OS-temp artifacts `0`, exclusive lock acquired |
+| Fresh local gate | Pass; `5` forced stops, `5` parent cleanups, `10` independent recoveries, `20` browser checkpoints, `22` browser journal writes, `6` browser matrix cases, zero hosted reachability/writes |
+| Hosted setup | Pass; disposable signup `201`, preference PATCH `200`, replay-owner sign-in `200`; one disposable session/refresh row and one replay session/refresh row |
+| Ordered direct-RLS statuses | Pass; owner read `200`, cross-owner read `200`, cross-owner write `200`, anonymous read `401`, anonymous write `401` |
+| Direct-RLS row safety | Pass; returned rows `1,0,0,0,0`; authoritative row count stayed `1`; authoritative value stayed `false` |
+| Parent cleanup | Pass; disposable user `1`, replay session `1`, replay refresh row `1`, Auth audit restored |
+| Independent recovery | Pass; exact deployment, migration, ledger, catalog, aggregate, retained owner, out-of-scope session/refresh metadata, tag residue, orphan, and disposable-residue proof |
+| Fresh restoration proof 1 | Pass; same exact proof shape with preferences/Watches/notifications `0/0/0` |
+| Fresh restoration proof 2 | Pass; same exact proof shape with preferences/Watches/notifications `0/0/0` |
+| Temporary-state deletion | Pass; lock, recovery state, neutral OS-temp runner, and public-result file removed after sanitized documentation |
+
+PR527F2G supersedes both ambiguous PR527F2E result artifacts as the sole
+direct-RLS closeout authority. PR527F2D remains the authority for the complete
+hosted product/browser lifecycle.
+
 ## PR527F2F Combined Evidence Audit Blocked On Provenance
 
 ARGUS completed the fresh read-only audit on 2026-07-16:

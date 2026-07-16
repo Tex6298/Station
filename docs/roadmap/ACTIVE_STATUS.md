@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2F blocked on overlapping evidence provenance
+## Active lane - PR527F2G serialized direct RLS proof ready for MIMIR
 
 ```text
-BLOCK_PR527F2F_UNRESOLVED_PR527F2E_RUN_PROVENANCE_AND_DURABLE_GATE_BINDING
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR
+PASS_PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -31,8 +31,10 @@ RLS evidence result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_
 Late overlapping result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE_RESULT.md
 Combined audit: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS.md
 Combined audit result: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS_RESULT.md
+Serialized RLS proof: docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS.md
+Serialized RLS proof result: docs/roadmap/PR527F2G_SERIALIZED_PROVENANCE_BOUND_DIRECT_RLS_RERUN_DAEDALUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR routes one serialized single-owner PR527F2E-only proof, closes PR527F truthfully, then opens Marty's Important Routes Partner Pass from sequencing commit 7c14c1b9
+Next: MIMIR closes PR527F truthfully, then opens Marty's Important Routes Partner Pass from sequencing commit 7c14c1b9
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -197,6 +199,23 @@ direct-RLS repair; PR527F2D's complete product lifecycle must not repeat. After
 truthful PR527F closeout, sequencing commit `7c14c1b9` requires the globally
 numbered Important Routes Partner Pass rather than another forensic or ranked
 micro-fix lane.
+
+DAEDALUS completed PR527F2G as that serialized single-owner repair. The run
+receipt `PR527F2G-D466966F7730038D` and local-gate digest
+`06F892526AD48DE60158AA1745B8A43954B68A9108D167B0F7F773C1FA9B4349`
+were persisted before hosted configuration loaded. The fresh local gate
+recorded `5` forced stops, `5` parent cleanups, `10` independent recoveries,
+`20` browser checkpoints, `22` browser journal writes, `6` browser matrix
+cases, zero hosted reachability, and zero hosted writes. The hosted proof then
+executed only the five direct-RLS checks: owner read `200`/one row,
+cross-owner read `200`/zero rows, cross-owner write `200`/zero rows, anonymous
+read `401`, and anonymous write `401`; the authoritative disposable row stayed
+false throughout. Exact cleanup removed one disposable user, one replay
+session, and one replay refresh row, restored Auth audit fields, and passed
+parent proof, independent recovery, and two fresh proofs with preferences,
+Watches, notifications, tag residue, orphans, and exact disposable residue all
+at `0`. PR527F2G supersedes both ambiguous PR527F2E artifacts as direct-RLS
+closeout authority.
 
 ## Previous PR527E hosted rehearsal blocker history
 
