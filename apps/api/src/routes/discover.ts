@@ -37,6 +37,9 @@ const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_QUERY_LIMIT =
   CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SEARCH_LIMIT * 4;
 const CROSS_OWNER_PUBLIC_ENCOUNTER_EXHIBIT_SELECT =
   "id, consent_id, slug, public_title, public_summary, public_tags, requester_persona_name_snapshot, counterparty_persona_name_snapshot, status, contract_version, provenance_schema, requester_metadata_approved_at, counterparty_metadata_approved_at, published_at, retracted_at, removed_at";
+const PUBLIC_DOCUMENT_SEARCH_FIELDS = ["title", "summary", "body"] as const;
+const PUBLIC_DOCUMENT_SEARCH_SELECT =
+  "id, title, body, summary, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)";
 const DISCOVER_ERROR_RESPONSES = {
   feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
   sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
@@ -241,7 +244,16 @@ function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearch
 }
 
 function publicDocumentSearchResults(rows: any[], limit = 8) {
-  return rows.slice(0, limit).map((row) => ({
+  const uniqueRows = [];
+  const seenIds = new Set<string>();
+  for (const row of rows) {
+    if (seenIds.has(row.id)) continue;
+    seenIds.add(row.id);
+    uniqueRows.push(row);
+    if (uniqueRows.length === limit) break;
+  }
+
+  return uniqueRows.map((row) => ({
     id: row.id,
     title: row.title,
     body: row.body,
@@ -252,6 +264,26 @@ function publicDocumentSearchResults(rows: any[], limit = 8) {
     discussion_thread_id: row.discussion_thread_id ?? null,
     space: row.space ? { slug: row.space.slug } : null,
   }));
+}
+
+function publicDocumentTextSearchQueries(
+  sb: ReturnType<typeof getSupabaseAdmin>,
+  req: Request,
+  q: string,
+) {
+  const like = `%${q}%`;
+  const visibilities = discoverableDocumentVisibilities(req);
+  return PUBLIC_DOCUMENT_SEARCH_FIELDS.flatMap((field) =>
+    visibilities.map((visibility) =>
+      sb
+        .from("documents")
+        .select(PUBLIC_DOCUMENT_SEARCH_SELECT)
+        .eq("status", "published")
+        .eq("visibility", visibility)
+        .ilike(field, like)
+        .limit(8)
+    )
+  );
 }
 
 function developerSpaceSearchResults(rows: any[], limit = 8) {
@@ -1167,15 +1199,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     salonResults,
     privateResults,
   ] = await Promise.all([
-    Promise.all(discoverableDocumentVisibilities(req).map((visibility) =>
-      sb
-        .from("documents")
-        .select("id, title, body, summary, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)")
-        .eq("status", "published")
-        .eq("visibility", visibility)
-        .ilike("title", `%${q}%`)
-        .limit(8)
-    )),
+    Promise.all(publicDocumentTextSearchQueries(sb, req, q)),
     Promise.all(discoverableThreadVisibilities(req).map((visibility) =>
       sb.from("threads")
         .select("id, title, body, visibility, linked_document_id, category:forum_categories!category_id(slug, title)")

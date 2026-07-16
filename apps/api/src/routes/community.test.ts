@@ -4506,6 +4506,150 @@ test("document summaries stay bounded, public-safe, excerpt-aware, and restorabl
   }
 });
 
+test("Discover document search prioritizes and deduplicates public title, summary, and body matches", async () => {
+  const db = new CommunitySupabase();
+  const publicDocument = db.rows("documents").find((row) => row.id === PUBLIC_DOC_ID)!;
+  publicDocument.summary = "A summary-only continuity phrase.";
+  publicDocument.body = "Canonical body-only continuity phrase.";
+  publicDocument.discussion_thread_id = PUBLIC_THREAD_ID;
+
+  const communityDocument = db.rows("documents").find((row) => row.id === COMMUNITY_DOC_ID)!;
+  communityDocument.body = "Eligible member body phrase.";
+  const membersDocument = db.insertRow("documents", document(
+    "79797979-7979-4797-8797-797979797979",
+    "Members Field Note",
+    "members-field-note",
+    "members",
+    { body: "Eligible member body phrase." },
+  ));
+
+  const privateDocument = db.rows("documents").find((row) => row.id === PRIVATE_DOC_ID)!;
+  privateDocument.body = "Owner private body phrase.";
+  const otherPrivateDocument = db.rows("documents").find((row) => row.id === OTHER_PRIVATE_DOC_ID)!;
+  otherPrivateDocument.body = "Other owner private body phrase.";
+  const unlistedDocument = db.rows("documents").find((row) => row.id === UNLISTED_DOC_ID)!;
+  unlistedDocument.body = "Unlisted body phrase.";
+  db.insertRow("documents", document(
+    "80808080-8080-4808-8808-808080808080",
+    "Draft Field Note",
+    "draft-field-note",
+    "public",
+    { status: "draft", body: "Draft body phrase." },
+  ));
+  db.insertRow("documents", document(
+    "81818181-8181-4818-8818-818181818181",
+    "Archived Field Note",
+    "archived-field-note",
+    "public",
+    { status: "archived", body: "Archived body phrase." },
+  ));
+
+  const priorityRows = [
+    document("82828282-8282-4828-8828-828282828282", "Priority needle title alpha", "priority-title-alpha", "public"),
+    document("83838383-8383-4838-8838-838383838383", "Priority needle all fields", "priority-all-fields", "public", {
+      summary: "Priority needle summary also matches.",
+      body: "Priority needle body also matches.",
+    }),
+    document("84848484-8484-4848-8848-848484848484", "Priority needle title omega", "priority-title-omega", "public"),
+    document("85858585-8585-4858-8858-858585858585", "Summary Alpha", "priority-summary-alpha", "public", {
+      summary: "Priority needle summary alpha.",
+    }),
+    document("86868686-8686-4868-8868-868686868686", "Summary Beta", "priority-summary-beta", "public", {
+      summary: "Priority needle summary beta.",
+    }),
+    document("87878787-8787-4878-8878-878787878787", "Summary Gamma", "priority-summary-gamma", "public", {
+      summary: "Priority needle summary gamma.",
+    }),
+    document("88888888-8888-4888-8888-888888888881", "Body Alpha", "priority-body-alpha", "public", {
+      body: "Priority needle body alpha.",
+    }),
+    document("88888888-8888-4888-8888-888888888882", "Body Beta", "priority-body-beta", "public", {
+      body: "Priority needle body beta.",
+    }),
+    document("88888888-8888-4888-8888-888888888883", "Body Gamma", "priority-body-gamma", "public", {
+      body: "Priority needle body gamma.",
+    }),
+    document("88888888-8888-4888-8888-888888888884", "Body Delta", "priority-body-delta", "public", {
+      body: "Priority needle body delta.",
+    }),
+  ];
+  for (const row of priorityRows) db.insertRow("documents", row);
+
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const titleSearch = await requestJson(app, "GET", "/discover/search?q=Public%20Document");
+    assert.equal(titleSearch.status, 200);
+    assert.equal(titleSearch.body.documents.some((row: Row) => row.id === PUBLIC_DOC_ID), true);
+
+    const summarySearch = await requestJson(app, "GET", "/discover/search?q=summary-only%20continuity");
+    assert.deepEqual(summarySearch.body.documents.map((row: Row) => row.id), [PUBLIC_DOC_ID]);
+
+    const bodySearch = await requestJson(app, "GET", "/discover/search?q=body-only%20continuity");
+    assert.equal(bodySearch.status, 200);
+    assert.deepEqual(bodySearch.body.documents.map((row: Row) => row.id), [PUBLIC_DOC_ID]);
+    assert.deepEqual(bodySearch.body.documents[0], {
+      id: PUBLIC_DOC_ID,
+      title: "Public Document",
+      body: "Canonical body-only continuity phrase.",
+      summary: "A summary-only continuity phrase.",
+      document_type: "essay",
+      visibility: "public",
+      provenance_type: "user_authored",
+      discussion_thread_id: PUBLIC_THREAD_ID,
+      space: { slug: "public-space" },
+    });
+
+    const prioritySearch = await requestJson(app, "GET", "/discover/search?q=priority%20needle");
+    assert.equal(prioritySearch.status, 200);
+    assert.deepEqual(
+      prioritySearch.body.documents.map((row: Row) => row.id),
+      priorityRows.slice(0, 8).map((row) => row.id),
+    );
+    assert.equal(
+      prioritySearch.body.documents.filter((row: Row) => row.id === priorityRows[1].id).length,
+      1,
+    );
+
+    const anonymousMemberSearch = await requestJson(app, "GET", "/discover/search?q=eligible%20member%20body");
+    assert.deepEqual(anonymousMemberSearch.body.documents, []);
+
+    const memberSearch = await requestJson(app, "GET", "/discover/search?q=eligible%20member%20body", {
+      token: "member-token",
+    });
+    assert.deepEqual(
+      memberSearch.body.documents.map((row: Row) => row.id),
+      [COMMUNITY_DOC_ID, membersDocument.id],
+    );
+
+    for (const phrase of [
+      "owner private body",
+      "other owner private body",
+      "unlisted body",
+      "draft body",
+      "archived body",
+    ]) {
+      const hiddenSearch = await requestJson(
+        app,
+        "GET",
+        `/discover/search?q=${encodeURIComponent(phrase)}`,
+      );
+      assert.deepEqual(hiddenSearch.body.documents, []);
+      const ownerHiddenSearch = await requestJson(
+        app,
+        "GET",
+        `/discover/search?q=${encodeURIComponent(phrase)}`,
+        { token: "owner-token" },
+      );
+      assert.deepEqual(ownerHiddenSearch.body.documents, []);
+      assert.deepEqual(ownerHiddenSearch.body.privateResults.documents, []);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("featured Discover feed filters to public-safe and community-eligible items", async () => {
   const db = new CommunitySupabase();
   setSupabaseAdminForTests(db.client as any);
