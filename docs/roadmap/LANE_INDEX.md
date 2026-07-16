@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR527F2C | Retained Baseline Read-Only Disposition | MIMIR -> DAEDALUS -> ARGUS -> MIMIR | Accepted: exact target session/refresh cleanup and all schema/residue/semantic checks pass; Auth `last_sign_in_at` and community `updated_at` are the only truthful irreversible failed-run drift. MIMIR may route the complete hardened rerun. | `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md` |
+| PR527F2D | Settings Persistence Evidence-Hardened Hosted Rerun | MIMIR -> ARIADNE -> MIMIR | Open; execute the complete preference/fanout/RLS/refresh/keyboard/theme lifecycle under a locally preflighted external watchdog and durable recovery journal, then prove exact restoration twice. | `docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md` |
 | PR527 programme | UI Product Completeness | MIMIR / A1 | Inventory complete with corrections required; continue numbered boundary, implementation, review, and hosted-rehearsal slices until every required hosted journey passes. | `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE_RESULT.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

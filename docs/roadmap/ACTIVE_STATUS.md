@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2C retained baseline accepted
+## Active lane - PR527F2D evidence-hardened hosted rerun
 
 ```text
 ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -23,8 +23,9 @@ Session cleanup: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.
 Session cleanup result: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS_RESULT.md
 Fresh disposition: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md
 Fresh disposition result: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md
+Hardened rerun: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR opens one complete evidence-hardened PR527F2 rerun from the accepted current hosted baseline
+Next: ARIADNE reruns the complete hosted lifecycle under an external watchdog and durable recovery journal, then wakes MIMIR
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -128,6 +129,15 @@ irrecoverable audit metadata with no Station entitlement, session-validity,
 fanout, moderation, ordering, billing, privacy, migration, or cleanup authority.
 The failed PR527F2 run remains blocked history; MIMIR may now route only the
 complete evidence-hardened rerun.
+
+MIMIR has opened PR527F2D for ARIADNE. Before any hosted write, the temporary
+harness must execute route-callback and process-failure recovery locally. A
+parent watchdog owns an fsynced OS-temp baseline/write journal outside browser
+memory. The complete default/off/suppressed/on/no-backfill/RLS/keyboard/theme
+lifecycle reruns from zero; partial evidence is not reused. Cleanup must remove
+the rerun's exact Auth/product artifacts, restore replay Auth/community fields
+from the durable pre-snapshot, prove the accepted baseline twice in fresh
+processes, and only then delete recovery state.
 
 ## Previous PR527E hosted rehearsal blocker history
 

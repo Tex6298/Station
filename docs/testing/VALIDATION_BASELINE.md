@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2D Evidence-Hardened Hosted Rerun Open
+
+ARGUS accepted the retained baseline after exact session cleanup:
+
+- `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
+```
+
+Failed-run session/refresh artifacts are zero, out-of-scope Auth rows are
+stable, migration/catalog/global/tag/orphan/semantic checks pass, and only Auth
+`last_sign_in_at` plus community `updated_at` remain as truthful non-authority
+audit metadata. Current hosted state is the honest rerun baseline; the failed
+rehearsal itself remains unaccepted.
+
+MIMIR opened:
+
+- `docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md`
+
+Before hosted writes, ARIADNE must execute the route-release and external
+recovery failure matrix locally. A parent watchdog and fsynced OS-temp journal
+must survive browser/child failure, hold the complete pre-snapshot and each
+created artifact, drive exact cleanup/restoration, and be removed only after
+two fresh zero-residue/restoration proofs. The entire hosted product and
+human-eye lifecycle reruns; no partial prior evidence is reused.
+
 ## PR527F2C Retained Hosted Baseline Accepted
 
 ARGUS completed the fresh read-only disposition on 2026-07-16:
