@@ -2,12 +2,12 @@
 
 Owner: DAEDALUS / A2
 
-Date queued: 2026-07-16
+Date opened: 2026-07-16
 
-Status: Queued after PR528D; do not execute concurrently with ARIADNE
+Status: Open after PR528D pass
 
 ```text
-QUEUE_PR528B13_DEDICATED_PROBE_SESSION_HYGIENE_AFTER_PR528D
+OPEN_PR528B13_DEDICATED_PROBE_SESSION_HYGIENE
 ```
 
 ## Purpose
@@ -30,8 +30,8 @@ history must remain.
 
 ## Start Gate
 
-Do not begin until MIMIR sends a fresh `WAKEUP A2:` after PR528D completes.
-Before any write, prove:
+MIMIR has released this lane after PR528D passed and ARIADNE proved her exact
+fresh session absent. Before any write, prove:
 
 - ARIADNE's rehearsal has ended and its exact fresh session is absent;
 - the two target owners are identified only through protected local evidence;

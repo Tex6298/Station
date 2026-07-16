@@ -35,10 +35,10 @@ Public corpus hosted review: docs/roadmap/PR528C8_PUBLIC_PARTNER_CORPUS_HOSTED_R
 Auth sign-out deploy/session cleanup: docs/roadmap/PR528B12_AUTH_SIGNOUT_DEPLOY_AND_SESSION_CLEANUP_DAEDALUS.md
 Auth sign-out/probe audit disposition: docs/roadmap/PR528C9_AUTH_SIGNOUT_AND_PROBE_AUDIT_DISPOSITION_ARGUS.md
 Final partner route rehearsal: docs/roadmap/PR528D_PARTNER_ROUTE_HOSTED_REHEARSAL_ARIADNE.md
-Queued probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGIENE_DAEDALUS.md
+Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGIENE_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE runs the final 44-case human partner rehearsal on exact accepted hosted SHA 67da511f; PR528B13 is queued afterward so global probe-session cleanup cannot interrupt her authenticated browser run
+Next: DAEDALUS executes the now-released PR528B13 exact two-owner probe-session cleanup and durable Auth-read-only verifier guard; ARGUS reviews before PR528 closeout
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -155,6 +155,13 @@ test artifacts but isolated from the partner corpus. PR528D now owns the final
 and deliberately queued until ARIADNE signs out; it will then revoke only the
 two dedicated probe owners' session/refresh state and add the smallest durable
 Auth-read-only verifier guard before PR528 closeout.
+
+PR528D passes all `44/44` Light/Dark desktop/mobile human route cases on exact
+hosted SHA `67da511f`, with zero page, request, HTTP, write, geometry, control,
+theme, or session-cleanup failure. ARIADNE retained four non-blocking accessible
+label/provider-guidance details in PR529 and proved her exact fresh Auth session
+absent after product sign-out. PR528B13 is now released to DAEDALUS for the
+separate two-probe-owner hygiene boundary before ARGUS review and closeout.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
