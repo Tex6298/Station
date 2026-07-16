@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F1 Hosted Schema 084 Applied
+
+DAEDALUS completed the hosted schema/deployment lane on 2026-07-16:
+
+- `docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS_RESULT.md`
+
+```text
+PASS_PR527F1_HOSTED_SCHEMA_084_DEPLOYMENT_ALIGNMENT
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Migration hash | Pass, exact `BB23AB2222AD5F159000F93931842497CE6830BC10C19E676516D13820671263` |
+| Railway web/API deployment | Pass, both `ok:true`, `ready:true`, branch `main`, SHA `e542423bc07a9be77e7ad82f2b5ac6b65af087da` |
+| Locked product-path drift | Pass, empty diff from accepted floor to current local HEAD |
+| Hosted precheck | Pass; no `084` ledger/table, prerequisites present, Watches `0`, notifications `0`, PR527F residue `0` |
+| Hosted apply | Pass; exact migration `084` applied through hosted pooler |
+| Hosted ledger | Pass; exactly one row `20260716010501 / 084_community_notification_preferences` |
+| Hosted catalog/RLS/grants/comments | Pass; exact columns/defaults, FK/PK, updated-at trigger, RLS, three owner policies, no DELETE policy, authenticated SELECT/INSERT/UPDATE only, no anon grant, service-role grants, comments |
+| Hosted row counts | Pass; preferences `0`, Watches `0`, notifications `0`, PR527F residue `0` |
+| Signed-out API | Pass; GET/PATCH `/settings/notifications` return `401` |
+| Replay-owner API | Pass; GET returns `settings.forumReplyNotificationsEnabled: true` and creates no preference row |
+| Temporary tooling cleanup | Pass; temp `pg` install and scripts removed |
+
+This closed the accepted API-before-schema fail-closed inversion. No hosted
+preference, account, profile, thread, comment, notification, Watch, report,
+review request, billing row, OAuth/provider row, external delivery, or other
+hosted product data was created or changed. PR527F hosted product acceptance
+still depends on ARIADNE's PR527F2 disposable lifecycle proof.
+
 ## PR527F Settings Persistence Truth Accepted Locally
 
 ARGUS completed independent review on 2026-07-16:
