@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F hosted lifecycle proof ready for ARIADNE
+## Active lane - PR527F2A cleanup timestamp drift audit
 
 ```text
 PASS_PR527F1_HOSTED_SCHEMA_084_DEPLOYMENT_ALIGNMENT
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -16,8 +16,10 @@ Review result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_ARGUS_RESULT.md
 Hosted schema: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS.md
 Hosted schema result: docs/roadmap/PR527F1_SETTINGS_PERSISTENCE_HOSTED_SCHEMA_DEPLOYMENT_DAEDALUS_RESULT.md
 Hosted lifecycle: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md
+Hosted lifecycle result: docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md
+Cleanup audit: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARIADNE runs the disposable hosted lifecycle and wakes MIMIR
+Next: ARGUS independently audits the sole known retained updated_at drift read-only; no hosted rerun or write before its verdict
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -77,9 +79,18 @@ comments, zero preference rows, signed-out GET/PATCH `401`, and replay-owner
 GET `200` missing-row enabled truth with zero row creation. Temporary hosted
 tooling was removed.
 
-ARIADNE may now create one tagged disposable Visitor to prove on/off fanout,
-refresh, RLS, human-eye Settings states, and exact cleanup/restoration under
-`docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE.md`.
+ARIADNE began that lifecycle and passed its entry/auth/signup/default/first
+reply/notification gates, but a Playwright route callback crashed outside the
+lifecycle promise. Recovery removed the exact disposable identity and tagged
+rows and restored the replay owner's semantic community activity. The original
+pre-run `community_user_profiles.updated_at` was lost with process memory, so
+exact timestamp restoration could not be proved. PR527F2 is blocked as
+`BLOCK_PR527F2_EVIDENCE_HARNESS_CLEANUP_TIMESTAMP_DRIFT`.
+
+MIMIR has opened PR527F2A for an independent zero-write ARGUS disposition. No
+timestamp may be guessed or backdated, and no hosted lifecycle may rerun until
+ARGUS proves whether the monotonic trigger-owned timestamp is the sole retained
+difference and may become the truthful current baseline.
 
 ## Previous PR527E hosted rehearsal blocker history
 

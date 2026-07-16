@@ -4,6 +4,32 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2 Hosted Lifecycle Blocked; Read-Only Audit Open
+
+ARIADNE's first PR527F2 run is recorded at:
+
+- `docs/roadmap/PR527F2_SETTINGS_PERSISTENCE_HOSTED_LIFECYCLE_ARIADNE_RESULT.md`
+
+```text
+BLOCK_PR527F2_EVIDENCE_HARNESS_CLEANUP_TIMESTAMP_DRIFT
+```
+
+Entry, auth, signup, missing-row enabled truth, first eligible comment, one
+recipient notification, and unchanged Watch/moderation counts passed. A local
+Playwright route callback then crashed outside the lifecycle promise before
+normal cleanup. Independent recovery removed the exact tagged rows and Auth
+identity, restored semantic replay activity, and reported zero tagged residue,
+but the terminated process had held the only pre-run copy of the retained
+community profile's `updated_at`.
+
+MIMIR opened a zero-write independent disposition:
+
+- `docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS.md`
+
+No timestamp guess/backdate, hosted rerun, or further product write is allowed
+until ARGUS proves whether the trigger-owned timestamp is the sole retained
+difference and can honestly become the new evidence baseline.
+
 ## PR527F1 Hosted Schema 084 Applied
 
 DAEDALUS completed the hosted schema/deployment lane on 2026-07-16:
