@@ -49,4 +49,3 @@ second-actor community fixture.
 ARIADNE must decide whether any candidate blocks the selected partner routes.
 Fix-now candidates stay in PR528; only non-blocking findings with a complete
 ledger row move here.
-
