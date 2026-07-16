@@ -12,7 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | Theme and document-summary source are accepted; PR528C3 found one real fractional Memory-weight persistence blocker. PR528B5 has implemented the numeric storage/RPC/source contract and is under PR528C4 review, while queued PR528B6 serializes migrations `085`/`086`, exact deployment, and correction of only the three retained rows. Public corpus and private chat remain separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
+| PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS | Theme, summary, and fractional-weight source are accepted. PR528B6 reports migrations `085`/`086`, exact accepted-SHA deployment, and the three ledger-bound corrections complete; PR528C5 is independently binding that hosted run before public corpus authorization. Private chat remains separately blocked. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
 

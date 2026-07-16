@@ -22,10 +22,11 @@ Summary review: docs/roadmap/PR528C2_DOCUMENT_SUMMARY_CONTRACT_REVIEW_ARGUS.md
 Private corpus review: docs/roadmap/PR528C3_PRIVATE_PARTNER_CORPUS_REVIEW_ARGUS.md
 Fractional weight repair: docs/roadmap/PR528B5_FRACTIONAL_MEMORY_WEIGHT_CONTRACT_DAEDALUS.md
 Fractional weight review: docs/roadmap/PR528C4_FRACTIONAL_MEMORY_WEIGHT_REVIEW_ARGUS.md
-Queued schema deploy/correction: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_DEPLOY_AND_CORRECTION_DAEDALUS.md
+Schema deploy/correction result: docs/roadmap/PR528B6_SERIALIZED_PARTNER_SCHEMA_DEPLOY_AND_CORRECTION_DAEDALUS_RESULT.md
+Hosted deploy/correction review: docs/roadmap/PR528C5_SERIALIZED_SCHEMA_DEPLOY_AND_CORRECTION_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS reviews completed PR528B5 migration/RPC/source equivalence; PR528B6 keeps migrations 085/086, deployment, and the exact retained three-row correction serialized behind that acceptance
+Next: ARGUS independently reviews completed PR528B6 migrations 085/086, exact accepted-SHA Railway deployment, and the three ledger-bound retained-row corrections before public corpus authorization
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -51,12 +52,14 @@ PR528C3 must decide the one discovered contract mismatch before acceptance: the
 Memory UI/API expose fractional weights such as `1.25`, while the hosted
 integer column and create service persisted the approved value as `1`.
 
-PR528C3 blocks corpus acceptance only on that precision mismatch. PR528B5 has
-implemented the smallest forward numeric-column/RPC/source repair and is under
-PR528C4 review. PR528B6 is queued to
-apply accepted migrations `085` and `086`, deploy one exact reviewed SHA, and
-correct only the two curated rows and one Archive row recorded in the encrypted
-ledger.
+PR528C3 blocked corpus acceptance only on that precision mismatch. PR528B5
+implemented the smallest forward numeric-column/RPC/source repair and PR528C4
+accepted it. PR528B6 reports both migrations applied and honestly
+ledgered, API/web deployed on exact SHA `c13d8ea0`, deployment readiness green,
+and the three retained rows corrected to `1.25`, `1.25`, and `1.5`. PR528C5
+must bind that run independently because the completed DAEDALUS result was
+staged and then captured by MIMIR continuation commit `2bd58edb` before A2's
+normal handoff commit.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
