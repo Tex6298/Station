@@ -20,6 +20,16 @@ process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 
 type Row = Record<string, any>;
 
+type QueryLogEntry = {
+  table: string;
+  operation: "select" | "insert" | "update" | "delete";
+  columns: string | null;
+  filters: Array<[string, unknown]>;
+  ilikeFilters: Array<[string, string]>;
+  order: { field: string; ascending: boolean } | null;
+  limit: number | null;
+};
+
 const OWNER_ID = "11111111-1111-4111-8111-111111111111";
 const MEMBER_ID = "22222222-2222-4222-8222-222222222222";
 const OTHER_ID = "33333333-3333-4333-8333-333333333333";
@@ -179,6 +189,7 @@ test("migration 085 adds only the bounded nullable document summary contract", (
 
 class CommunitySupabase {
   rpcWithoutCatch = false;
+  queryLog: QueryLogEntry[] = [];
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -818,6 +829,15 @@ class QueryBuilder {
 
   private async execute(mode?: "single" | "maybeSingle") {
     let rows: Row[];
+    this.db.queryLog.push({
+      table: this.table,
+      operation: this.operation,
+      columns: this.columns,
+      filters: clone(this.filters),
+      ilikeFilters: clone(this.ilikeFilters),
+      order: this.orderSpec ? { ...this.orderSpec } : null,
+      limit: this.limitCount,
+    });
     const forcedFailure = this.db.consumeFailure(this.table, this.operation);
     if (forcedFailure) return { data: null, error: { message: forcedFailure.message }, count: null };
 
@@ -4508,9 +4528,12 @@ test("document summaries stay bounded, public-safe, excerpt-aware, and restorabl
 
 test("Discover document search prioritizes and deduplicates public title, summary, and body matches", async () => {
   const db = new CommunitySupabase();
+  const privateBridgePhrase = "Owner's private bridge, phase (v2)+alpha.";
+  const publicDocumentSearchSelect =
+    "id, title, body, summary, document_type, visibility, provenance_type, discussion_thread_id, space:spaces!space_id(slug)";
   const publicDocument = db.rows("documents").find((row) => row.id === PUBLIC_DOC_ID)!;
   publicDocument.summary = "A summary-only continuity phrase.";
-  publicDocument.body = "Canonical body-only continuity phrase.";
+  publicDocument.body = `Canonical body-only continuity phrase. ${privateBridgePhrase}`;
   publicDocument.discussion_thread_id = PUBLIC_THREAD_ID;
 
   const communityDocument = db.rows("documents").find((row) => row.id === COMMUNITY_DOC_ID)!;
@@ -4524,7 +4547,8 @@ test("Discover document search prioritizes and deduplicates public title, summar
   ));
 
   const privateDocument = db.rows("documents").find((row) => row.id === PRIVATE_DOC_ID)!;
-  privateDocument.body = "Owner private body phrase.";
+  privateDocument.summary = privateBridgePhrase;
+  privateDocument.body = `Owner private body phrase. ${privateBridgePhrase}`;
   const otherPrivateDocument = db.rows("documents").find((row) => row.id === OTHER_PRIVATE_DOC_ID)!;
   otherPrivateDocument.body = "Other owner private body phrase.";
   const unlistedDocument = db.rows("documents").find((row) => row.id === UNLISTED_DOC_ID)!;
@@ -4575,13 +4599,40 @@ test("Discover document search prioritizes and deduplicates public title, summar
   ];
   for (const row of priorityRows) db.insertRow("documents", row);
 
+  db.rows("continuity_records").find((row) => row.id === "continuity-owner")!.summary = privateBridgePhrase;
+  db.rows("memory_items").find((row) => row.id === "memory-owner")!.summary = privateBridgePhrase;
+  db.rows("canon_items").find((row) => row.id === "canon-owner")!.content = privateBridgePhrase;
+  db.rows("persona_files").find((row) => row.id === "file-owner")!.content_text = privateBridgePhrase;
+  db.rows("import_jobs").find((row) => row.id === "import-owner")!.error_message = privateBridgePhrase;
+  db.rows("archived_chat_transcripts").find((row) => row.id === "chat-owner")!.source_summary = privateBridgePhrase;
+
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
 
   try {
+    db.queryLog.length = 0;
     const titleSearch = await requestJson(app, "GET", "/discover/search?q=Public%20Document");
     assert.equal(titleSearch.status, 200);
     assert.equal(titleSearch.body.documents.some((row: Row) => row.id === PUBLIC_DOC_ID), true);
+    const anonymousDocumentQueries = db.queryLog.filter(
+      (entry) => entry.table === "documents" && entry.operation === "select" && entry.ilikeFilters.length === 1,
+    );
+    assert.deepEqual(
+      anonymousDocumentQueries.map((entry) => ({
+        columns: entry.columns,
+        filters: entry.filters,
+        ilikeFilters: entry.ilikeFilters,
+        order: entry.order,
+        limit: entry.limit,
+      })),
+      ["title", "summary", "body"].map((field) => ({
+        columns: publicDocumentSearchSelect,
+        filters: [["status", "published"], ["visibility", "public"]],
+        ilikeFilters: [[field, "%Public Document%"]],
+        order: null,
+        limit: 8,
+      })),
+    );
 
     const summarySearch = await requestJson(app, "GET", "/discover/search?q=summary-only%20continuity");
     assert.deepEqual(summarySearch.body.documents.map((row: Row) => row.id), [PUBLIC_DOC_ID]);
@@ -4592,7 +4643,7 @@ test("Discover document search prioritizes and deduplicates public title, summar
     assert.deepEqual(bodySearch.body.documents[0], {
       id: PUBLIC_DOC_ID,
       title: "Public Document",
-      body: "Canonical body-only continuity phrase.",
+      body: publicDocument.body,
       summary: "A summary-only continuity phrase.",
       document_type: "essay",
       visibility: "public",
@@ -4615,6 +4666,7 @@ test("Discover document search prioritizes and deduplicates public title, summar
     const anonymousMemberSearch = await requestJson(app, "GET", "/discover/search?q=eligible%20member%20body");
     assert.deepEqual(anonymousMemberSearch.body.documents, []);
 
+    db.queryLog.length = 0;
     const memberSearch = await requestJson(app, "GET", "/discover/search?q=eligible%20member%20body", {
       token: "member-token",
     });
@@ -4622,6 +4674,86 @@ test("Discover document search prioritizes and deduplicates public title, summar
       memberSearch.body.documents.map((row: Row) => row.id),
       [COMMUNITY_DOC_ID, membersDocument.id],
     );
+    const memberDocumentQueries = db.queryLog.filter(
+      (entry) => entry.table === "documents" && entry.operation === "select" && entry.ilikeFilters.length === 1,
+    );
+    assert.equal(memberDocumentQueries.length, 10);
+    const memberPublicDocumentQueries = memberDocumentQueries.filter((entry) =>
+      entry.filters.some(([field, value]) => field === "status" && value === "published"),
+    );
+    assert.deepEqual(
+      memberPublicDocumentQueries.map((entry) => ({
+        field: entry.ilikeFilters[0]?.[0],
+        pattern: entry.ilikeFilters[0]?.[1],
+        visibility: entry.filters.find(([field]) => field === "visibility")?.[1],
+        filters: entry.filters,
+        columns: entry.columns,
+        limit: entry.limit,
+      })),
+      ["title", "summary", "body"].flatMap((field) =>
+        ["public", "community", "members"].map((visibility) => ({
+          field,
+          pattern: "%eligible member body%",
+          visibility,
+          filters: [["status", "published"], ["visibility", visibility]],
+          columns: publicDocumentSearchSelect,
+          limit: 8,
+        })),
+      ),
+    );
+    const memberPrivateDocumentQueries = memberDocumentQueries.filter((entry) =>
+      entry.filters.some(([field]) => field === "author_user_id"),
+    );
+    assert.deepEqual(memberPrivateDocumentQueries.map((entry) => ({
+      filters: entry.filters,
+      ilikeFilters: entry.ilikeFilters,
+      columns: entry.columns,
+      order: entry.order,
+      limit: entry.limit,
+    })), [{
+      filters: [["author_user_id", MEMBER_ID]],
+      ilikeFilters: [["title", "%eligible member body%"]],
+      columns: "id, title, slug, document_type, status, visibility, persona_id, space_id, updated_at",
+      order: { field: "updated_at", ascending: false },
+      limit: 8,
+    }]);
+
+    db.queryLog.length = 0;
+    const privateBridgeSearch = await requestJson(
+      app,
+      "GET",
+      `/discover/search?q=${encodeURIComponent(privateBridgePhrase)}`,
+      { token: "owner-token" },
+    );
+    assert.deepEqual(privateBridgeSearch.body.documents.map((row: Row) => row.id), [PUBLIC_DOC_ID]);
+    assert.deepEqual(privateBridgeSearch.body.privateResults, {
+      documents: [],
+      continuityRecords: [],
+      memoryItems: [],
+      canonItems: [],
+      archiveFiles: [],
+      importJobs: [],
+      archivedChats: [],
+    });
+    const ownerPrivateQueries = db.queryLog.filter((entry) =>
+      entry.filters.some(([field, value]) =>
+        (field === "author_user_id" || field === "owner_user_id") && value === OWNER_ID
+      ),
+    );
+    assert.deepEqual(ownerPrivateQueries.map((entry) => ({
+      table: entry.table,
+      filters: entry.filters,
+      ilikeFilters: entry.ilikeFilters,
+      limit: entry.limit,
+    })), [
+      { table: "documents", filters: [["author_user_id", OWNER_ID]], ilikeFilters: [["title", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "continuity_records", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["title", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "memory_items", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["title", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "canon_items", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["title", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "persona_files", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["file_name", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "import_jobs", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["source_name", `%${privateBridgePhrase}%`]], limit: 8 },
+      { table: "archived_chat_transcripts", filters: [["owner_user_id", OWNER_ID]], ilikeFilters: [["title", `%${privateBridgePhrase}%`]], limit: 8 },
+    ]);
 
     for (const phrase of [
       "owner private body",
