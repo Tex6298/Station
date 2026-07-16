@@ -4,10 +4,10 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2C retained baseline disposition ready for ARGUS
+## Active lane - PR527F2C retained baseline accepted
 
 ```text
-PASS_PR527F2B_EXACT_REPLAY_SESSION_REFRESH_CLEANUP
+ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
 Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
@@ -22,8 +22,9 @@ Cleanup audit result: docs/roadmap/PR527F2A_CLEANUP_TIMESTAMP_DRIFT_AUDIT_ARGUS_
 Session cleanup: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS.md
 Session cleanup result: docs/roadmap/PR527F2B_RETAINED_REPLAY_SESSION_CLEANUP_DAEDALUS_RESULT.md
 Fresh disposition: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS.md
+Fresh disposition result: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARGUS re-audits the retained baseline read-only and wakes MIMIR with disposition
+Next: MIMIR opens one complete evidence-hardened PR527F2 rerun from the accepted current hosted baseline
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -111,7 +112,22 @@ sessions `0`, linked refresh rows `0`, cleanup-window unrevoked refresh rows
 identity, ordinary Profile, and community profile unchanged, preferences
 `0`, Watches `0`, notifications `0`, and PR527F/PR527F2 residue `0`. Auth
 `last_sign_in_at` and community `updated_at` remain untouched audit history.
-ARGUS now owns the read-only PR527F2C disposition.
+ARGUS accepts the current retained baseline as
+`ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS`.
+Fresh read-only proof finds the failed-run session, linked refresh rows, and
+active pair at `0`; out-of-scope session/refresh rows show zero cleanup-window
+touch and stable non-secret shapes across two transactions. Deployment,
+migration, ledger, catalog, global zero rows, tagged/orphan cleanup, and replay
+community semantics all remain exact.
+
+Catalog-driven inventory finds exactly two owner timestamps in the failed-run
+window: Auth `last_sign_in_at` from ordinary password sign-in and community
+profile `updated_at` from the first comment. Auth identity/Profile timestamps
+and owner-linked Auth audit rows are absent. Both values are monotonic,
+irrecoverable audit metadata with no Station entitlement, session-validity,
+fanout, moderation, ordering, billing, privacy, migration, or cleanup authority.
+The failed PR527F2 run remains blocked history; MIMIR may now route only the
+complete evidence-hardened rerun.
 
 ## Previous PR527E hosted rehearsal blocker history
 

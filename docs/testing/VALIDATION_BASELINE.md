@@ -4,6 +4,43 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR527F2C Retained Hosted Baseline Accepted
+
+ARGUS completed the fresh read-only disposition on 2026-07-16:
+
+- `docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISPOSITION_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Hosted web/API deployment | Pass; both `200`, healthy/ready, `main`, exact accepted runtime `e542423bc07a...` |
+| Migration hash, drift, ledger, catalog | Pass; exact `084` hash, locked drift `0`, one ledger row, exact columns/PK/FK/trigger/RLS/policies/grants |
+| Failed-run Auth target | Pass; sessions `0`, refresh rows `0`, active linked pairs `0` |
+| Out-of-scope Auth rows | Pass; zero cleanup-window touches and equal non-secret row shapes across two fresh snapshots |
+| Product baseline | Pass; preferences `0`, Watches `0`, notifications `0` |
+| Tagged/orphan residue | Pass; tag residue `0` across `14` tables and orphan residue `0` across `6` checks |
+| Replay community semantics | Pass; identity/creation, nonnegative fields, reputation/trust, helpful/report, mute, and classified activity counters |
+| Failed-run timestamp inventory | Pass; only Auth `last_sign_in_at` and community-profile `updated_at`; no identity/Profile timestamp or owner-linked Auth audit row |
+| Timestamp source/catalog effects | Pass; monotonic, bounded, untouched by cleanup, no Station authority; one non-semantic Auth btree index recorded honestly |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `54/54` |
+| Transaction/temp cleanup | Pass; every hosted transaction `READ ONLY` and rolled back; temporary script/package removed |
+
+The two exact prior timestamp values were never durably captured and cannot be
+reconstructed without guessing. Current values are accepted as truthful audit
+metadata only: Station does not use them for entitlement, session validity,
+fanout, moderation, ordering, billing, privacy, migration, or cleanup. The
+failed PR527F2 rehearsal is not accepted. MIMIR may open one complete hardened
+rerun with local route-callback preflight, external cleanup ownership, durable
+OS-temp snapshot/journal, independent recovery, exact retained restoration,
+explicit Auth-session accounting, full lifecycle proof, and delayed temp-state
+deletion after fresh zero-residue proof.
+
 ## PR527F2B Retained Replay Session Cleanup Passed
 
 DAEDALUS completed the exact hosted Auth cleanup on 2026-07-16:
