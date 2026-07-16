@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2E direct RLS durable evidence rerun
+## Active lane - PR527F2E direct RLS durable evidence ready for MIMIR
 
 ```text
-ACCEPT_PR527F2C_RETAINED_BASELINE_WITH_TRUTHFUL_IRREVERSIBLE_AUDIT_TIMESTAMPS
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR
+PASS_PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -26,8 +26,10 @@ Fresh disposition result: docs/roadmap/PR527F2C_RETAINED_BASELINE_READ_ONLY_DISP
 Hardened rerun: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE.md
 Hardened rerun result: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDENED_RERUN_ARIADNE_RESULT.md
 RLS evidence rerun: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md
+RLS evidence takeover: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER.md
+RLS evidence result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: ARIADNE reruns only the missing direct-RLS matrix with each status fsynced, then restores the accepted baseline and wakes MIMIR
+Next: MIMIR combines PR527F2D and PR527F2E evidence and keeps the next product lane moving
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -156,6 +158,17 @@ cross-owner read/write, and anonymous read/write in order, accepts anonymous
 external watchdog. No comment, notification, or full hosted product lifecycle
 repeats. A fully intercepted zero-hosted-write browser pass durably closes the
 late consolidated-browser evidence object before the RLS writes begin.
+
+ARIADNE completed the zero-hosted-write local failure/browser gate and MIMIR
+transferred the remaining hosted-only proof to DAEDALUS. DAEDALUS validated
+that local gate, proved the accepted hosted baseline and zero PR527F2E residue,
+created one disposable false preference row, and durably journaled the ordered
+direct-RLS matrix: owner read `200`/one row, replay-owner cross-owner read
+`200`/zero rows, replay-owner cross-owner write `200`/zero rows, anonymous
+read `401`, and anonymous write `401`. The disposable preference remained
+false after every hostile request. Parent cleanup, independent recovery, and a
+fresh proof all restored preferences, Watches, notifications, tag residue, and
+orphan residue to zero with retained baseline exact.
 
 ## Previous PR527E hosted rehearsal blocker history
 

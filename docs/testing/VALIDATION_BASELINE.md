@@ -4,7 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527F2E Direct RLS Evidence Rerun Open
+## PR527F2E Direct RLS Evidence Rerun Passed
+
+DAEDALUS completed the transferred hosted-only proof on 2026-07-16:
+
+- `docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER_RESULT.md`
+
+```text
+PASS_PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| ARIADNE local gate reuse | Pass; `5` forced failure cases, `5` parent cleanups, `10` independent recoveries, `20` browser checkpoints, `22` browser journal writes, `6` browser matrix cases, zero hosted reachability |
+| Hosted read-only preflight | Pass; exact accepted runtime, migration hash, one ledger row, preferences `0`, Watches `0`, notifications `0`, tag residue `0`, orphans `0` |
+| Hosted signup/preference setup | Pass; disposable signup `201`, one preference PATCH `200`, one false owner row |
+| Replay-owner sign-in accounting | Pass; one temporary replay session and one linked refresh row journaled and later removed |
+| Ordered direct-RLS statuses | Pass; owner read `200`, cross-owner read `200`, cross-owner write `200`, anonymous read `401`, anonymous write `401` |
+| Direct-RLS row safety | Pass; returned rows `1,0,0,0,0`; authoritative row count stayed `1`; authoritative value stayed `false` after every hostile request |
+| Parent cleanup | Pass; disposable Auth user deleted, replay session/refresh deleted, Auth audit restored, preferences/Watches/notifications `0` |
+| Independent recovery | Pass; exact deployment, migration, ledger, catalog, aggregate, retained owner, tag residue, orphan, and disposable-residue proof |
+| Fresh restoration proof | Pass; same exact proof shape in a separate fresh process |
+| Temporary-state deletion | Pass; hosted runner reported local/hosted recovery state deleted; remaining untracked `.tmp` harness files removed after sanitized documentation |
+
+No product lifecycle rerun, comment, notification, Watch, schema, source,
+configuration, deployment, retained community row, external delivery, or
+unrelated product path was changed.
+
+## PR527F2E Prior Direct RLS Blocker Context
 
 ARIADNE's complete hardened product/browser run is recorded at:
 
