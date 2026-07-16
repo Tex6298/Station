@@ -562,6 +562,7 @@ class CommunitySupabase {
       row.comment_count ??= 0;
       row.is_pinned ??= false;
       row.is_hidden ??= false;
+      row.moderation_state ??= "normal";
       row.reported_count ??= 0;
       row.created_at ??= now;
       row.updated_at ??= now;

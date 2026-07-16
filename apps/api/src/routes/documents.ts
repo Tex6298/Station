@@ -95,6 +95,14 @@ const LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT =
   `id, title, body, status, visibility, comment_count, category_id, linked_document_id, linked_persona_id,
    is_pinned, is_hidden, reported_count, created_at,
    category:forum_categories!category_id(id, slug, title)`;
+const DOCUMENT_DISCUSSION_SYNCHRONIZATION_THREAD_SELECT =
+  `${DOCUMENT_DISCUSSION_THREAD_SELECT}, author_user_id, moderation_state`;
+const LEGACY_DOCUMENT_DISCUSSION_SYNCHRONIZATION_THREAD_SELECT =
+  `${LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT}, author_user_id, moderation_state`;
+const DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT =
+  `${DOCUMENT_DISCUSSION_THREAD_SELECT}, author_user_id, moderation_state`;
+const LEGACY_DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT =
+  `${LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT}, author_user_id, moderation_state`;
 const PROVENANCE_LABELS: Record<string, string> = {
   user_authored: "User-authored",
   ai_assisted: "AI-assisted",
@@ -365,22 +373,38 @@ async function ensureDocumentDiscussion(document: any) {
   const sb = getSupabaseAdmin();
   const desiredVisibility = discussionVisibilityForDocument(document.visibility);
   if (document.discussion_thread_id) {
-    const { data: existing } = await loadDiscussionThreadById(document.discussion_thread_id);
-    if (existing) {
-      if (existing.visibility !== desiredVisibility || existing.is_hidden || existing.status === "removed") {
-        const { data: updated } = await sb
+    const { data: existing } = await loadDiscussionThreadForSynchronizationById(document.discussion_thread_id);
+    if (
+      existing?.linked_document_id === document.id &&
+      existing.author_user_id === document.author_user_id
+    ) {
+      const moderationState = existing.moderation_state ?? "normal";
+      if (existing.status === "removed" || moderationState === "hidden" || moderationState === "removed") {
+        return null;
+      }
+      if (existing.visibility !== desiredVisibility || existing.is_hidden) {
+        const { data: updated } = await (sb as any)
           .from("threads")
           .update({
             visibility: desiredVisibility,
-            status: existing.status === "removed" || existing.is_hidden ? "active" : existing.status,
+            status: existing.is_hidden ? "active" : existing.status,
             is_hidden: false,
           })
           .eq("id", existing.id)
+          .eq("linked_document_id", document.id)
+          .eq("author_user_id", document.author_user_id)
+          .in("status", ["active", "locked"])
+          .in("moderation_state", ["normal", "needs_review"])
           .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
           .single();
-        return serializeDocumentDiscussionThread(updated ?? existing, document);
+        return updated ? serializeDocumentDiscussionThread(updated, document) : null;
       }
-      return serializeDocumentDiscussionThread(existing, document);
+      const {
+        author_user_id: _authorUserId,
+        moderation_state: _moderationState,
+        ...serializedExisting
+      } = existing;
+      return serializeDocumentDiscussionThread(serializedExisting, document);
     }
   }
 
@@ -436,25 +460,27 @@ async function ensureDocumentDiscussion(document: any) {
 
 async function loadLinkedDocumentDiscussion(document: any) {
   const sb = getSupabaseAdmin();
-  const result = await sb
+  const result = await (sb as any)
     .from("threads")
     .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
     .eq("linked_document_id", document.id)
     .eq("status", "active")
     .eq("visibility", discussionVisibilityForDocument(document.visibility))
     .eq("is_hidden", false)
+    .in("moderation_state", ["normal", "needs_review"])
     .order("created_at", { ascending: false })
     .limit(1);
 
   if (!isMissingThreadAuthorshipSchemaError(result.error)) return result.data?.[0] ?? null;
 
-  const legacy = await sb
+  const legacy = await (sb as any)
     .from("threads")
     .select(LEGACY_DOCUMENT_DISCUSSION_THREAD_SELECT)
     .eq("linked_document_id", document.id)
     .eq("status", "active")
     .eq("visibility", discussionVisibilityForDocument(document.visibility))
     .eq("is_hidden", false)
+    .in("moderation_state", ["normal", "needs_review"])
     .order("created_at", { ascending: false })
     .limit(1);
 
@@ -483,13 +509,93 @@ async function loadDiscussionThreadById(threadId: string) {
   };
 }
 
+async function loadDiscussionThreadForSynchronizationById(threadId: string) {
+  const sb = getSupabaseAdmin();
+  const result = await sb
+    .from("threads")
+    .select(DOCUMENT_DISCUSSION_SYNCHRONIZATION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result;
+
+  const legacy = await sb
+    .from("threads")
+    .select(LEGACY_DOCUMENT_DISCUSSION_SYNCHRONIZATION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  return {
+    ...legacy,
+    data: legacy.data ? withLegacyThreadAuthorship(legacy.data) : null,
+  };
+}
+
+function isCustomizableDocumentDiscussion(thread: any, document: any) {
+  const moderationState = thread?.moderation_state ?? "normal";
+  return (
+    thread?.linked_document_id === document.id &&
+    thread.author_user_id === document.author_user_id &&
+    thread.visibility === discussionVisibilityForDocument(document.visibility) &&
+    (thread.status === "active" || thread.status === "locked") &&
+    thread.is_hidden === false &&
+    (moderationState === "normal" || moderationState === "needs_review")
+  );
+}
+
+async function loadDiscussionThreadForCustomizationById(threadId: string) {
+  const sb = getSupabaseAdmin();
+  const result = await sb
+    .from("threads")
+    .select(DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result;
+
+  const legacy = await sb
+    .from("threads")
+    .select(LEGACY_DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT)
+    .eq("id", threadId)
+    .single();
+
+  return {
+    ...legacy,
+    data: legacy.data ? withLegacyThreadAuthorship(legacy.data) : null,
+  };
+}
+
+async function loadLinkedDocumentDiscussionsForCustomization(document: any) {
+  const sb = getSupabaseAdmin();
+  const buildQuery = (select: string) => (sb as any)
+    .from("threads")
+    .select(select)
+    .eq("linked_document_id", document.id)
+    .eq("author_user_id", document.author_user_id)
+    .in("status", ["active", "locked"])
+    .eq("visibility", discussionVisibilityForDocument(document.visibility))
+    .eq("is_hidden", false)
+    .in("moderation_state", ["normal", "needs_review"])
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const result = await buildQuery(DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT);
+  if (!isMissingThreadAuthorshipSchemaError(result.error)) return result.data ?? [];
+
+  const legacy = await buildQuery(LEGACY_DOCUMENT_DISCUSSION_CUSTOMIZATION_THREAD_SELECT);
+  return (legacy.data ?? []).map(withLegacyThreadAuthorship);
+}
+
 async function resolveExistingDocumentDiscussion(document: any) {
   if (document.discussion_thread_id) {
-    const { data } = await loadDiscussionThreadById(document.discussion_thread_id);
-    if (data?.linked_document_id === document.id) return data;
+    const { data } = await loadDiscussionThreadForCustomizationById(document.discussion_thread_id);
+    if (data?.linked_document_id === document.id) {
+      return isCustomizableDocumentDiscussion(data, document) ? data : null;
+    }
   }
 
-  return loadLinkedDocumentDiscussion(document);
+  const linked = await loadLinkedDocumentDiscussionsForCustomization(document);
+  return linked.find((thread: any) => isCustomizableDocumentDiscussion(thread, document)) ?? null;
 }
 
 function withLegacyThreadAuthorship(row: any) {
@@ -520,10 +626,15 @@ async function syncExistingDiscussion(document: any) {
 
   const sb = getSupabaseAdmin();
   if (!canHaveDiscussion(document)) {
-    await sb
+    await (sb as any)
       .from("threads")
       .update({ status: "locked", is_hidden: true })
-      .eq("id", document.discussion_thread_id);
+      .eq("id", document.discussion_thread_id)
+      .eq("linked_document_id", document.id)
+      .eq("author_user_id", document.author_user_id)
+      .in("status", ["active", "locked"])
+      .eq("is_hidden", false)
+      .in("moderation_state", ["normal", "needs_review"]);
     return null;
   }
 
@@ -782,7 +893,7 @@ documentsRouter.get("/:id/discussion", optionalAuth, async (req, res) => {
   let thread = null;
   if (document.discussion_thread_id) {
     const { data } = await loadDiscussionThreadById(document.discussion_thread_id);
-    thread = data ?? null;
+    thread = data?.linked_document_id === document.id ? data : null;
   }
 
   if (!thread || !canReadThread(thread, req.user)) {
@@ -853,11 +964,17 @@ documentsRouter.patch("/:id/discussion", requireAuth, requireTier("private"), as
   if (parsed.data.title !== undefined) update.title = parsed.data.title;
   if (parsed.data.body !== undefined) update.body = parsed.data.body;
 
-  const { data: updated, error: updateError } = await sb
+  const { data: updated, error: updateError } = await (sb as any)
     .from("threads")
     .update(update)
     .eq("id", thread.id)
     .eq("linked_document_id", document.id)
+    .eq("author_user_id", document.author_user_id)
+    .eq("category_id", thread.category_id)
+    .eq("visibility", discussionVisibilityForDocument(document.visibility))
+    .in("status", ["active", "locked"])
+    .eq("is_hidden", false)
+    .in("moderation_state", ["normal", "needs_review"])
     .select(DOCUMENT_DISCUSSION_THREAD_SELECT)
     .single();
 

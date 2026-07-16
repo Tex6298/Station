@@ -240,6 +240,7 @@ class InMemorySupabase {
       row.comment_count ??= 0;
       row.is_pinned ??= false;
       row.is_hidden ??= false;
+      row.moderation_state ??= "normal";
       row.reported_count ??= 0;
       row.created_at ??= now;
       row.updated_at ??= now;
@@ -841,7 +842,7 @@ test("owner customizes one helper-created document discussion without linkage or
     const stored = db.rows("threads").find((row) => row.id === threadId)!;
     Object.assign(stored, {
       status: "locked",
-      moderation_state: "reviewing",
+      moderation_state: "needs_review",
       score: 7,
       comment_count: 3,
       vote_count: 4,
@@ -969,11 +970,150 @@ test("document discussion customization is owner or admin only and recovers an u
   }
 });
 
+test("a forged cross-document pointer falls back only to the eligible owner-authored discussion", async () => {
+  const db = new InMemorySupabase();
+  const { document, thread: linkedThread } = seedDocumentDiscussion(db, PUBLIC_DOC_ID, { pointDocument: false });
+  const { thread: unrelatedThread } = seedDocumentDiscussion(db, COMMUNITY_DOC_ID);
+  const unrelatedBefore = clone(unrelatedThread);
+  document.discussion_thread_id = unrelatedThread.id;
+  setSupabaseAdminForTests(db.client as any);
+  const app = await createDiscussionApp();
+
+  try {
+    const customized = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+      body: {
+        title: "Recovered canonical discussion",
+        body: "Only the owner-authored thread linked to this document may change.",
+      },
+    });
+    assert.equal(customized.status, 200);
+    assert.equal(customized.body.discussion.id, linkedThread.id);
+    assert.equal(linkedThread.title, "Recovered canonical discussion");
+    assert.equal(linkedThread.body, "Only the owner-authored thread linked to this document may change.");
+    assert.deepEqual(unrelatedThread, unrelatedBefore);
+    assert.equal(document.discussion_thread_id, unrelatedThread.id);
+    assert.equal(db.rows("threads").length, 2);
+
+    const discussionRead = await requestJson(app, "GET", `/documents/${PUBLIC_DOC_ID}/discussion`);
+    assert.equal(discussionRead.status, 200);
+    assert.equal(discussionRead.body.discussion.id, linkedThread.id);
+    assert.equal(discussionRead.body.discussion.title, "Recovered canonical discussion");
+
+    const threadRead = await requestJson(app, "GET", `/threads/${linkedThread.id}`);
+    assert.equal(threadRead.status, 200);
+    assert.equal(threadRead.body.thread.title, "Recovered canonical discussion");
+    assert.deepEqual(unrelatedThread, unrelatedBefore);
+
+    const recovered = await requestJson(app, "POST", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+    });
+    assert.equal(recovered.status, 200);
+    assert.equal(recovered.body.discussion.id, linkedThread.id);
+    assert.equal(document.discussion_thread_id, linkedThread.id);
+    assert.equal(db.rows("threads").length, 2);
+    assert.deepEqual(unrelatedThread, unrelatedBefore);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("moderation-restricted and cross-owner discussions cannot be mutated through document helpers", async () => {
+  const hiddenDb = new InMemorySupabase();
+  const { thread: hiddenThread } = seedDocumentDiscussion(hiddenDb, PUBLIC_DOC_ID, {
+    thread: { is_hidden: true, moderation_state: "hidden" },
+  });
+  const hiddenBefore = clone(hiddenThread);
+  setSupabaseAdminForTests(hiddenDb.client as any);
+  const hiddenApp = await createDiscussionApp();
+
+  try {
+    const started = await requestJson(hiddenApp, "POST", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "owner-token",
+    });
+    assert.equal(started.status, 500);
+    assert.deepEqual(started.body, {
+      error: "Could not create discussion thread.",
+      code: "document_discussion_create_failed",
+    });
+    assert.deepEqual(hiddenThread, hiddenBefore);
+
+    const disabled = await requestJson(hiddenApp, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { commentsEnabled: false },
+    });
+    assert.equal(disabled.status, 200);
+    assert.equal(disabled.body.discussion, null);
+    assert.deepEqual(hiddenThread, hiddenBefore);
+
+    const enabled = await requestJson(hiddenApp, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { commentsEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.discussion, null);
+    assert.deepEqual(hiddenThread, hiddenBefore);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const removedDb = new InMemorySupabase();
+  const { thread: removedThread } = seedDocumentDiscussion(removedDb, PUBLIC_DOC_ID, {
+    thread: { status: "removed", moderation_state: "removed" },
+  });
+  const removedBefore = clone(removedThread);
+  setSupabaseAdminForTests(removedDb.client as any);
+  const removedApp = await createDiscussionApp();
+
+  try {
+    const started = await requestJson(removedApp, "POST", `/documents/${PUBLIC_DOC_ID}/discussion`, {
+      token: "admin-token",
+    });
+    assert.equal(started.status, 500);
+    assert.deepEqual(started.body, {
+      error: "Could not create discussion thread.",
+      code: "document_discussion_create_failed",
+    });
+    assert.deepEqual(removedThread, removedBefore);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+
+  const crossOwnerDb = new InMemorySupabase();
+  const { thread: crossOwnerThread } = seedDocumentDiscussion(crossOwnerDb, PUBLIC_DOC_ID, {
+    thread: { author_user_id: MEMBER_ID },
+  });
+  const crossOwnerBefore = clone(crossOwnerThread);
+  setSupabaseAdminForTests(crossOwnerDb.client as any);
+  const crossOwnerApp = await createDiscussionApp();
+
+  try {
+    const disabled = await requestJson(crossOwnerApp, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { commentsEnabled: false },
+    });
+    assert.equal(disabled.status, 200);
+    assert.equal(disabled.body.discussion, null);
+    assert.deepEqual(crossOwnerThread, crossOwnerBefore);
+
+    const enabled = await requestJson(crossOwnerApp, "PATCH", `/documents/${PUBLIC_DOC_ID}`, {
+      token: "owner-token",
+      body: { commentsEnabled: true },
+    });
+    assert.equal(enabled.status, 200);
+    assert.equal(enabled.body.discussion.id, crossOwnerThread.id);
+    assert.deepEqual(crossOwnerThread, crossOwnerBefore);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
 test("document discussion customization fails closed for ineligible, missing, and malformed targets", async () => {
   async function expectFailClosed(
     configure: (db: InMemorySupabase) => void,
     body: unknown,
     expectedStatus: number,
+    token = "owner-token",
   ) {
     const db = new InMemorySupabase();
     configure(db);
@@ -983,7 +1123,7 @@ test("document discussion customization fails closed for ineligible, missing, an
 
     try {
       const response = await requestJson(app, "PATCH", `/documents/${PUBLIC_DOC_ID}/discussion`, {
-        token: "owner-token",
+        token,
         body,
       });
       assert.equal(response.status, expectedStatus);
@@ -1025,6 +1165,54 @@ test("document discussion customization fails closed for ineligible, missing, an
       document.discussion_thread_id = unrelated.id;
     },
     { title: "Cross-document pointer edit" },
+    404,
+  );
+
+  await expectFailClosed(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID, { thread: { author_user_id: MEMBER_ID } });
+    },
+    { title: "Cross-owner thread edit" },
+    404,
+  );
+
+  await expectFailClosed(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID, { thread: { author_user_id: MEMBER_ID } });
+    },
+    { title: "Admin cross-owner thread edit" },
+    404,
+    "admin-token",
+  );
+
+  await expectFailClosed(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID, {
+        thread: { is_hidden: true, moderation_state: "hidden" },
+      });
+    },
+    { body: "Hidden thread edit" },
+    404,
+  );
+
+  await expectFailClosed(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID, {
+        thread: { status: "removed", moderation_state: "removed" },
+      });
+    },
+    { body: "Removed thread edit" },
+    404,
+    "admin-token",
+  );
+
+  await expectFailClosed(
+    (db) => {
+      seedDocumentDiscussion(db, PUBLIC_DOC_ID, {
+        thread: { moderation_state: "hidden" },
+      });
+    },
+    { title: "Moderation-state bypass" },
     404,
   );
 
