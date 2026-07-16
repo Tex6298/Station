@@ -2443,6 +2443,35 @@ test("archive memory writes reserve bytes and release them on insert rollback", 
       relevanceWeight: Number.NaN,
     });
     assert.equal(invalidWeight.relevance_weight, 1);
+
+    const absentWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Absent-weight fallback memory",
+      content: "Absent trusted input keeps the existing default.",
+      sourceType: "chat",
+    });
+    assert.equal(absentWeight.relevance_weight, 1);
+
+    const negativeWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Negative-weight fallback memory",
+      content: "Negative trusted input keeps the existing default.",
+      sourceType: "chat",
+      relevanceWeight: -0.25,
+    });
+    assert.equal(negativeWeight.relevance_weight, 1);
+
+    const infiniteWeight = await addMemoryItem({
+      personaId: PERSONA_ID,
+      ownerUserId: OWNER_ID,
+      title: "Infinite-weight fallback memory",
+      content: "Non-finite trusted input keeps the existing default.",
+      sourceType: "chat",
+      relevanceWeight: Number.POSITIVE_INFINITY,
+    });
+    assert.equal(infiniteWeight.relevance_weight, 1);
   } finally {
     resetStorageFake();
   }

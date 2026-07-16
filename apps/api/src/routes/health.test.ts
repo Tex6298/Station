@@ -540,10 +540,29 @@ test("/health/deployment rejects the old integer Memory weight catalog contract"
 });
 
 test("migration 086 preserves fractional Memory weights and both retrieval boundaries", () => {
+  const activeMigration = readFileSync(
+    "infra/supabase/migrations/029_gemini_embedding_provider_prep.sql",
+    "utf8"
+  );
   const migration = readFileSync(
     "infra/supabase/migrations/086_fractional_memory_relevance_weight.sql",
     "utf8"
   );
+  const extractRpcContract = (source: string, name: string) => {
+    const start = source.search(new RegExp(`create(?: or replace)? function public\\.${name}\\(`, "i"));
+    const grantStart = source.indexOf(`grant execute on function public.${name}`, start);
+    const end = source.indexOf(";", grantStart) + 1;
+    assert.notEqual(start, -1);
+    assert.notEqual(grantStart, -1);
+    assert.notEqual(end, 0);
+    return source.slice(start, end);
+  };
+  const normalizeAllowedRpcChange = (source: string) => source
+    .replace(/\r/g, "")
+    .replace(/create or replace function/gi, "create function")
+    .replace(/relevance_weight (?:integer|numeric)/gi, "relevance_weight TYPE")
+    .replace(/\s+/g, " ")
+    .trim();
   const memoryRpc = migration.match(
     /create function public\.match_memory_items\([\s\S]*?grant execute on function public\.match_memory_items\([^;]+;/i
   )?.[0] ?? "";
@@ -558,6 +577,14 @@ test("migration 086 preserves fractional Memory weights and both retrieval bound
   assert.match(migration, /alter column relevance_weight set default 1/i);
   assert.match(migration, /alter column relevance_weight set not null/i);
   assert.doesNotMatch(migration, /add constraint[^;]*relevance_weight[^;]*(?:between|<=)[^;]*5/is);
+  assert.match(migration, /current_type not in \('integer', 'numeric'\)/i);
+
+  for (const name of ["match_memory_items", "match_private_archive_chunks"]) {
+    assert.equal(
+      normalizeAllowedRpcChange(extractRpcContract(migration, name)),
+      normalizeAllowedRpcChange(extractRpcContract(activeMigration, name))
+    );
+  }
 
   assert.match(memoryRpc, /relevance_weight numeric/i);
   assert.match(memoryRpc, /m\.archive_source_type is null/i);
@@ -576,7 +603,19 @@ test("migration 086 preserves fractional Memory weights and both retrieval bound
   assert.match(migration, /memory_column_type = 'numeric'/i);
   assert.match(migration, /memory_rpc_relevance_type = 'numeric'/i);
   assert.match(migration, /archive_rpc_relevance_type = 'numeric'/i);
+  assert.match(migration, /generate_subscripts\(proc\.proallargtypes, 1\)/i);
+  assert.match(migration, /proc\.proargmodes\[subscript\.ordinal\] = 't'/i);
+  assert.match(migration, /proc\.proargnames\[subscript\.ordinal\] = 'relevance_weight'/i);
+  assert.match(
+    migration,
+    /revoke all on function public\.memory_relevance_weight_contract\(\) from public, anon, authenticated/i
+  );
   assert.match(migration, /grant execute on function public\.memory_relevance_weight_contract\(\) to service_role/i);
+  const catalogProof = migration.slice(
+    migration.indexOf("create or replace function public.memory_relevance_weight_contract()"),
+    migration.indexOf("comment on function public.memory_relevance_weight_contract()")
+  );
+  assert.doesNotMatch(catalogProof, /\bfrom\s+public\.memory_items\b/i);
 });
 
 test("/health/deployment blocks readiness when PR30 document version objects are missing", async () => {

@@ -396,6 +396,24 @@ test("private continuity loop protects memory, canon, archive, and integrity wri
     });
     assert.equal(blockedMemory.status, 404);
 
+    const invalidHighCreate = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+      body: {
+        content: "Owner create must retain the existing upper relevance bound.",
+        relevanceWeight: 5.01,
+      },
+    });
+    assert.equal(invalidHighCreate.status, 400);
+
+    const invalidLowCreate = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}`, {
+      token: "owner-token",
+      body: {
+        content: "Owner create must retain the existing lower relevance bound.",
+        relevanceWeight: 0.09,
+      },
+    });
+    assert.equal(invalidLowCreate.status, 400);
+
     const memory = await requestJson(app, "POST", `/memory/persona/${PERSONA_ID}`, {
       token: "owner-token",
       body: {
