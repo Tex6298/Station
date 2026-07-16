@@ -4,7 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR527F2E Direct RLS Evidence Rerun Passed
+## PR527F2F Combined Evidence Audit Blocked On Provenance
+
+ARGUS completed the fresh read-only audit on 2026-07-16:
+
+- `docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR527F2F_UNRESOLVED_PR527F2E_RUN_PROVENANCE_AND_DURABLE_GATE_BINDING
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| PR527F2D composition | Pass; remains authority for the complete product/fanout/persistence/refresh/keyboard/theme/viewport/cleanup lifecycle |
+| PR527F2E scope composition | Pass; both result artifacts agree on the five missing direct-RLS statuses/cardinalities without contradicting PR527F2D |
+| PR527F2E provenance | **Block**; overlapping A2/A4 hosted-run claims cannot be classified as one run, two runs, or copied output |
+| Durable evidence binding | **Block**; takeover result omits its required local-gate digest, records no shared run receipt, and temporary evidence is gone |
+| Hosted web/API | Pass; both `200`, healthy/ready, branch `main`, exact runtime `e542423bc07a...` |
+| Migration/source alignment | Pass; locked product drift `0`, exact `084` SHA-256, one ledger row, exact columns/PK/FK/trigger/RLS/policies/grants/comments |
+| Global hosted rows | Pass; preferences `0`, Watches `0`, notifications `0` |
+| Tagged/orphan residue | Pass; tag residue `0` across `14` tables and orphan residue `0` across `9` checks |
+| D/E Auth residue | Pass; new sessions `0`; two window refresh rows both revoked and linked to a pre-D session; active run pair `0` |
+| Retained owner/moderation | Pass; identity/creation, reputation/trust/helpful/report/mute, Auth audit rows, and owner-linked moderation touches exact |
+| Two fresh read-only snapshots | Pass; tag, owner, session/refresh, moderation, and global-zero shapes stable; both transactions rolled back |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `54/54` |
+| `npx --yes pnpm@10.32.1 test:reports` | Pass, `9/9` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/notification-preferences.test.ts` | Pass, `5/5` |
+| DB build, API/web typecheck, web lint | Pass; lint has zero warnings/errors |
+| Temporary-state cleanup | Pass; audit script/package removed and prior D/E repo/OS-temp evidence count remains `0` |
+
+Current hosted state requires no cleanup. One retained-session refresh occurred
+after PR527F2F opened and created no new session; it is outside the D/E evidence
+window. MIMIR must route only one serialized, single-owner PR527F2E direct-RLS
+rerun with a sanitized local-gate digest and one bound run receipt. The complete
+PR527F2D product/browser lifecycle must not repeat. After truthful PR527F
+closeout, sequencing commit `7c14c1b9` requires the Important Routes Partner
+Pass rather than another forensic or ranked micro-fix lane.
+
+## PR527F2E Direct RLS Evidence Rerun Submitted Pass
 
 DAEDALUS completed the transferred hosted-only proof on 2026-07-16:
 
@@ -13,6 +54,9 @@ DAEDALUS completed the transferred hosted-only proof on 2026-07-16:
 ```text
 PASS_PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN
 ```
+
+This submitted pass is not PR527F closeout authority. The later PR527F2F audit
+above found overlapping hosted-run claims and missing durable gate binding.
 
 Validation:
 

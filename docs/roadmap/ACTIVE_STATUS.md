@@ -4,11 +4,11 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR527F2E direct RLS durable evidence ready for MIMIR
+## Active lane - PR527F2F blocked on overlapping evidence provenance
 
 ```text
-PASS_PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN
-Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR
+BLOCK_PR527F2F_UNRESOLVED_PR527F2E_RUN_PROVENANCE_AND_DURABLE_GATE_BINDING
+Owner chain: MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> ARIADNE -> MIMIR -> ARIADNE -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR
 Preflight: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_PREFLIGHT_ARGUS_RESULT.md
 Implementation: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS.md
 Implementation result: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_DAEDALUS_RESULT.md
@@ -28,8 +28,11 @@ Hardened rerun result: docs/roadmap/PR527F2D_SETTINGS_PERSISTENCE_EVIDENCE_HARDE
 RLS evidence rerun: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE.md
 RLS evidence takeover: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER.md
 RLS evidence result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_DAEDALUS_TAKEOVER_RESULT.md
+Late overlapping result: docs/roadmap/PR527F2E_DIRECT_RLS_DURABLE_EVIDENCE_RERUN_ARIADNE_RESULT.md
+Combined audit: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS.md
+Combined audit result: docs/roadmap/PR527F2F_COMBINED_EVIDENCE_AND_HOSTED_BASELINE_AUDIT_ARGUS_RESULT.md
 Previous closeout: docs/roadmap/PR527E_PERSONA_PROFILE_TRUTH_THEME_REPAIR_CLOSEOUT_MIMIR.md
-Next: MIMIR combines PR527F2D and PR527F2E evidence and keeps the next product lane moving
+Next: MIMIR routes one serialized single-owner PR527F2E-only proof, closes PR527F truthfully, then opens Marty's Important Routes Partner Pass from sequencing commit 7c14c1b9
 ```
 
 ARGUS accepts one real Forum reply notification preference. It uses a dedicated
@@ -169,6 +172,31 @@ read `401`, and anonymous write `401`. The disposable preference remained
 false after every hostile request. Parent cleanup, independent recovery, and a
 fresh proof all restored preferences, Watches, notifications, tag residue, and
 orphan residue to zero with retained baseline exact.
+
+ARGUS blocks combined closeout as
+`BLOCK_PR527F2F_UNRESOLVED_PR527F2E_RUN_PROVENANCE_AND_DURABLE_GATE_BINDING`.
+DAEDALUS committed the authorized takeover result first, then ARIADNE's late
+result separately claimed the same hosted sequence. The files were created less
+than one minute apart, carry no common non-secret run receipt, and record no
+local-gate digest despite the takeover contract requiring one. Temporary
+evidence is gone, so the artifacts cannot honestly be classified as one run,
+two runs, or copied evidence. ARIADNE's artifact is not independent
+corroboration and DAEDALUS's artifact cannot silently erase its hosted-run
+claim.
+
+The blocker is evidence provenance, not current product or cleanup state.
+Fresh repeatable-read `READ ONLY` proof finds exact accepted Railway runtime,
+migration hash/ledger/catalog/RLS, locked-path drift `0`, preferences/Watches/
+notifications `0/0/0`, tag residue `0` across `14` tables, orphan residue `0`
+across `9` checks, coherent retained-owner semantics, no D/E-created session,
+no active D/E refresh pair, and stable state across two snapshots. Both D/E
+window refresh rows are revoked and linked to a session that predates PR527F2D.
+One later retained-session refresh occurred only after PR527F2F opened and did
+not create a new session. MIMIR should route only the serialized PR527F2E
+direct-RLS repair; PR527F2D's complete product lifecycle must not repeat. After
+truthful PR527F closeout, sequencing commit `7c14c1b9` requires the globally
+numbered Important Routes Partner Pass rather than another forensic or ranked
+micro-fix lane.
 
 ## Previous PR527E hosted rehearsal blocker history
 
