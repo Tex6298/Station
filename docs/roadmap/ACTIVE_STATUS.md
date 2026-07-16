@@ -29,9 +29,10 @@ Document discussion repair: docs/roadmap/PR528B8_DOCUMENT_DISCUSSION_OWNER_CUSTO
 Document discussion review: docs/roadmap/PR528C6_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_REVIEW_ARGUS.md
 Accepted API deploy/public retry: docs/roadmap/PR528B9_ACCEPTED_API_DEPLOY_AND_PUBLIC_CORPUS_RETRY_DAEDALUS.md
 Public document text search repair: docs/roadmap/PR528B10_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_DAEDALUS.md
+Public document search review: docs/roadmap/PR528C7_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS implements deduplicated title/summary/body matching for public documents only; ARGUS review/deployment then unblock the still-zero-state PR528B9 corpus retry
+Next: ARGUS hostile-reviews DAEDALUS commit da520604 for visibility, query-bound, priority, dedupe, and private-search separation; accepted deploy then resumes zero-state PR528B9
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -103,6 +104,12 @@ target collisions and public retained rows remain zero; private Aster remains
 exact. PR528B10 now adds only deduplicated title, summary, and body matching to
 the existing public document group while preserving visibility and private
 search separation.
+
+DAEDALUS implemented PR528B10 at `da520604`: fixed-field title, summary, and
+body queries run in field/visibility priority order, deduplicate by document id
+before the existing eight-result cap, and preserve the serializer and separate
+title-only owner-private bucket. Focused suites and API typecheck pass. PR528C7
+now owns hostile review before deployment.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
