@@ -28,9 +28,10 @@ Public partner corpus: docs/roadmap/PR528B7_PUBLIC_PARTNER_CORPUS_DAEDALUS.md
 Document discussion repair: docs/roadmap/PR528B8_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_DAEDALUS.md
 Document discussion review: docs/roadmap/PR528C6_DOCUMENT_DISCUSSION_OWNER_CUSTOMIZATION_REVIEW_ARGUS.md
 Accepted API deploy/public retry: docs/roadmap/PR528B9_ACCEPTED_API_DEPLOY_AND_PUBLIC_CORPUS_RETRY_DAEDALUS.md
+Public document text search repair: docs/roadmap/PR528B10_PUBLIC_DOCUMENT_DISCOVER_TEXT_SEARCH_DAEDALUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS serializes accepted API source f8349f09 deployment, then runs the revised exact one-thread public Station Guide corpus path; ARGUS independently reviews before human rehearsal
+Next: DAEDALUS implements deduplicated title/summary/body matching for public documents only; ARGUS review/deployment then unblock the still-zero-state PR528B9 corpus retry
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -94,6 +95,14 @@ longer restore or mutate moderation-restricted or forged-pointer targets.
 PR528B9 now serializes the accepted API deployment and revised PR528B7 retry:
 enable comments to create one helper discussion, customize that exact row
 through the new owner endpoint, and require no duplicate/default thread.
+
+PR528B9 proved exact accepted source `f8349f09` is live and healthy, then
+stopped before signup because `/discover/search` filters public documents by
+title only and cannot satisfy the required body-phrase discovery check. All
+target collisions and public retained rows remain zero; private Aster remains
+exact. PR528B10 now adds only deduplicated title, summary, and body matching to
+the existing public document group while preserving visibility and private
+search separation.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
