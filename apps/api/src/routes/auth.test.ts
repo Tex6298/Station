@@ -26,10 +26,11 @@ type Row = Record<string, any>;
 
 class AuthTestSupabase {
   createdUserPayloads: Row[] = [];
-  signOutTokens: Array<string | undefined> = [];
+  signOutCalls: Array<{ token: string; scope: string | undefined }> = [];
   createUserError: Error | null = null;
   signInError: Error | null = null;
   refreshError: Error | null = null;
+  signOutError: Error | null = null;
 
   tables: Record<string, Row[]> = {
     profiles: [
@@ -75,6 +76,12 @@ class AuthTestSupabase {
             error: null,
           };
         },
+        signOut: async (token: string, scope?: string) => {
+          this.signOutCalls.push({ token, scope });
+          return this.signOutError
+            ? { data: null, error: { message: this.signOutError.message } }
+            : { data: null, error: null };
+        },
       },
       getUser: async (token: string) => {
         const user = this.usersByToken.get(token) ?? null;
@@ -86,7 +93,7 @@ class AuthTestSupabase {
     from: (table: string) => new ProfileQuery(this, table),
   };
 
-  authClient(accessToken?: string) {
+  authClient(_accessToken?: string) {
     return {
       auth: {
         signInWithPassword: async (input: { email: string; password: string }) => {
@@ -129,10 +136,6 @@ class AuthTestSupabase {
             },
             error: null,
           };
-        },
-        signOut: async () => {
-          this.signOutTokens.push(accessToken);
-          return { error: null };
         },
       },
     };
@@ -338,7 +341,7 @@ test("/auth/me returns normalized user and /auth/signout requires auth", async (
     const signout = await requestJson(app, "POST", "/auth/signout", { token: "owner-token" });
     assert.equal(signout.status, 204);
     assert.equal(signout.body, null);
-    assert.deepEqual(db.signOutTokens, ["owner-token"]);
+    assert.deepEqual(db.signOutCalls, [{ token: "owner-token", scope: "local" }]);
   } finally {
     resetAuthFakes();
   }
@@ -544,6 +547,24 @@ test("auth controller failures return stable public copy without service payload
       code: "invalid_session",
     });
     assertSafeAuthBody(refresh.body);
+  } finally {
+    resetAuthFakes();
+  }
+
+  const signoutDb = new AuthTestSupabase();
+  signoutDb.signOutError = hostileAuthError("signout");
+  useAuthFakes(signoutDb);
+  const signoutApp = createAuthProofApp();
+
+  try {
+    const signout = await requestJson(signoutApp, "POST", "/auth/signout", {
+      token: "owner-token",
+    });
+
+    assert.equal(signout.status, 500);
+    assert.deepEqual(signout.body, { error: "Sign out failed." });
+    assertSafeAuthBody(signout.body);
+    assert.deepEqual(signoutDb.signOutCalls, [{ token: "owner-token", scope: "local" }]);
   } finally {
     resetAuthFakes();
   }

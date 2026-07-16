@@ -117,8 +117,7 @@ export async function validateToken(
  * Sign out - revokes the session server-side.
  */
 export async function signOut(accessToken: string): Promise<void> {
-  const client = getSupabaseAuthClient(accessToken);
-  const { error } = await client.auth.signOut();
+  const { error } = await getSupabaseAdmin().auth.admin.signOut(accessToken, "local");
   if (error) {
     throw new Error(error.message ?? "Sign out failed.");
   }
