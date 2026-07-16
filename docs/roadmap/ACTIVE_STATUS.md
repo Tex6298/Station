@@ -4,20 +4,23 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Active lane - PR528B partner-route preparation
+## Active lane - PR528B/C partner-route implementation and review
 
 ```text
 OPEN_PR528_IMPORTANT_ROUTES_PARTNER_PASS
-Owner chain: MIMIR -> ARIADNE -> MIMIR -> DAEDALUS / ARGUS
+Owner chain: MIMIR -> DAEDALUS / ARGUS -> MIMIR
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
 Preflight result: docs/roadmap/PR528A_IMPORTANT_ROUTES_PARTNER_PREFLIGHT_ARIADNE_RESULT.md
 Theme repairs: docs/roadmap/PR528B1_PRINCIPAL_ROUTE_THEME_REPAIRS_DAEDALUS.md
 Corpus/provider brief: docs/roadmap/PR528B_PARTNER_CORPUS_CONTENT_BRIEF_MIMIR.md
 Corpus/provider preflight: docs/roadmap/PR528B2_PARTNER_CORPUS_PROVIDER_PREFLIGHT_ARGUS.md
+Document summary contract: docs/roadmap/PR528B3_DOCUMENT_SUMMARY_CONTRACT_DAEDALUS.md
+Queued private corpus: docs/roadmap/PR528B4_PRIVATE_PARTNER_CORPUS_DAEDALUS.md
+Theme review: docs/roadmap/PR528C1_THEME_REPAIRS_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS repairs the three exact principal-route contrast failures while ARGUS independently locks the public/private corpus, provider, retention, and cleanup boundary
+Next: DAEDALUS implements the bounded document-summary contract while ARGUS reviews the completed theme repairs; private corpus follows immediately, public corpus follows accepted summary deployment, and chat waits only for an accepted non-NVIDIA provider
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -27,6 +30,14 @@ Memory Inbox, Continuity, and Global Archive. Six fix-now slices remain: three
 route-scoped contrast defects plus curated public corpus, isolated private
 corpus, and one accepted private provider. Nine non-blocking findings are
 durably recorded in paused PR529.
+
+PR528B1 is implemented at `497cb5f4` and awaits ARGUS review. PR528B2 found
+three independent truths: the private Aster corpus is ready now; the public
+corpus needs a first-class nullable document summary; and private chat remains
+safely blocked because hosted NVIDIA is forbidden for private context while no
+accepted Anthropic, DeepSeek, or owner BYOK route is configured. PR528B3 removes
+only the public summary blocker. PR528B4 is durably queued behind it and does
+not wait on chat configuration.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
