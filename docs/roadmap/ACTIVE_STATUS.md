@@ -36,9 +36,10 @@ Auth sign-out deploy/session cleanup: docs/roadmap/PR528B12_AUTH_SIGNOUT_DEPLOY_
 Auth sign-out/probe audit disposition: docs/roadmap/PR528C9_AUTH_SIGNOUT_AND_PROBE_AUDIT_DISPOSITION_ARGUS.md
 Final partner route rehearsal: docs/roadmap/PR528D_PARTNER_ROUTE_HOSTED_REHEARSAL_ARIADNE.md
 Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGIENE_DAEDALUS.md
+Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS executes the now-released PR528B13 exact two-owner probe-session cleanup and durable Auth-read-only verifier guard; ARGUS reviews before PR528 closeout
+Next: ARGUS performs read-only PR528C10 hostile review of the exact two-owner Auth cleanup and committed protected-read verifier guard; MIMIR closes PR528 if accepted
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -162,6 +163,14 @@ theme, or session-cleanup failure. ARIADNE retained four non-blocking accessible
 label/provider-guidance details in PR529 and proved her exact fresh Auth session
 absent after product sign-out. PR528B13 is now released to DAEDALUS for the
 separate two-probe-owner hygiene boundary before ARGUS review and closeout.
+
+PR528B13 removed exactly 258 sessions, all 765 linked refresh-token rows
+including 258 live rows, and 258 session-linked MFA AMR claims from only the
+two dedicated probe owners. Both owners, identities, profiles, audit history,
+all unrelated Auth state, every public/storage table, and both retained corpora
+remain exact; both targets now have zero session residue. It also adds a small
+committed protected-read verifier boundary with a focused `4/4` contract test.
+PR528C10 now owns the final hostile read-only review before PR528 closeout.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
