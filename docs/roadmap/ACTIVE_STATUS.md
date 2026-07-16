@@ -16,12 +16,13 @@ Theme repairs: docs/roadmap/PR528B1_PRINCIPAL_ROUTE_THEME_REPAIRS_DAEDALUS.md
 Corpus/provider brief: docs/roadmap/PR528B_PARTNER_CORPUS_CONTENT_BRIEF_MIMIR.md
 Corpus/provider preflight: docs/roadmap/PR528B2_PARTNER_CORPUS_PROVIDER_PREFLIGHT_ARGUS.md
 Document summary contract: docs/roadmap/PR528B3_DOCUMENT_SUMMARY_CONTRACT_DAEDALUS.md
-Queued private corpus: docs/roadmap/PR528B4_PRIVATE_PARTNER_CORPUS_DAEDALUS.md
+Retained private corpus: docs/roadmap/PR528B4_PRIVATE_PARTNER_CORPUS_DAEDALUS_RESULT.md
 Theme review: docs/roadmap/PR528C1_THEME_REPAIRS_REVIEW_ARGUS.md
 Summary review: docs/roadmap/PR528C2_DOCUMENT_SUMMARY_CONTRACT_REVIEW_ARGUS.md
+Private corpus review: docs/roadmap/PR528C3_PRIVATE_PARTNER_CORPUS_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS reviews the completed document-summary source/migration contract; accepted theme repairs remain preserved for combined deployment, private corpus follows immediately, public corpus follows accepted summary deployment, and chat waits only for an accepted non-NVIDIA provider
+Next: ARGUS independently reviews the retained private Aster corpus and the fractional relevance-weight mismatch; summary source and theme repairs are accepted, but migration 085/deployment remain serialized behind this hosted-state review
 ```
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
@@ -37,9 +38,15 @@ three independent truths: the private Aster corpus is ready now; the public
 corpus needs a first-class nullable document summary; and private chat remains
 safely blocked because hosted NVIDIA is forbidden for private context while no
 accepted Anthropic, DeepSeek, or owner BYOK route is configured. PR528B3 removes
-only the public summary blocker and is now under PR528C2 source/migration
-review. PR528B4 is durably queued behind it and does not wait on chat
-configuration.
+only the public summary blocker and is accepted by PR528C2 for serialized
+deployment. PR528B4 retained the private corpus independently and did not wait
+on chat configuration.
+
+PR528C2 accepts PR528B3 for serialized deployment. PR528B4 has now retained the
+isolated private Aster corpus with Gemini embeddings and no chat/provider call.
+PR528C3 must decide the one discovered contract mismatch before acceptance: the
+Memory UI/API expose fractional weights such as `1.25`, while the hosted
+integer column and create service persisted the approved value as `1`.
 
 PR527F is closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`.
 PR527F2D remains the full hosted product/browser lifecycle authority and
