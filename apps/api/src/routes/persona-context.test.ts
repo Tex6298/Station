@@ -1144,7 +1144,7 @@ test("persona runtime context is owner-only and orders canon ahead of memory", a
     });
     assert.equal(context.trace.retrievalMode.memory, "keyword");
     assert.equal(context.trace.retrievalMode.archive, "keyword");
-    assert.match(context.trace.retrievalMode.memoryFallback, /^(no_embedding_key|vector_error)$/);
+    assert.match(context.trace.retrievalMode.memoryFallback, /^(no_embedding_key|empty_query_embedding|vector_error)$/);
     assert.equal(context.trace.embedding.profileCode, "station_free_1536");
     assert.equal(context.trace.embedding.provider, "gemini");
     assert.equal(context.trace.embedding.dimension, 1536);
