@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR531A independent read-only review
+## Current gate - PR532 disposable full PR524B hosted proof operator preflight
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -24,7 +24,11 @@ OPEN_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT
 BLOCK_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PLAN
 OPEN_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK
 READY_PR531A_FOR_ARGUS_READ_ONLY_REVIEW
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS
+ACCEPT_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK
+CLOSE_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_ACCEPTED
+ACCEPT_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PLAN_AFTER_PR531A
+OPEN_PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -43,6 +47,9 @@ PR531 preflight: docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_A
 PR531 preflight result: docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_RESULT.md
 PR531A capacity unblock: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_DAEDALUS.md
 PR531A hosted result: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_MIMIR_RESULT.md
+PR531A review: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_ARGUS_RESULT.md
+PR531A closeout: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_CLOSEOUT_MIMIR.md
+PR532 full hosted proof: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_MIMIR.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -74,19 +81,16 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently reviews the retained private PR531A fixture, exact restoration and isolation proofs, and zero-residue recovery record, then wakes MIMIR with accept/reject; do not run full PR524B yet
+Next: DAEDALUS builds and read-only preflights the recoverable PR532 operator, commits a public-safe readiness result, and wakes ARIADNE; no hosted PR532 mutation occurs in the operator-preflight stage
 ```
 
-MIMIR took over PR531A after DAEDALUS did not consume two explicit wakeups. One
-fresh uniquely tagged private requester persona now remains from the successful
-product-route run. The requester profile/tier, token usage, billing and
-subscription fields, existing personas, dedicated Auth session artifacts,
-generated tables, consent/report/moderation state, retained PR528 corpus,
-migration ledger, unrelated Auth state, and ready/idle Railway deployment all
-pass the required restoration or isolation proofs. An initial ignored-operator
-syntax defect was recovered to the exact baseline with zero tag residue before
-the fresh successful run; its encrypted recovery journal is retained. PR531 and
-the full PR524B proof remain blocked only until ARGUS accepts this result.
+ARGUS accepts PR531A after an independent read-only audit. The retained
+requester fixture is uniquely tagged, private, and owner-bound; exact profile,
+tier, token, billing/subscription, Auth-session, generated, moderation, retained
+PR528, migration, route-hash, and recovery checks pass. PR531's only block is
+therefore removed. PR532 now owns the complete disposable PR524B proof as one
+serialized operator, human rehearsal, cleanup, independent review, and closeout
+sequence. No new Auth identity or configuration is required.
 
 The Tex-to-Discern synchronization is closed green. The archived former
 Discern main remains at `ff93308b`, both current source trees equal

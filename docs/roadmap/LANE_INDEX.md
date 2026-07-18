@@ -12,8 +12,9 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR531A | Configured Requester Persona Capacity Unblock | MIMIR -> ARGUS | Ready for independent read-only review. One unique private requester persona remains; exact profile/token/billing/Auth restoration, generated/public/report isolation, retained PR528, migration, and Railway proofs pass after a separately journaled zero-residue recovery. | `docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_MIMIR_RESULT.md` |
-| PR531 | Unique Disposable PR524B Fixture Preflight | ARGUS -> MIMIR | Blocked only pending ARGUS acceptance of PR531A's retained private requester fixture and restoration evidence; do not run the full PR524B proof yet. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_RESULT.md` |
+| PR532 | Disposable Full PR524B Hosted Proof | MIMIR -> DAEDALUS -> ARIADNE -> ARGUS -> MIMIR | Open. DAEDALUS first builds and read-only preflights the recoverable operator; ARIADNE then runs the complete API/human proof through exact cleanup; ARGUS audits read-only. | `docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_MIMIR.md` |
+| PR531A | Configured Requester Persona Capacity Unblock | MIMIR -> ARGUS -> MIMIR | Accepted and closed. One unique private requester fixture remains with exact restoration/isolation and zero-residue recovery independently proven. | `docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_CLOSEOUT_MIMIR.md` |
+| PR531 | Unique Disposable PR524B Fixture Preflight | ARGUS -> MIMIR | Accepted after PR531A removed the sole requester-capacity blocker. Its fixture, route, recovery, rehearsal, and review plan is now executing as PR532. | `docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_CLOSEOUT_MIMIR.md` |
 | PR530B3 | Repaired Schema Hosted Reconciliation | MIMIR -> ARGUS | Accepted schema-only. Exact 081/repaired-082/087 ledger/catalog, five zero-row tables, eight-scope validator, retained/Auth/Railway, and zero-canary proofs pass. | `docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_ARGUS_RESULT.md` |
 | PR530B2 | PostgreSQL Identifier Source Repair | MIMIR -> ARGUS | Accepted with the independently proven unledgered zero-row 081 checkpoint. | `docs/roadmap/PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_ARGUS_RESULT.md` |
 | PR530B1 | Schema-Only Hosted Reconciliation Recovery | DAEDALUS -> MIMIR | Recovered through PR530B3 after the identifier-limit stop; schema and ledgers are complete, while canary remains explicitly outside this run. | `docs/roadmap/PR530B1_SCHEMA_ONLY_HOSTED_RECONCILIATION_RECOVERY_DAEDALUS.md` |
@@ -22,7 +23,7 @@ log.
 | PR530 preflight | Cross-Owner Generated Scope Schema Unblock | ARGUS / A3 | Blocked the one-migration-as-whole-hosted-unblock claim: source needs migration 087, while hosted also lacks accepted generated schema migrations 081/082. | `docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md` |
 | Review window | PR528 Partner Product Judgment | MIMIR / A1 | PR528 is accepted and closed. Retained public/private sample corpora are held without further UI churn until explicit partner feedback and a promote/replace/cleanup decision. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
-| Resuming | PR524B hosted generated publication proof | MIMIR -> ARGUS | Schema/RPC blocker is closed by PR530. PR531 now owns the unique disposable fixture plan required before the full hosted proof rerun. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_ARGUS.md` |
+| Resuming | PR524B hosted generated publication proof | MIMIR -> DAEDALUS -> ARIADNE -> ARGUS | Schema/RPC and disposable-fixture blockers are closed by PR530/PR531A. PR532 owns the full hosted rerun and exact cleanup. | `docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_MIMIR.md` |
 
 ## Recently Closed
 
