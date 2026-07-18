@@ -12,6 +12,7 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
+| PR530 | Cross-Owner Generated Scope Schema Unblock | ARGUS / A3 | Open hostile preflight. Determine the smallest additive migration that aligns the consent validator with the exact eight-scope API contract, then route implementation/review/deploy before the paused PR524B hosted rerun. | `docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md` |
 | Review window | PR528 Partner Product Judgment | MIMIR / A1 | PR528 is accepted and closed. Retained public/private sample corpora are held without further UI churn until explicit partner feedback and a promote/replace/cleanup decision. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
 | Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
@@ -20,6 +21,7 @@ log.
 
 | Lane | Name | Owner chain | State | Closeout |
 | --- | --- | --- | --- | --- |
+| Synchronization | Discern Mainline Synchronization And CI | LANTERN -> DAEDALUS -> MIMIR | Closed green. Former Discern main is archived, Discern and Tex source trees are identical, four bounded CI fixes are retained, and Discern Actions run `29635447216` passes. | `docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md` |
 | PR528 | Important Routes Partner Pass | MIMIR -> DAEDALUS / ARGUS -> ARIADNE -> DAEDALUS / ARGUS -> MIMIR | Closed as `CLOSE_PR528_IMPORTANT_ROUTES_PARTNER_PASS_ACCEPTED`; `44/44` final human cases, curated public/private corpora, exact sign-out/session hygiene, and protected-read guard review pass. Partner review window remains open; private chat/config and PR529 details remain explicit. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR527F closeout | Settings Persistence Truth | MIMIR -> ARGUS -> DAEDALUS -> ARIADNE -> ARGUS -> DAEDALUS -> MIMIR | Closed as `CLOSE_PR527F_SETTINGS_PERSISTENCE_TRUTH_ACCEPTED`; local behavior, migration/catalog/RLS, full hosted lifecycle, sole-owner provenance-bound direct-RLS proof, exact cleanup, and clean hosted baseline pass. | `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md` |
 | PR527 programme handoff | UI Product Completeness Correction Sequence | MIMIR / A1 | Sequencing closes the correction baton at PR527F without claiming overall UI completion; remaining inventory becomes PR528 fix-now candidates or durable paused PR529 details. | `docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md` |
