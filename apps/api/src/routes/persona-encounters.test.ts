@@ -1487,6 +1487,111 @@ test("cross-owner consent migration creates participant ledger RLS and append-on
   assert.match(sql, /it does not run encounters, save artifacts, publish metadata/);
 });
 
+test("cross-owner generated scope validator migration repairs the exact eight-scope contract", () => {
+  const migration = readFileSync(
+    "infra/supabase/migrations/087_persona_encounter_cross_owner_scope_validator.sql",
+    "utf8",
+  );
+  const historicalMigration = readFileSync(
+    "infra/supabase/migrations/077_persona_encounter_cross_owner_consents.sql",
+    "utf8",
+  );
+  const apiSource = readFileSync("apps/api/src/routes/persona-encounters.ts", "utf8");
+  const databaseTypesSource = readFileSync("packages/db/src/types.ts", "utf8");
+
+  const capture = (source: string, pattern: RegExp, label: string) => {
+    const match = source.match(pattern);
+    assert.ok(match?.[1], `${label} should be present`);
+    return match[1];
+  };
+  const quotedLabels = (source: string) =>
+    [...source.matchAll(/["']([a-z][a-z0-9_]*)["']/g)].map((match) => match[1]);
+
+  const validatorBody = capture(
+    migration,
+    /create or replace function public\.persona_encounter_cross_owner_consent_scopes_valid\(scopes text\[\]\)[\s\S]*?as \$validator\$([\s\S]*?)\$validator\$;/,
+    "migration 087 validator body",
+  );
+  const apiScopeBlock = capture(
+    apiSource,
+    /const CROSS_OWNER_CONSENT_REQUESTED_SCOPES = \[([\s\S]*?)\] as const;/,
+    "API cross-owner scope constant",
+  );
+  const databaseTypeBlock = capture(
+    databaseTypesSource,
+    /export type PersonaEncounterCrossOwnerConsentRequestedScope =([\s\S]*?);/,
+    "database cross-owner scope type",
+  );
+  const historicalValidatorBody = capture(
+    historicalMigration,
+    /create or replace function public\.persona_encounter_cross_owner_consent_scopes_valid\(scopes text\[\]\)[\s\S]*?as \$\$([\s\S]*?)\$\$;/,
+    "historical migration 077 validator body",
+  );
+
+  const expectedScopes = [
+    "run_cross_owner_encounter",
+    "save_private_cross_owner_artifact",
+    "share_participant_metadata_between_owners",
+    "publish_metadata_only_public_exhibit",
+    "publish_exact_generated_revision",
+    "publish_generated_words_excerpt",
+    "publish_transcript",
+    "publish_generated_summary",
+  ];
+  const migrationScopes = quotedLabels(validatorBody);
+
+  assert.deepEqual(migrationScopes, expectedScopes);
+  assert.deepEqual(quotedLabels(apiScopeBlock), expectedScopes);
+  assert.deepEqual(quotedLabels(databaseTypeBlock), expectedScopes);
+  assert.match(validatorBody, /scopes is not null/);
+  assert.match(validatorBody, /cardinality\(scopes\) between 1 and 8/);
+  assert.match(validatorBody, /scope is null\s+or scope not in/);
+
+  const allowedScopes = new Set(migrationScopes);
+  const validatesLikeMigration087 = (scopes: unknown): boolean =>
+    Array.isArray(scopes)
+    && scopes.length >= 1
+    && scopes.length <= 8
+    && scopes.every((scope) => typeof scope === "string" && allowedScopes.has(scope));
+
+  assert.equal(validatesLikeMigration087(null), false);
+  assert.equal(validatesLikeMigration087([]), false);
+  assert.equal(validatesLikeMigration087([null]), false);
+  assert.equal(validatesLikeMigration087(["unknown_scope"]), false);
+  assert.equal(validatesLikeMigration087(Array(9).fill("run_cross_owner_encounter")), false);
+  assert.equal(validatesLikeMigration087(["run_cross_owner_encounter", "unknown_scope"]), false);
+  assert.equal(validatesLikeMigration087(["publish_exact_generated_revision"]), true);
+  assert.equal(validatesLikeMigration087([
+    "save_private_cross_owner_artifact",
+    "publish_exact_generated_revision",
+  ]), true);
+  assert.equal(validatesLikeMigration087([
+    "save_private_cross_owner_artifact",
+    "save_private_cross_owner_artifact",
+  ]), true);
+  assert.equal(validatesLikeMigration087(["unknown_scope", "unknown_scope"]), false);
+
+  assert.match(migration, /begin;[\s\S]*pg_advisory_xact_lock\([\s\S]*hashtextextended\('station\.pr530\.cross_owner_generated_scope_validator\.087', 0\)/);
+  assert.match(migration, /do \$pr530a_preflight\$[\s\S]*create or replace function public\.persona_encounter_cross_owner_consent_scopes_valid/);
+  assert.match(migration, /pg_catalog\.to_regprocedure/);
+  assert.match(migration, /pg_catalog\.to_regclass/);
+  assert.match(migration, /pg_catalog\.pg_depend/);
+  assert.match(migration, /persona_encounter_cross_owner_consents_scopes_check/);
+  assert.match(migration, /persona_encounter_cross_owner_consent_audit_scopes_check/);
+  assert.match(migration, /constraint_row\.convalidated/);
+  assert.match(migration, /language sql\s+immutable/);
+  assert.match(migration, /from public\.persona_encounter_cross_owner_consents consent[\s\S]*is not true/);
+  assert.match(migration, /from public\.persona_encounter_cross_owner_consent_audit_events audit_event[\s\S]*is not true/);
+  assert.match(migration, /notify pgrst, 'reload schema';\s+commit;\s*$/);
+  assert.equal((migration.match(/create or replace function/gi) ?? []).length, 1);
+  assert.doesNotMatch(migration, /\b(?:create|alter|drop)\s+table\b/i);
+  assert.doesNotMatch(migration, /\bdrop\s+function\b|\b(?:add|drop)\s+constraint\b/i);
+  assert.doesNotMatch(migration, /\b(?:discover|forum|persona[_ -]?chat|search|feed)\b/i);
+
+  assert.match(historicalValidatorBody, /cardinality\(scopes\) between 1 and 7/);
+  assert.doesNotMatch(historicalValidatorBody, /publish_exact_generated_revision/);
+});
+
 test("cross-owner runtime attempt migration creates participant-readable append-only metadata audit", () => {
   const sql = readFileSync(
     "infra/supabase/migrations/078_persona_encounter_cross_owner_runtime_attempts.sql",
