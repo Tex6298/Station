@@ -12,7 +12,8 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR530B3 | Repaired Schema Hosted Reconciliation | MIMIR -> ARGUS | Ready for independent read-only review. Exact 081/repaired-082/087 ledger and catalog proofs pass; five target tables remain empty, validator is exact eight-scope, and canary remains unrun. | `docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_MIMIR_RESULT.md` |
+| PR531 | Unique Disposable PR524B Fixture Preflight | ARGUS / A3 | Open read-only preflight. Design one uniquely tagged full product-proof fixture under existing test accounts, with exact restoration and no historical-pair selection. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_ARGUS.md` |
+| PR530B3 | Repaired Schema Hosted Reconciliation | MIMIR -> ARGUS | Accepted schema-only. Exact 081/repaired-082/087 ledger/catalog, five zero-row tables, eight-scope validator, retained/Auth/Railway, and zero-canary proofs pass. | `docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_ARGUS_RESULT.md` |
 | PR530B2 | PostgreSQL Identifier Source Repair | MIMIR -> ARGUS | Accepted with the independently proven unledgered zero-row 081 checkpoint. | `docs/roadmap/PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_ARGUS_RESULT.md` |
 | PR530B1 | Schema-Only Hosted Reconciliation Recovery | DAEDALUS -> MIMIR | Recovered through PR530B3 after the identifier-limit stop; schema and ledgers are complete, while canary remains explicitly outside this run. | `docs/roadmap/PR530B1_SCHEMA_ONLY_HOSTED_RECONCILIATION_RECOVERY_DAEDALUS.md` |
 | PR530B | Serialized Generated Schema Hosted Reconciliation | DAEDALUS -> ARGUS | Blocked cleanly before schema apply; hosted remains unchanged and ARGUS independently proved exact pre-run, zero-residue, retained/Auth, and Railway truth. | `docs/roadmap/PR530B_STALLED_HOSTED_RECONCILIATION_TAKEOVER_ARGUS_RESULT.md` |
@@ -20,7 +21,7 @@ log.
 | PR530 preflight | Cross-Owner Generated Scope Schema Unblock | ARGUS / A3 | Blocked the one-migration-as-whole-hosted-unblock claim: source needs migration 087, while hosted also lacks accepted generated schema migrations 081/082. | `docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md` |
 | Review window | PR528 Partner Product Judgment | MIMIR / A1 | PR528 is accepted and closed. Retained public/private sample corpora are held without further UI churn until explicit partner feedback and a promote/replace/cleanup decision. | `docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md` |
 | PR529 (paused) | Post-Partner UI And Detail Reconciliation | MIMIR / A1 | Paused until Marty/partner review; every PR528 deferment must retain route, impact, evidence, reason, owner, and explicit resume trigger. | `docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md` |
-| Paused | PR524B hosted generated publication blocker | MIMIR / A1 | Phase 3 product expansion remains paused after `BLOCK_PR524B_CROSS_OWNER_GENERATED_MATERIAL_PUBLICATION_HOSTED_PROOF`; resume with PR524B hosted proof rerun only after hosted Supabase/RPC/schema accepts PR524 generated scopes. | `docs/roadmap/PHASE3_STATUS_PAUSE_AFTER_PR524B_MIMIR.md` |
+| Resuming | PR524B hosted generated publication proof | MIMIR -> ARGUS | Schema/RPC blocker is closed by PR530. PR531 now owns the unique disposable fixture plan required before the full hosted proof rerun. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_ARGUS.md` |
 
 ## Recently Closed
 

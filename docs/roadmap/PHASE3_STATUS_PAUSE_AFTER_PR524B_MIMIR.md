@@ -2,15 +2,14 @@
 
 Date: 2026-07-12
 
-Last reaffirmed: 2026-07-15 after PR525 visual-foundation closeout and the
-PR527 UI product-completeness correction
+Last updated: 2026-07-18 after PR530 hosted schema reconciliation
 
 Owner: MIMIR / A1
 
 Status:
 
 ```text
-MAINLINE_PAUSED_AFTER_PR524B_HOSTED_BLOCKER
+PR524B_SCHEMA_BLOCKER_CLOSED_PR531_FIXTURE_PREFLIGHT_OPEN
 ```
 
 ## Where Station Stands
@@ -29,17 +28,19 @@ Station has made the Phase 3 cross-owner path real in layers:
 ## What Is Not Closed Yet
 
 Generated-material publication is not customer-facing closed because PR524B
-hosted proof is blocked on hosted Supabase/RPC/schema freshness for the PR524
-generated scopes.
+still needs a unique disposable full hosted product fixture and rehearsal.
+PR530 closed the former Supabase/RPC/schema freshness blocker: migrations 081,
+repaired 082, and 087 are exactly ledgered and independently accepted.
 
 Until PR524B is rerun and passes, generated body text remains protected-alpha
 code with local review evidence only, not hosted-proven product truth.
 
 ## Resume Trigger
 
-Resume this lane only after the hosted Supabase schema/RPC has been refreshed so
-generated-scope cross-owner consents save successfully. The next action should
-be a PR524B hosted proof rerun, not a new product capability.
+The former schema resume trigger is fulfilled. PR531 now defines one uniquely
+tagged disposable fixture and exact restoration plan without selecting among
+nine historical consent pairs. After PR531 acceptance, rerun PR524B rather than
+opening an unrelated product capability.
 
 ## Still Blocked By Default
 
@@ -67,9 +68,8 @@ hosted product's working-and-pretty journeys:
 `docs/roadmap/PR527_UI_PRODUCT_COMPLETENESS_HOSTED_JOURNEY_INVENTORY_ARIADNE.md`
 
 PR527 does not remove or widen the PR524B generated-material publication
-blocker and does not resume unrelated Phase 3 product expansion. The next valid
-PR524B action remains the hosted proof rerun after the hosted Supabase/RPC/
-schema accepts generated scopes.
+boundary. PR530 has since closed the schema blocker; PR531 is the bounded
+fixture preflight immediately before the full hosted proof rerun.
 
 PR527A has closed the deceptive `/studio/notes` page-memory editor as a
 truthfully unavailable route, and PR527B has closed the `/space/new`
@@ -77,5 +77,5 @@ entitlement and Private-default repair after exact-SHA hosted proof. PR527C is
 locally accepted and its real hosted Watch lifecycle plus human-eye states
 pass with exact restoration. PR527C1 is the active smallest unblock for the
 two missing below-tier and unreadable-thread boundary fixtures; it authorizes
-only disposable proof data and exact cleanup. This correction does not resume
-PR524B or the wider Phase 3 lane.
+only disposable proof data and exact cleanup. That historical correction did
+not resume PR524B; the explicit PR530 closeout and PR531 opening now do.
