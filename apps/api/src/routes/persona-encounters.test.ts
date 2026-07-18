@@ -1592,6 +1592,63 @@ test("cross-owner generated scope validator migration repairs the exact eight-sc
   assert.doesNotMatch(historicalValidatorBody, /publish_exact_generated_revision/);
 });
 
+test("append-only cleanup migration preserves direct guards and permits parent cascades", () => {
+  const migration = readFileSync(
+    "infra/supabase/migrations/088_persona_encounter_append_only_parent_cascade_cleanup.sql",
+    "utf8",
+  );
+
+  const body = (label: string) => {
+    const match = migration.match(new RegExp(`as \\$${label}\\$([\\s\\S]*?)\\$${label}\\$;`));
+    assert.ok(match?.[1], `${label} body should be present`);
+    return match[1];
+  };
+
+  const consentAudit = body("consent_audit_guard");
+  const runtimeAttempt = body("runtime_attempt_guard");
+  const generatedApproval = body("generated_approval_guard");
+  const publicationAudit = body("publication_audit_guard");
+
+  for (const guard of [consentAudit, runtimeAttempt, generatedApproval, publicationAudit]) {
+    assert.match(guard, /if tg_op = 'DELETE'/);
+    assert.match(guard, /not exists/);
+    assert.match(guard, /return old/);
+    assert.match(guard, /raise exception '[^']+ append-only'/);
+  }
+
+  assert.match(consentAudit, /from public\.persona_encounter_cross_owner_consents/);
+  assert.match(runtimeAttempt, /from public\.persona_encounter_cross_owner_consents/);
+  for (const parent of [
+    "persona_encounter_cross_owner_generated_revisions",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_consents",
+    "profiles",
+  ]) {
+    assert.match(generatedApproval, new RegExp(`from public\\.${parent}`));
+  }
+  for (const parent of [
+    "persona_encounter_cross_owner_generated_publications",
+    "persona_encounter_cross_owner_consents",
+    "persona_encounter_cross_owner_generated_artifacts",
+    "persona_encounter_cross_owner_generated_revisions",
+  ]) {
+    assert.match(publicationAudit, new RegExp(`from public\\.${parent}`));
+  }
+
+  assert.match(migration, /hashtextextended\('station\.pr532a\.append_only_parent_cascade_cleanup\.088', 0\)/);
+  assert.match(migration, /do \$pr532a_preflight\$[\s\S]*confdeltype = 'c'/);
+  assert.equal((migration.match(/create or replace function/gi) ?? []).length, 4);
+  assert.equal((migration.match(/security definer/gi) ?? []).length, 4);
+  assert.equal((migration.match(/set search_path = pg_catalog, public/gi) ?? []).length, 4);
+  assert.equal((migration.match(/set row_security = off/gi) ?? []).length, 4);
+  assert.match(migration, /delete_guard_count <> 4 or update_guard_count <> 4/);
+  assert.doesNotMatch(migration, /\bdelete\s+from\b|\bupdate\s+public\b/i);
+  assert.doesNotMatch(migration, /\b(?:create|alter|drop)\s+table\b/i);
+  assert.doesNotMatch(migration, /\bdrop\s+(?:function|trigger|policy)\b/i);
+  assert.doesNotMatch(migration, /disable row level security/i);
+  assert.match(migration, /notify pgrst, 'reload schema';\s+commit;\s*$/);
+});
+
 test("cross-owner runtime attempt migration creates participant-readable append-only metadata audit", () => {
   const sql = readFileSync(
     "infra/supabase/migrations/078_persona_encounter_cross_owner_runtime_attempts.sql",

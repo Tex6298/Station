@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR532 disposable full PR524B hosted proof operator preflight
+## Current gate - PR532A append-only parent-cascade cleanup source review
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -28,7 +28,9 @@ ACCEPT_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK
 CLOSE_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_ACCEPTED
 ACCEPT_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PLAN_AFTER_PR531A
 OPEN_PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> ARGUS -> MIMIR
+BLOCK_PR532_APPEND_ONLY_CASCADE_CLEANUP_CONTRACT
+READY_PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REPAIR_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -50,6 +52,8 @@ PR531A hosted result: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_
 PR531A review: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_ARGUS_RESULT.md
 PR531A closeout: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_CLOSEOUT_MIMIR.md
 PR532 full hosted proof: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_MIMIR.md
+PR532 preflight result: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_PREFLIGHT_MIMIR_RESULT.md
+PR532A source repair: docs/roadmap/PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REPAIR_MIMIR.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -81,8 +85,17 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS builds and read-only preflights the recoverable PR532 operator, commits a public-safe readiness result, and wakes ARIADNE; no hosted PR532 mutation occurs in the operator-preflight stage
+Next: ARGUS hostile-reviews migration 088 source only and wakes MIMIR with accept/block; no hosted schema or PR532 product mutation occurs before acceptance
 ```
+
+MIMIR took over the unconsumed PR532 operator preflight and stopped before any
+hosted mutation. The final read-only receipt binds four enabled append-only
+DELETE guards that also block legitimate `ON DELETE CASCADE` cleanup for
+consent audit, runtime-attempt audit, generated approval, and generated
+publication audit rows. All other configured identity, capacity, zero-residue,
+migration, retained-corpus, route-source, and Railway gates pass. PR532A
+migration 088 is now ready for ARGUS source review; PR532 and ARIADNE remain
+paused until accepted hosted apply and a fresh read-only preflight.
 
 ARGUS accepts PR531A after an independent read-only audit. The retained
 requester fixture is uniquely tagged, private, and owner-bound; exact profile,
