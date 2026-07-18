@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR532 hosted API and human-eye rehearsal resumed after PR532B
+## Current gate - PR532 accepted; no successor lane open
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -40,6 +40,10 @@ READY_PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_FOR_ARGUS
 ACCEPT_PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_SOURCE_ONLY
 CLOSE_PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_HOSTED_ACCEPTED
 READY_PR532_AFTER_PR532B_FOR_ARIADNE_HOSTED_REHEARSAL
+PASS_PR532_FULL_HOSTED_REHEARSAL
+ACCEPT_PR532_FULL_HOSTED_REHEARSAL_READ_ONLY_REVIEW
+CLOSE_PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ACCEPTED
+PAUSE_AFTER_PR532_WAIT_FOR_MARTY
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -73,6 +77,9 @@ PR532B source repair: docs/roadmap/PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CO
 PR532B source review: docs/roadmap/PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_ARGUS_RESULT.md
 PR532B hosted result: docs/roadmap/PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_HOSTED_RESULT_MIMIR.md
 PR532 resumed rehearsal: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_REHEARSAL_RESUME_ARIADNE.md
+PR532 final rehearsal result: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_REHEARSAL_ARIADNE_RESULT.md
+PR532 final review: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ARGUS_RESULT.md
+PR532 closeout: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_CLOSEOUT_MIMIR.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -104,8 +111,16 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE reruns the complete serialized PR532 API/human proof through exact cleanup, commits a public-safe result, and wakes ARGUS for final independent review
+Next: none selected; all four agents wait in foreground for an explicit instruction from Marty
 ```
+
+PR532 is accepted and closed. ARIADNE completed the full hosted generated-
+material lifecycle through report, moderation remove/restore, participant
+retract/delete, browser/auth proof, and exact cleanup. ARGUS independently
+accepted the committed public result and reran the read-only verifier. Tagged
+residue and all five generated tables are zero; protected account, Auth,
+retained-corpus, migration, route-hash, and Railway baselines are exact. No
+successor lane is selected or opened.
 
 ARGUS accepted migration 089 source-only. MIMIR applied and exactly ledgered
 it, then two read-only reconciliations proved one validated exact nine-target
