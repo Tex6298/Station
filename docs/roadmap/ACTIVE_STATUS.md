@@ -4,14 +4,17 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR530 generated-scope schema unblock preflight
+## Current gate - PR530A generated-scope validator repair
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
-OPEN_PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT
+BLOCK_PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT
+OPEN_PR530A_CROSS_OWNER_GENERATED_SCOPE_VALIDATOR_REPAIR
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARIADNE -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
+PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
+PR530A implementation: docs/roadmap/PR530A_CROSS_OWNER_GENERATED_SCOPE_VALIDATOR_REPAIR_DAEDALUS.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -43,18 +46,18 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS determines the exact additive schema repair for the PR524B generated-scope blocker; PR529 and retained partner-review data remain paused and unchanged
+Next: DAEDALUS implements migration 087 and focused local proof; ARGUS then reviews before a separate serialized hosted 081/082/087 reconciliation lane
 ```
 
 The Tex-to-Discern synchronization is closed green. The archived former
 Discern main remains at `ff93308b`, both current source trees equal
 `7b76c488`, and Discern Actions run `29635447216` passes every job step.
 
-PR530 resumes the named Phase 3 generated-material publication path only far
-enough to remove its concrete blocker. The current consent validator omits
-`publish_exact_generated_revision` and caps valid scopes at seven while the
-accepted API/type contract contains eight. ARGUS owns a hostile preflight
-before any additive migration, hosted mutation, or PR524B rerun.
+ARGUS confirmed the source validator defect and found wider hosted schema drift:
+hosted lacks the accepted PR522/PR524A generated artifact and publication chain
+as well as the validator repair. PR530A therefore implements and reviews only
+the forward migration 087 source fix. A later serialized lane must reconcile
+081, 082, and 087 on hosted before ARIADNE may rerun PR524B.
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
 zero page, non-aborted request, HTTP, write, geometry, or theme-resolution
