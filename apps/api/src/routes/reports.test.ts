@@ -67,7 +67,7 @@ class ReportsSupabase {
     persona_encounter_cross_owner_generated_revisions: [],
     persona_encounter_cross_owner_generated_revision_approvals: [],
     persona_encounter_cross_owner_generated_publications: [],
-    persona_encounter_cross_owner_generated_publication_audit_events: [],
+    persona_encounter_cross_owner_generated_publication_audits: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -232,7 +232,7 @@ class ReportsSupabase {
       row.updated_at ??= now;
     }
 
-    if (table === "persona_encounter_cross_owner_generated_publication_audit_events") {
+    if (table === "persona_encounter_cross_owner_generated_publication_audits") {
       row.actor_user_id ??= null;
       row.publication_contract_version ??= 1;
       row.created_at ??= now;
@@ -1538,7 +1538,7 @@ test("admin report status updates can remove and conditionally restore generated
     assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_by, "admin-user");
     assert.equal(typeof db.tables.persona_encounter_cross_owner_generated_publications[0].removed_at, "string");
     assert.equal(
-      db.tables.persona_encounter_cross_owner_generated_publication_audit_events[0].event_type,
+      db.tables.persona_encounter_cross_owner_generated_publication_audits[0].event_type,
       "moderation_removed",
     );
 
@@ -1597,7 +1597,7 @@ test("admin report status updates can remove and conditionally restore generated
     assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_by, null);
     assert.equal(db.tables.persona_encounter_cross_owner_generated_publications[0].removed_at, null);
     assert.equal(
-      db.tables.persona_encounter_cross_owner_generated_publication_audit_events[1].event_type,
+      db.tables.persona_encounter_cross_owner_generated_publication_audits[1].event_type,
       "moderation_restored",
     );
 

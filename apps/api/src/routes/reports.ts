@@ -1369,7 +1369,7 @@ async function recordGeneratedPublicationModerationAudit(
   adminUserId: string,
 ) {
   await (sb as any)
-    .from("persona_encounter_cross_owner_generated_publication_audit_events")
+    .from("persona_encounter_cross_owner_generated_publication_audits")
     .insert({
       publication_id: publication.id,
       consent_id: publication.consent_id,

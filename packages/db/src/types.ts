@@ -932,7 +932,7 @@ export interface Database {
         };
         Update: Partial<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publications"]["Insert"]>;
       };
-      persona_encounter_cross_owner_generated_publication_audit_events: {
+      persona_encounter_cross_owner_generated_publication_audits: {
         Row: {
           id: string;
           publication_id: string;
@@ -949,7 +949,7 @@ export interface Database {
           publication_contract_version: 1;
           created_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publication_audit_events"]["Row"], "id" | "publication_contract_version" | "created_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["persona_encounter_cross_owner_generated_publication_audits"]["Row"], "id" | "publication_contract_version" | "created_at"> & {
           id?: string;
           publication_contract_version?: 1;
           created_at?: string;

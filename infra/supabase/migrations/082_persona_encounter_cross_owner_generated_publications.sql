@@ -68,7 +68,7 @@ create table if not exists public.persona_encounter_cross_owner_generated_public
     check (provenance_schema = 'station.persona_encounter.cross_owner_generated_publication.v1')
 );
 
-create table if not exists public.persona_encounter_cross_owner_generated_publication_audit_events (
+create table if not exists public.persona_encounter_cross_owner_generated_publication_audits (
   id uuid primary key default gen_random_uuid(),
   publication_id uuid not null references public.persona_encounter_cross_owner_generated_publications(id) on delete cascade,
   consent_id uuid not null references public.persona_encounter_cross_owner_consents(id) on delete cascade,
@@ -131,9 +131,9 @@ create index if not exists idx_pe_co_generated_publications_moderation
   on public.persona_encounter_cross_owner_generated_publications (status, reported_count, created_at desc);
 
 create index if not exists idx_pe_co_generated_publication_audit_publication
-  on public.persona_encounter_cross_owner_generated_publication_audit_events (publication_id, created_at desc);
+  on public.persona_encounter_cross_owner_generated_publication_audits (publication_id, created_at desc);
 
-create or replace function public.prevent_persona_encounter_cross_owner_generated_publication_audit_mutation()
+create or replace function public.prevent_cross_owner_generated_publication_audit_mutation()
 returns trigger
 language plpgsql
 as $$
@@ -143,16 +143,16 @@ end;
 $$;
 
 drop trigger if exists pe_co_generated_publication_audit_no_update
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 create trigger pe_co_generated_publication_audit_no_update
-  before update on public.persona_encounter_cross_owner_generated_publication_audit_events
-  for each row execute function public.prevent_persona_encounter_cross_owner_generated_publication_audit_mutation();
+  before update on public.persona_encounter_cross_owner_generated_publication_audits
+  for each row execute function public.prevent_cross_owner_generated_publication_audit_mutation();
 
 drop trigger if exists pe_co_generated_publication_audit_no_delete
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 create trigger pe_co_generated_publication_audit_no_delete
-  before delete on public.persona_encounter_cross_owner_generated_publication_audit_events
-  for each row execute function public.prevent_persona_encounter_cross_owner_generated_publication_audit_mutation();
+  before delete on public.persona_encounter_cross_owner_generated_publication_audits
+  for each row execute function public.prevent_cross_owner_generated_publication_audit_mutation();
 
 drop trigger if exists pe_co_generated_publications_updated_at
   on public.persona_encounter_cross_owner_generated_publications;
@@ -181,7 +181,7 @@ begin
         updated_at = now()
       where id = v_publication.id;
 
-      insert into public.persona_encounter_cross_owner_generated_publication_audit_events (
+      insert into public.persona_encounter_cross_owner_generated_publication_audits (
         publication_id,
         consent_id,
         artifact_id,
@@ -242,7 +242,7 @@ begin
         updated_at = now()
       where id = v_publication.id;
 
-      insert into public.persona_encounter_cross_owner_generated_publication_audit_events (
+      insert into public.persona_encounter_cross_owner_generated_publication_audits (
         publication_id,
         consent_id,
         artifact_id,
@@ -303,7 +303,7 @@ begin
         updated_at = now()
       where id = v_publication.id;
 
-      insert into public.persona_encounter_cross_owner_generated_publication_audit_events (
+      insert into public.persona_encounter_cross_owner_generated_publication_audits (
         publication_id,
         consent_id,
         artifact_id,
@@ -344,7 +344,7 @@ create trigger pe_co_generated_publications_invalidate_on_revision
   for each row execute function public.invalidate_generated_publications_on_revision();
 
 alter table public.persona_encounter_cross_owner_generated_publications enable row level security;
-alter table public.persona_encounter_cross_owner_generated_publication_audit_events enable row level security;
+alter table public.persona_encounter_cross_owner_generated_publication_audits enable row level security;
 
 drop policy if exists "pe_co_generated_publications_select_public"
   on public.persona_encounter_cross_owner_generated_publications;
@@ -436,9 +436,9 @@ drop policy if exists "pe_co_generated_publications_select_participants"
   on public.persona_encounter_cross_owner_generated_publications;
 
 drop policy if exists "pe_co_generated_publication_audit_select_participants"
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 create policy "pe_co_generated_publication_audit_select_participants"
-  on public.persona_encounter_cross_owner_generated_publication_audit_events
+  on public.persona_encounter_cross_owner_generated_publication_audits
   for select
   using (
     exists (
@@ -460,11 +460,11 @@ drop policy if exists "pe_co_generated_publications_update_participants"
 drop policy if exists "pe_co_generated_publications_delete_participants"
   on public.persona_encounter_cross_owner_generated_publications;
 drop policy if exists "pe_co_generated_publication_audit_insert_participants"
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 drop policy if exists "pe_co_generated_publication_audit_update_participants"
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 drop policy if exists "pe_co_generated_publication_audit_delete_participants"
-  on public.persona_encounter_cross_owner_generated_publication_audit_events;
+  on public.persona_encounter_cross_owner_generated_publication_audits;
 -- Writes and participant controls are server-mediated. Direct public reads are
 -- limited to currently published rows; inactive public rows and audit events do
 -- not expose body text.
@@ -472,5 +472,5 @@ drop policy if exists "pe_co_generated_publication_audit_delete_participants"
 comment on table public.persona_encounter_cross_owner_generated_publications is
   'Dedicated PR524A detail-only public generated material table. Public body text is copied server-side only from an active PR522 exact approved revision with bilateral approval. No list, Discover, Space, forum, writing, homepage, public persona linkback, PR516 direct publication, provider payload, retrieval body, prompt, token fact, raw owner id, raw persona id, env value, cookie, bearer value, or secret-shaped value is exposed.';
 
-comment on table public.persona_encounter_cross_owner_generated_publication_audit_events is
+comment on table public.persona_encounter_cross_owner_generated_publication_audits is
   'Append-only PR524A audit ledger for generated publication publish, retract, revoke cascade, source invalidation, moderation remove/restore, delete, and blocked public read events. It stores digests and lifecycle metadata only, not generated body text.';

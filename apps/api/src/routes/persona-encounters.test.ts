@@ -124,7 +124,7 @@ class InMemorySupabase {
     persona_encounter_cross_owner_generated_revisions: [],
     persona_encounter_cross_owner_generated_revision_approvals: [],
     persona_encounter_cross_owner_generated_publications: [],
-    persona_encounter_cross_owner_generated_publication_audit_events: [],
+    persona_encounter_cross_owner_generated_publication_audits: [],
     conversations: [],
     conversation_messages: [],
     archived_chat_transcripts: [],
@@ -209,7 +209,7 @@ class InMemorySupabase {
     if (table === "persona_encounter_cross_owner_generated_publications" && !row.id) {
       row.id = `12121212-1212-4121-8121-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
-    if (table === "persona_encounter_cross_owner_generated_publication_audit_events" && !row.id) {
+    if (table === "persona_encounter_cross_owner_generated_publication_audits" && !row.id) {
       row.id = `34343434-3434-4343-8343-${String(this.rows(table).length + 1).padStart(12, "0")}`;
     }
     row.id ??= `${table}-${this.rows(table).length + 1}`;
@@ -372,7 +372,7 @@ class InMemorySupabase {
       row.updated_at ??= now;
     }
 
-    if (table === "persona_encounter_cross_owner_generated_publication_audit_events") {
+    if (table === "persona_encounter_cross_owner_generated_publication_audits") {
       row.actor_user_id ??= null;
       row.publication_contract_version ??= 1;
       row.created_at ??= now;
@@ -1274,7 +1274,7 @@ function assertNoDurableEncounterWrites(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
     "persona_encounter_cross_owner_generated_publications",
-    "persona_encounter_cross_owner_generated_publication_audit_events",
+    "persona_encounter_cross_owner_generated_publication_audits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1304,7 +1304,7 @@ function assertNoDurableEncounterWritesExceptPrivateSessions(db: InMemorySupabas
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
     "persona_encounter_cross_owner_generated_publications",
-    "persona_encounter_cross_owner_generated_publication_audit_events",
+    "persona_encounter_cross_owner_generated_publication_audits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1333,7 +1333,7 @@ function assertNoForbiddenCrossOwnerConsentSideEffects(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
     "persona_encounter_cross_owner_generated_publications",
-    "persona_encounter_cross_owner_generated_publication_audit_events",
+    "persona_encounter_cross_owner_generated_publication_audits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1363,7 +1363,7 @@ function assertNoForbiddenCrossOwnerRuntimeAttemptSideEffects(db: InMemorySupaba
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
     "persona_encounter_cross_owner_generated_publications",
-    "persona_encounter_cross_owner_generated_publication_audit_events",
+    "persona_encounter_cross_owner_generated_publication_audits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1393,7 +1393,7 @@ function assertNoForbiddenCrossOwnerPreviewSideEffects(db: InMemorySupabase) {
     "persona_encounter_cross_owner_generated_revisions",
     "persona_encounter_cross_owner_generated_revision_approvals",
     "persona_encounter_cross_owner_generated_publications",
-    "persona_encounter_cross_owner_generated_publication_audit_events",
+    "persona_encounter_cross_owner_generated_publication_audits",
     "archived_chat_transcripts",
     "continuity_candidates",
     "continuity_records",
@@ -1760,7 +1760,12 @@ test("cross-owner generated publication migration creates detail-only public con
   );
 
   assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_publications/);
-  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_publication_audit_events/);
+  assert.match(sql, /create table if not exists public\.persona_encounter_cross_owner_generated_publication_audits/);
+  assert.deepEqual(
+    sql.match(/\b[a-z][a-z0-9_]{63,}\b/g) ?? [],
+    [],
+    "migration 082 identifiers must fit PostgreSQL's 63-byte identifier limit",
+  );
   assert.match(sql, /public_body text not null/);
   assert.match(sql, /public_excerpt text/);
   assert.match(sql, /revision_digest text not null/);
@@ -3493,7 +3498,7 @@ test("cross-owner generated publications copy exact approved revisions to a deta
     assert.equal(publicationRow.public_body, "Exact PR524A generated body copied only after bilateral approval.");
     assert.equal(publicationRow.revision_digest, fixture.revision.textDigest);
     assert.equal(publicationRow.status, "published");
-    assert.equal(db.rows("persona_encounter_cross_owner_generated_publication_audit_events")[0].event_type, "published");
+    assert.equal(db.rows("persona_encounter_cross_owner_generated_publication_audits")[0].event_type, "published");
 
     const publicRead = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
     assert.equal(publicRead.status, 200);
@@ -3635,7 +3640,7 @@ test("cross-owner generated publications fail closed for scope digest source and
     const publicAfterParticipantDeletion = await requestJson(app, "GET", crossOwnerGeneratedPublicationPath(publish.body.publication.slug));
     assert.equal(publicAfterParticipantDeletion.status, 404);
     assert.ok(
-      db.rows("persona_encounter_cross_owner_generated_publication_audit_events")
+      db.rows("persona_encounter_cross_owner_generated_publication_audits")
         .some((event) => event.event_type === "blocked_public_read" && event.actor_role === "public"),
     );
 
@@ -3696,7 +3701,7 @@ test("cross-owner generated publication participant controls hide and delete pub
     assert.equal(publicAfterDelete.status, 404);
 
     assert.deepEqual(
-      db.rows("persona_encounter_cross_owner_generated_publication_audit_events")
+      db.rows("persona_encounter_cross_owner_generated_publication_audits")
         .map((event) => event.event_type)
         .filter((eventType) => ["published", "retracted", "blocked_public_read", "deleted"].includes(eventType)),
       ["published", "retracted", "blocked_public_read", "deleted", "blocked_public_read"],

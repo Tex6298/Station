@@ -5620,7 +5620,7 @@ async function recordCrossOwnerGeneratedPublicationAudit(
   },
 ) {
   const { data, error } = await sb
-    .from("persona_encounter_cross_owner_generated_publication_audit_events")
+    .from("persona_encounter_cross_owner_generated_publication_audits")
     .insert({
       publication_id: input.publication.id,
       consent_id: input.publication.consent_id,
