@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR530B2 PostgreSQL identifier source repair review
+## Current gate - PR530B3 repaired schema hosted reconciliation review
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -16,6 +16,8 @@ BLOCK_PR530B_STALLED_BEFORE_SCHEMA_APPLY
 OPEN_PR530B1_SCHEMA_ONLY_HOSTED_RECONCILIATION_RECOVERY
 BLOCK_PR530B1_AT_UNLEDGERED_081_IDENTIFIER_LIMIT_CHECKPOINT
 OPEN_PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_REVIEW
+ACCEPT_PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_WITH_081_CHECKPOINT
+READY_PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -27,6 +29,8 @@ PR530B hosted reconciliation: docs/roadmap/PR530B_SERIALIZED_GENERATED_SCHEMA_HO
 PR530B takeover audit: docs/roadmap/PR530B_STALLED_HOSTED_RECONCILIATION_TAKEOVER_ARGUS_RESULT.md
 PR530B1 recovery: docs/roadmap/PR530B1_SCHEMA_ONLY_HOSTED_RECONCILIATION_RECOVERY_DAEDALUS.md
 PR530B2 source repair: docs/roadmap/PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_MIMIR.md
+PR530B2 review: docs/roadmap/PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_ARGUS_RESULT.md
+PR530B3 hosted result: docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_MIMIR_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -58,7 +62,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS hostile-reviews PR530B2 source and the unledgered 081 hosted checkpoint; on acceptance MIMIR resumes only 081 ledger plus 082/087 apply and stops before canary
+Next: ARGUS independently reviews exact hosted 081/082/087 ledger/catalog/zero-row/validator/invariant truth; canary remains forbidden and unrun
 ```
 
 The Tex-to-Discern synchronization is closed green. The archived former
@@ -69,10 +73,12 @@ ARGUS accepts PR530A's forward migration 087 source fix with `88/88` persona-
 encounter tests, `9/9` report tests, API typecheck, and DB build green. Its
 read-only PR530B takeover proved A2 stopped at a clean preflight. MIMIR's
 PR530B1 takeover then applied migration 081, but the pre-ledger catalog gate
-stopped on PostgreSQL's 63-byte identifier limit. PR530B2 repairs migration
-082's application-facing audit relation before it can be applied. Hosted now
-contains only accepted 081 objects with zero rows and zero target ledger rows;
-082, 087, and the canary remain absent. ARIADNE still may not rerun PR524B.
+stopped on PostgreSQL's 63-byte identifier limit. ARGUS accepted PR530B2's
+application-facing relation repair. PR530B3 then honestly ledgered the proven
+081 checkpoint, applied and ledgered repaired 082 and accepted 087, and proved
+five empty target tables plus the exact eight-scope validator. The product
+canary remains absent because fixture discovery is non-unique. ARIADNE still
+may not rerun PR524B.
 
 PR528A completed `44/44` Light/Dark desktop/mobile human-eye route cases with
 zero page, non-aborted request, HTTP, write, geometry, or theme-resolution
