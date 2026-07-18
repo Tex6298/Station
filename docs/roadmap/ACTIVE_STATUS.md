@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR532 full hosted API and human-eye rehearsal
+## Current gate - PR532B generated-publication report target source review
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -34,7 +34,10 @@ ACCEPT_PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REPAIR_SOURCE_ONLY
 CLOSE_PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REPAIR_HOSTED_ACCEPTED
 READY_PR532_OPERATOR_FOR_READ_ONLY_HANDOFF
 READY_PR532_FOR_ARIADNE_HOSTED_REHEARSAL
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR
+BLOCK_PR532_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT
+OPEN_PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT
+READY_PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -61,6 +64,9 @@ PR532A source repair: docs/roadmap/PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REP
 PR532A review: docs/roadmap/PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_REPAIR_ARGUS_RESULT.md
 PR532A hosted result: docs/roadmap/PR532A_APPEND_ONLY_PARENT_CASCADE_CLEANUP_HOSTED_RESULT_MIMIR.md
 PR532 rehearsal: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_REHEARSAL_ARIADNE.md
+PR532 rehearsal result: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_REHEARSAL_ARIADNE_RESULT.md
+PR532 blocker review: docs/roadmap/PR532_GENERATED_PUBLICATION_REPORT_TARGET_BLOCKER_ARGUS_RESULT.md
+PR532B source repair: docs/roadmap/PR532B_GENERATED_PUBLICATION_REPORT_TARGET_CONSTRAINT_MIMIR.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -92,8 +98,18 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE runs the complete serialized PR532 API/human proof through exact cleanup, commits a public-safe result, and wakes ARGUS for independent read-only final review
+Next: ARGUS hostile-reviews migration 089 source only and wakes MIMIR with accept/block; no hosted schema apply or PR532 rehearsal resumes before acceptance
 ```
+
+ARIADNE's hosted PR532 rehearsal reached the required generated-publication
+moderation report and received HTTP 500 because migration 080's exact target
+constraint omits the new target used by the deployed route. Both attempts
+recovered to zero residue, and ARGUS independently accepted the blocker and
+baseline restoration. DAEDALUS did not consume either committed PR532B wakeup,
+so MIMIR took over only the bounded constraint repair. Migration 089 preserves
+the eight existing target values, adds exactly the generated-publication
+target, and has focused source/catalog guardrails ready for ARGUS review. No
+hosted schema or PR532 product mutation has run for PR532B.
 
 ARGUS accepted PR532A source-only. MIMIR applied and exactly ledgered migration
 088, then two read-only reconciliations proved four RLS-independent safe

@@ -1649,6 +1649,83 @@ test("append-only cleanup migration preserves direct guards and permits parent c
   assert.match(migration, /notify pgrst, 'reload schema';\s+commit;\s*$/);
 });
 
+test("generated-publication report target migration preserves the exact moderation allow-list", () => {
+  const migration = readFileSync(
+    "infra/supabase/migrations/089_persona_encounter_generated_publication_report_target.sql",
+    "utf8",
+  );
+  const priorMigration = readFileSync(
+    "infra/supabase/migrations/080_persona_encounter_cross_owner_public_exhibits.sql",
+    "utf8",
+  );
+
+  const constraintMatch = migration.match(
+    /add constraint moderation_reports_target_type_check\s+check \(target_type in \(([\s\S]*?)\)\);/,
+  );
+  assert.ok(constraintMatch?.[1], "migration 089 target constraint should be present");
+
+  const allowedTargets = [...constraintMatch[1].matchAll(/'([^']+)'/g)]
+    .map((match) => match[1]);
+  const expectedTargets = [
+    "user",
+    "space",
+    "document",
+    "thread",
+    "comment",
+    "persona",
+    "persona_encounter_public_exhibit",
+    "persona_encounter_cross_owner_public_exhibit",
+    "persona_encounter_cross_owner_generated_publication",
+  ];
+  const priorConstraintMatch = priorMigration.match(
+    /add constraint moderation_reports_target_type_check\s+check \(target_type in \(([\s\S]*?)\)\);/,
+  );
+  assert.ok(priorConstraintMatch?.[1], "migration 080 target constraint should be present");
+  const priorTargets = [...priorConstraintMatch[1].matchAll(/'([^']+)'/g)]
+    .map((match) => match[1]);
+
+  assert.deepEqual(allowedTargets, expectedTargets);
+  assert.deepEqual(priorTargets, expectedTargets.slice(0, -1));
+  assert.deepEqual(allowedTargets.slice(0, -1), priorTargets);
+  const acceptsTarget = (target: string) => new Set(allowedTargets).has(target);
+  for (const target of expectedTargets) {
+    assert.equal(acceptsTarget(target), true, `${target} should remain accepted`);
+  }
+  assert.equal(
+    acceptsTarget("persona_encounter_unknown_target"),
+    false,
+    "unknown moderation target types must remain rejected",
+  );
+
+  assert.match(
+    migration,
+    /hashtextextended\('station\.pr532b\.generated_publication_report_target_constraint\.089', 0\)/,
+  );
+  assert.match(migration, /do \$pr532b_preflight\$[\s\S]*pg_get_constraintdef/);
+  assert.match(migration, /public\.persona_encounter_cross_owner_generated_publications/);
+  assert.match(migration, /public\.persona_encounter_cross_owner_generated_publication_audits/);
+  assert.match(migration, /public\.idx_moderation_reports_active_unique/);
+  assert.match(migration, /actual_targets <> expected_targets/);
+  assert.match(migration, /do \$pr532b_postassert\$[\s\S]*regexp_matches/);
+  assert.equal(
+    (migration.match(/drop constraint if exists moderation_reports_target_type_check/g) ?? []).length,
+    1,
+  );
+  assert.equal(
+    (migration.match(/add constraint moderation_reports_target_type_check/g) ?? []).length,
+    1,
+  );
+  assert.deepEqual(
+    [...migration.matchAll(/alter table\s+([a-z0-9_.]+)/gi)].map((match) => match[1]),
+    ["public.moderation_reports", "public.moderation_reports"],
+  );
+  assert.doesNotMatch(migration, /\b(?:insert\s+into|update\s+public\.|delete\s+from)\b/i);
+  assert.doesNotMatch(migration, /\b(?:create|drop)\s+table\b/i);
+  assert.doesNotMatch(migration, /\b(?:create|drop)\s+(?:function|trigger|policy)\b/i);
+  assert.doesNotMatch(migration, /disable row level security/i);
+  assert.match(migration, /notify pgrst, 'reload schema';\s+commit;\s*$/);
+});
+
 test("cross-owner runtime attempt migration creates participant-readable append-only metadata audit", () => {
   const sql = readFileSync(
     "infra/supabase/migrations/078_persona_encounter_cross_owner_runtime_attempts.sql",
