@@ -12,7 +12,8 @@ log.
 
 | Lane | Name | Owner | State | Source |
 | --- | --- | --- | --- | --- |
-| PR531 | Unique Disposable PR524B Fixture Preflight | ARGUS / A3 | Open read-only preflight. Design one uniquely tagged full product-proof fixture under existing test accounts, with exact restoration and no historical-pair selection. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_ARGUS.md` |
+| PR531A | Configured Requester Persona Capacity Unblock | DAEDALUS -> ARGUS | Open serialized hosted unblock. Create exactly one tagged private requester persona through the product route under a reversible nonbilling capacity adjustment, restore entitlement/session state, and retain encrypted fixture evidence. | `docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_DAEDALUS.md` |
+| PR531 | Unique Disposable PR524B Fixture Preflight | ARGUS / A3 | Blocked read-only only on configured requester persona capacity; generated schema/routes, counterparty capacity, zero tag residue, and focused suites are green. | `docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_RESULT.md` |
 | PR530B3 | Repaired Schema Hosted Reconciliation | MIMIR -> ARGUS | Accepted schema-only. Exact 081/repaired-082/087 ledger/catalog, five zero-row tables, eight-scope validator, retained/Auth/Railway, and zero-canary proofs pass. | `docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_ARGUS_RESULT.md` |
 | PR530B2 | PostgreSQL Identifier Source Repair | MIMIR -> ARGUS | Accepted with the independently proven unledgered zero-row 081 checkpoint. | `docs/roadmap/PR530B2_POSTGRES_IDENTIFIER_SOURCE_REPAIR_ARGUS_RESULT.md` |
 | PR530B1 | Schema-Only Hosted Reconciliation Recovery | DAEDALUS -> MIMIR | Recovered through PR530B3 after the identifier-limit stop; schema and ledgers are complete, while canary remains explicitly outside this run. | `docs/roadmap/PR530B1_SCHEMA_ONLY_HOSTED_RECONCILIATION_RECOVERY_DAEDALUS.md` |

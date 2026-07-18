@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR531 unique disposable PR524B fixture preflight
+## Current gate - PR531A configured requester persona capacity unblock
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -21,6 +21,8 @@ READY_PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_FOR_ARGUS
 ACCEPT_PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_SCHEMA_ONLY
 CLOSE_PR530_GENERATED_SCHEMA_HOSTED_RECONCILIATION_ACCEPTED_SCHEMA_ONLY
 OPEN_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT
+BLOCK_PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PLAN
+OPEN_PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -37,6 +39,8 @@ PR530B3 hosted result: docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATIO
 PR530B3 review: docs/roadmap/PR530B3_REPAIRED_SCHEMA_HOSTED_RECONCILIATION_ARGUS_RESULT.md
 PR530 closeout: docs/roadmap/PR530_GENERATED_SCHEMA_HOSTED_RECONCILIATION_CLOSEOUT_MIMIR.md
 PR531 preflight: docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_ARGUS.md
+PR531 preflight result: docs/roadmap/PR531_UNIQUE_DISPOSABLE_PR524B_FIXTURE_PREFLIGHT_RESULT.md
+PR531A capacity unblock: docs/roadmap/PR531A_CONFIGURED_REQUESTER_PERSONA_CAPACITY_UNBLOCK_DAEDALUS.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -68,7 +72,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS designs one unique disposable full PR524B fixture and exact product-route restoration plan read-only; no hosted mutation or historical-pair selection
+Next: DAEDALUS creates exactly one fresh tagged private requester persona through the product route under a reversible nonbilling capacity adjustment, restores entitlement/session state, and wakes ARGUS
 ```
 
 The Tex-to-Discern synchronization is closed green. The archived former
