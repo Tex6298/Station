@@ -50,3 +50,32 @@ export function filterPersonaConversations<T extends Pick<PersonaConversationSum
   if (!normalized) return conversations;
   return conversations.filter((conversation) => personaConversationTitle(conversation).toLocaleLowerCase().includes(normalized));
 }
+
+export interface RecentConversationEntry {
+  conversation: PersonaConversationSummary;
+  personaId: string;
+  personaName: string;
+}
+
+function conversationUpdatedAt(conversation: PersonaConversationSummary) {
+  const value = conversation.updated_at ?? conversation.updatedAt ?? conversation.created_at ?? conversation.createdAt;
+  const parsed = value ? Date.parse(value) : NaN;
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+export function mergeRecentConversations(
+  groups: Array<{ persona: { id: string; name: string }; conversations: PersonaConversationSummary[] }>,
+  limit = 6,
+): RecentConversationEntry[] {
+  const entries = groups.flatMap(({ persona, conversations }) =>
+    conversations.map((conversation) => ({
+      conversation,
+      personaId: persona.id,
+      personaName: persona.name,
+    })),
+  );
+
+  return entries
+    .sort((a, b) => conversationUpdatedAt(b.conversation) - conversationUpdatedAt(a.conversation))
+    .slice(0, limit);
+}

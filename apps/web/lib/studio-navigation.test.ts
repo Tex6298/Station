@@ -227,14 +227,24 @@ test("general Studio rail uses the measured minimal hierarchy and relocates seco
 
   assert.match(sidebarSource, /className="studio-rail-actions"/);
   assert.match(sidebarSource, /className="studio-rail-personas"/);
-  assert.match(sidebarSource, /<details className="studio-rail-secondary">/);
   assert.match(sidebarSource, /label="Settings" href="\/settings" mark="S" className="studio-rail-settings"/);
   assert.match(sidebarSource, /placeholder="Find persona"/);
-  assert.match(sidebarSource, /railSecondaryLinks\.map/);
   assert.match(sidebarSource, /ref=\{disclosureRef\}/);
   assert.match(sidebarSource, /event\.target\.closest\("a"\)/);
   assert.match(sidebarSource, /onClick=\{closeAfterSelection\}/);
   assert.doesNotMatch(sidebarSource, /TokenUsagePanel|StorageUsagePanel|>Station<|studioPersonaMeta/);
+
+  // The "More Studio" disclosure is gone: Publish / Public Space / Developer are direct
+  // sidebar buttons, companion rows carry their own hover quick-settings card, and the
+  // rest of the old secondary link list moved to the expanded account Settings page.
+  assert.doesNotMatch(sidebarSource, /<details className="studio-rail-secondary">/);
+  assert.doesNotMatch(sidebarSource, /railSecondaryLinks/);
+  assert.match(sidebarSource, /className="studio-rail-actions studio-rail-actions-secondary"/);
+  assert.match(sidebarSource, /href="\/studio\/publish" className="studio-rail-action">Publish/);
+  assert.match(sidebarSource, /href="\/space" className="studio-rail-action">Public Space/);
+  assert.match(sidebarSource, /hasDeveloperSpace \? \(/);
+  assert.match(sidebarSource, /CompanionRow/);
+  assert.match(sidebarSource, /className="studio-rail-recent"/);
 
   assert.match(cssSource, /\.studio-sidebar-desktop \{\s*width: 156px;\s*flex: 0 0 156px;/);
   assert.match(cssSource, /@media \(min-width: 960px\)/);
@@ -248,7 +258,7 @@ test("signed mobile top nav keeps protected routes reachable through the account
 });
 
 test("global navigation preserves public and private destinations while showing only the active private section", () => {
-  assert.deepEqual(TOP_NAV_PUBLIC_ROUTES.map((route) => route.href), ["/discover", "/writing", "/forums"]);
+  assert.deepEqual(TOP_NAV_PUBLIC_ROUTES.map((route) => route.href), ["/writing", "/forums"]);
   assert.deepEqual(TOP_NAV_PRIVATE_ROUTES.map((route) => route.href), [
     "/studio",
     "/projects",

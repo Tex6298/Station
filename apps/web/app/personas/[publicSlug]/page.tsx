@@ -257,7 +257,7 @@ export default function PublicPersonaPage() {
       <main className="public-persona-page">
         <section className="public-persona-panel public-persona-error">
           <p>{error ?? "Public persona not found."}</p>
-          <Link href="/discover">Back to Discover</Link>
+          <Link href="/">Back to Station</Link>
         </section>
       </main>
     );

@@ -1,73 +1,27 @@
 import Link from "next/link";
 import type { PersonaSummary } from "@station/types/persona";
-import { studioDashboardMemoryStop, studioNewChatHref } from "@/lib/studio-navigation";
+import { timeAgo } from "@/components/discover/feed-shared";
 import {
-  StudioActionRow,
+  studioNewChatHref,
+  studioPersonaConversationHref,
+} from "@/lib/studio-navigation";
+import { personaConversationTitle } from "@/lib/persona-conversations";
+import { useRecentConversations } from "@/lib/use-recent-conversations";
+import {
   StudioEmptyState,
   StudioErrorState,
   StudioFrame,
   StudioPanel,
   StudioPlaceStrip,
-  StudioStatusBadge,
 } from "./studio-frame";
-
-export interface IntegrityDuePersona {
-  id: string;
-  name: string;
-  lastSession: string | null;
-  sessionStatus: "never" | "overdue" | "due_soon" | "ok";
-}
 
 type StudioDashboardProps = {
   personas: PersonaSummary[];
-  integrityDue: IntegrityDuePersona[];
-  integrityAvailable: boolean;
   loading: boolean;
   error: string | null;
   signedIn: boolean;
+  accessToken: string | null;
 };
-
-const PROVIDER_LABELS: Record<string, string> = {
-  platform: "Station",
-  openai: "OpenAI",
-  anthropic: "Anthropic",
-  deepseek: "DeepSeek",
-  gemini: "Gemini",
-};
-
-const archiveDestinations = [
-  { icon: "O", label: "Choose an onboarding path", detail: "Fresh Start, Awakening, Migrator, or API Bridge", href: "/studio/onboarding" },
-  { icon: "A", label: "Open global archive", detail: "Search owner-scoped archived material and import status", href: "/studio/archive" },
-  { icon: "E", label: "Export workspace", detail: "Review portable JSON and Markdown export bundles", href: "/studio/export" },
-];
-
-const usageSurfaces = [
-  {
-    label: "Billing",
-    value: "Plan",
-    detail: "Subscription state, entitlement limits, and token-credit separation.",
-    href: "/billing",
-  },
-  {
-    label: "Settings",
-    value: "Tokens",
-    detail: "Server-reported token-credit balance and storage usage.",
-    href: "/settings",
-  },
-  {
-    label: "Archive",
-    value: "Sources",
-    detail: "Owner-wide source state without invented usage math.",
-    href: "/studio/archive",
-  },
-];
-
-function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
-  if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", tone: "danger" as const, action: "Start" };
-  if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", tone: "danger" as const, action: "Start" };
-  if (status === "due_soon") return { label: "Due soon", detail: "Session due this week", tone: "warning" as const, action: "Start" };
-  return { label: "Up to date", detail: "Continuity check current", tone: "good" as const, action: "View" };
-}
 
 function Shell({ children }: { children: React.ReactNode }) {
   return <StudioFrame>{children}</StudioFrame>;
@@ -75,7 +29,6 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Header({ personas }: { personas: PersonaSummary[] }) {
   const personaCount = personas.length;
-  const companionHref = studioNewChatHref(personas);
 
   return (
     <header className="studio-dashboard-header">
@@ -95,16 +48,6 @@ function Header({ personas }: { personas: PersonaSummary[] }) {
           action={<Link href="/studio/assistant" className="studio-dashboard-place-action">Station Assistant</Link>}
         />
       </div>
-      <StudioActionRow>
-        {personaCount > 0 ? (
-          <Link href={companionHref} className="studio-dashboard-action" data-variant="primary">Open Companion</Link>
-        ) : (
-          <Link href="/studio/new" className="studio-dashboard-action" data-variant="primary">New Persona</Link>
-        )}
-        {personaCount > 0 ? <Link href="/studio/new" className="studio-dashboard-action">New Persona</Link> : null}
-        <Link href="/studio/onboarding" className="studio-dashboard-action">Choose Path</Link>
-        <Link href="/space" className="studio-dashboard-action" data-variant="public">Open Public Space</Link>
-      </StudioActionRow>
     </header>
   );
 }
@@ -135,140 +78,39 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   );
 }
 
-function MemoryOrientation({ personas }: { personas: PersonaSummary[] }) {
-  const memoryStop = studioDashboardMemoryStop(personas);
-
-  return (
-    <section className="studio-dashboard-panel studio-dashboard-memory">
-      <SectionTitle title="Memory" action={memoryStop.actionLabel} href={memoryStop.href} />
-      <Link href={memoryStop.href} className="studio-dashboard-row" data-align="start">
-        <span className="studio-dashboard-icon" data-tone="memory" aria-hidden="true">M</span>
-        <span className="studio-dashboard-row-copy">
-          <span className="studio-dashboard-row-heading">
-            <strong>{memoryStop.statusLabel}</strong>
-            <StudioStatusBadge tone={personas.length > 0 ? "good" : "warning"}>{memoryStop.privacy}</StudioStatusBadge>
-          </span>
-          <small>{memoryStop.statusDetail}</small>
-          <small>{memoryStop.body}</small>
-        </span>
-      </Link>
-    </section>
-  );
-}
-
-function IntegrityList({
-  integrityDue,
-  available,
-}: {
-  integrityDue: IntegrityDuePersona[];
-  available: boolean;
-}) {
-  const dueRows = integrityDue.filter((persona) => persona.sessionStatus !== "ok");
+function RecentConversations({ personas, accessToken }: { personas: PersonaSummary[]; accessToken: string | null }) {
+  const { entries, loading } = useRecentConversations(personas, accessToken);
 
   return (
     <section className="studio-dashboard-panel" data-priority="primary">
-      <SectionTitle title="Integrity due" />
-      {!available ? (
-        <EmptyLine text="Integrity due status is temporarily unavailable." />
-      ) : dueRows.length === 0 ? (
-        <EmptyLine text="No Integrity Sessions are currently due." />
-      ) : (
-        <div className="studio-dashboard-list studio-dashboard-due-list">
-          {dueRows.map((persona) => {
-            const status = integrityStatus(persona.sessionStatus);
-            return (
-              <div key={persona.id} className="studio-dashboard-row">
-                <StudioStatusBadge tone={status.tone}>{status.label}</StudioStatusBadge>
-                <span className="studio-dashboard-row-copy">
-                  <strong>{persona.name}</strong>
-                  <small>{persona.lastSession ? `${status.detail} - ${formatDate(persona.lastSession)}` : status.detail}</small>
-                </span>
-                <Link href={`/studio/personas/${persona.id}/calibration`} className="studio-dashboard-mini-action">
-                  {status.action}
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </section>
-  );
-}
-
-function UsageStats() {
-  return (
-    <section className="studio-dashboard-panel">
-      <SectionTitle title="Authoritative usage" action="Billing" href="/billing" />
-      <div className="studio-dashboard-metrics">
-        {usageSurfaces.map((surface) => (
-          <Link key={surface.label} href={surface.href} className="studio-dashboard-metric">
-            <strong>{surface.value}</strong>
-            <span>{surface.label}</span>
-            <small>{surface.detail}</small>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function ArchiveAndPortability() {
-  return (
-    <section className="studio-dashboard-panel">
-      <SectionTitle title="Archive and portability" action="Document Migrator" href="/studio/onboarding" />
-      <div className="studio-dashboard-list">
-        {archiveDestinations.map((destination) => (
-          <Link key={destination.label} href={destination.href} className="studio-dashboard-row">
-            <span className="studio-dashboard-icon" aria-hidden="true">{destination.icon}</span>
-            <span className="studio-dashboard-row-copy">
-              <strong>{destination.label}</strong>
-              <small>{destination.detail}</small>
-            </span>
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function PersonaOverview({ personas }: { personas: PersonaSummary[] }) {
-  return (
-    <section className="studio-dashboard-panel">
-      <SectionTitle title="All personas" action="Add" href="/studio/new" />
-      {personas.length === 0 ? (
-        <EmptyLine text="No personas yet." />
+      <SectionTitle title="Recent conversations" />
+      {loading ? (
+        <EmptyLine text="Loading recent conversations..." />
+      ) : entries.length === 0 ? (
+        <EmptyLine text="No conversations yet. Start a chat with a companion." />
       ) : (
         <div className="studio-dashboard-list">
-          {personas.map((persona, index) => (
-            <Link key={persona.id} href={`/studio/personas/${persona.id}`} className="studio-dashboard-row">
-              <ColorDot index={index} />
+          {entries.map(({ conversation, personaId, personaName }) => (
+            <Link
+              key={conversation.id}
+              href={studioPersonaConversationHref(personaId, conversation.id)}
+              className="studio-dashboard-row"
+            >
+              <span className="studio-dashboard-icon" aria-hidden="true">C</span>
               <span className="studio-dashboard-row-copy">
-                <strong>{persona.name}</strong>
-                <small>{PROVIDER_LABELS[persona.provider] ?? persona.provider} - {persona.visibility}</small>
+                <strong>{personaConversationTitle(conversation)}</strong>
+                <small>{personaName}</small>
               </span>
+              {(conversation.updated_at ?? conversation.updatedAt) ? (
+                <span className="studio-dashboard-row-time">
+                  {timeAgo((conversation.updated_at ?? conversation.updatedAt) as string)}
+                </span>
+              ) : null}
             </Link>
           ))}
         </div>
       )}
     </section>
-  );
-}
-
-function MoreStudioTools({ personas }: { personas: PersonaSummary[] }) {
-  return (
-    <details className="studio-dashboard-tools">
-      <summary>
-        <span>
-          <strong>More Studio tools</strong>
-          <small>Usage, archive, portability, and the full persona list</small>
-        </span>
-      </summary>
-      <div className="studio-dashboard-tools-grid">
-        <UsageStats />
-        <ArchiveAndPortability />
-        <PersonaOverview personas={personas} />
-      </div>
-    </details>
   );
 }
 
@@ -290,11 +132,7 @@ function ColorDot({ index }: { index: number }) {
   return <span className="studio-dashboard-dot" style={{ background: colors[index % colors.length] }} aria-hidden="true" />;
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
-
-export function StudioDashboard({ personas, integrityDue, integrityAvailable, loading, error, signedIn }: StudioDashboardProps) {
+export function StudioDashboard({ personas, loading, error, signedIn, accessToken }: StudioDashboardProps) {
   if (loading) {
     return (
       <Shell>
@@ -311,10 +149,10 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
         <StudioPanel className="studio-auth-panel">
           <h2>Sign in to open Studio</h2>
           <p>Studio is the private side of Station: personas, chat, notes, archive, and publishing tools.</p>
-          <StudioActionRow>
+          <nav className="studio-action-row" aria-label="Sign in actions">
             <Link href="/login" className="studio-dashboard-action" data-variant="primary">Sign In</Link>
             <Link href="/signup" className="studio-dashboard-action">Join Station</Link>
-          </StudioActionRow>
+          </nav>
         </StudioPanel>
       </Shell>
     );
@@ -334,10 +172,8 @@ export function StudioDashboard({ personas, integrityDue, integrityAvailable, lo
       <Header personas={personas} />
       <div className="studio-dashboard-primary-grid">
         <ContinueList personas={personas} />
-        <IntegrityList integrityDue={integrityDue} available={integrityAvailable} />
+        <RecentConversations personas={personas} accessToken={accessToken} />
       </div>
-      <MemoryOrientation personas={personas} />
-      <MoreStudioTools personas={personas} />
     </Shell>
   );
 }

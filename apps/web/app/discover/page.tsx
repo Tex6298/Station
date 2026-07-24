@@ -1,3 +1,5 @@
-import DiscoverFrontDoor from "@/components/discover/discover-front-door";
+import { redirect } from "next/navigation";
 
-export default DiscoverFrontDoor;
+export default function DiscoverRedirect() {
+  redirect("/");
+}

@@ -125,7 +125,7 @@ export default function DiscoverRouletteEncounterPage() {
               A public text encounter with one owner-enabled anonymous alpha persona. Messages are not saved by this page.
             </p>
           </div>
-          <Link href="/discover" style={secondaryButton}>Back to Discover</Link>
+          <Link href="/" style={secondaryButton}>Back to Station</Link>
         </header>
 
         <section style={panel}>
@@ -199,7 +199,7 @@ function StateCopy({ title, body }: { title: string; body: string }) {
       <h2 style={{ margin: 0, fontSize: 24 }}>{title}</h2>
       <p style={{ margin: 0, color: "#cbd5c0", lineHeight: 1.55 }}>{body}</p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 8 }}>
-        <Link href="/discover" style={secondaryButton}>Explore Discover</Link>
+        <Link href="/" style={secondaryButton}>Explore Station</Link>
         <Link href="/signup" style={primaryButton}>Create account</Link>
       </div>
     </div>

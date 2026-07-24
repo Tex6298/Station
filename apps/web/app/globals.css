@@ -7994,6 +7994,267 @@ main[style*="rgb(11, 14, 20)"] {
   line-height: 1.4;
 }
 
+.studio-rail-actions-secondary {
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: 5px;
+  padding-top: 0;
+}
+
+.studio-rail-actions-secondary .studio-rail-action {
+  min-height: 27px;
+  font-size: 10px;
+}
+
+.studio-rail-filter {
+  display: block;
+  margin: 2px 4px 8px;
+}
+
+.studio-rail-recent {
+  margin-top: 10px;
+  border-top: 1px solid var(--station-frame-border);
+  padding-top: 9px;
+}
+
+.studio-rail-recent-list {
+  display: grid;
+  gap: 2px;
+}
+
+.studio-rail-recent-item {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+  border-radius: 4px;
+  padding: 5px 6px;
+  color: var(--station-frame-text);
+  text-decoration: none;
+}
+
+.studio-rail-recent-item:hover {
+  background: var(--station-frame-soft);
+}
+
+.studio-rail-recent-item strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.studio-rail-recent-item small {
+  color: var(--station-frame-muted);
+  font-size: 9px;
+}
+
+.studio-companion-quick-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.studio-companion-quick-wrap .studio-rail-persona {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.studio-companion-quick-triggers {
+  display: none;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  padding-right: 4px;
+}
+
+.studio-companion-quick-wrap:hover .studio-companion-quick-triggers,
+.studio-companion-quick-wrap:focus-within .studio-companion-quick-triggers,
+.studio-companion-quick-wrap[data-open="true"] .studio-companion-quick-triggers {
+  display: flex;
+}
+
+.studio-companion-quick-trigger {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--station-frame-border);
+  border-radius: 5px;
+  background: var(--station-frame-panel);
+  color: var(--station-frame-muted);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.studio-companion-quick-trigger:hover {
+  color: var(--station-frame-active);
+  border-color: var(--station-frame-active);
+}
+
+.studio-companion-quick-card {
+  position: absolute;
+  left: calc(100% + 6px);
+  top: 0;
+  z-index: 100;
+  display: grid;
+  gap: 8px;
+  width: min(260px, calc(100vw - 2rem));
+  border: 1px solid var(--station-frame-border);
+  border-radius: 8px;
+  background: var(--station-frame-panel);
+  box-shadow: 0 12px 24px var(--station-frame-shadow);
+  color: var(--station-frame-text);
+  padding: 12px;
+}
+
+.studio-companion-quick-card-title {
+  color: var(--station-frame-text);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.studio-companion-quick-card-title:hover {
+  color: var(--station-frame-active);
+  text-decoration: underline;
+}
+
+.studio-companion-quick-card-desc {
+  margin: -4px 0 0;
+  color: var(--station-frame-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.studio-companion-quick-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.studio-companion-quick-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+}
+
+.studio-companion-quick-card-links a {
+  color: var(--station-frame-active);
+  font-size: 10px;
+  text-decoration: none;
+}
+
+.studio-companion-quick-card-links a:hover {
+  text-decoration: underline;
+}
+
+.studio-companion-quick-card-field {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--station-frame-border);
+  padding-top: 8px;
+}
+
+.studio-companion-quick-card-field label {
+  color: var(--station-frame-muted);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.studio-companion-quick-card-field-row {
+  display: flex;
+  gap: 5px;
+}
+
+.studio-companion-quick-card-field-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 27px;
+  border: 1px solid var(--station-frame-border);
+  border-radius: 5px;
+  background: var(--station-frame-soft);
+  color: var(--station-frame-text);
+  padding: 0 6px;
+  font: inherit;
+  font-size: 10px;
+}
+
+.studio-companion-quick-card-field-row button {
+  border: 1px solid var(--station-frame-border);
+  border-radius: 5px;
+  background: var(--station-frame-panel);
+  color: var(--station-frame-text);
+  padding: 0 8px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.studio-companion-quick-card-field-row button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.studio-companion-quick-card-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.studio-companion-quick-card-toggle[data-disabled="true"] {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.studio-companion-quick-card-toggle input {
+  margin-top: 2px;
+}
+
+.studio-companion-quick-card-toggle span {
+  display: grid;
+  gap: 2px;
+  color: var(--station-frame-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.studio-companion-quick-card-toggle small {
+  color: var(--station-frame-muted);
+  font-size: 9px;
+  font-weight: 400;
+}
+
+.studio-companion-quick-card-notice {
+  margin: 0;
+  color: var(--station-frame-active);
+  font-size: 10px;
+}
+
+.studio-companion-quick-card-settings {
+  display: block;
+  border-top: 1px solid var(--station-frame-border);
+  padding-top: 8px;
+  color: var(--station-frame-active);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.studio-companion-quick-card-settings:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .studio-companion-quick-triggers,
+  .studio-companion-quick-card {
+    display: none;
+  }
+}
+
 .studio-rail-secondary {
   margin-top: 9px;
   border-top: 1px solid var(--station-frame-border);
@@ -8374,6 +8635,13 @@ a.studio-dashboard-row:hover {
   font-size: 10px;
   line-height: 1.4;
   overflow-wrap: anywhere;
+}
+
+.studio-dashboard-row-time {
+  flex: 0 0 auto;
+  color: var(--station-frame-muted);
+  font-size: 10px;
+  white-space: nowrap;
 }
 
 .studio-dashboard-row-heading {

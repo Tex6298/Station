@@ -7,8 +7,18 @@ import { AiProviderSettingsPanel } from "@/components/settings/ai-provider-setti
 import { NotificationPreferencesPanel } from "@/components/settings/notification-preferences-panel";
 import { StorageUsagePanel } from "@/components/settings/storage-usage-panel";
 import { TokenUsagePanel } from "@/components/settings/token-usage-panel";
+import { apiGet } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { billingTierReadbackLabel } from "@/lib/billing-tier-display";
+import type { PersonaSummary } from "@station/types/persona";
+
+const PROVIDER_LABELS: Record<string, string> = {
+  platform: "Station",
+  openai: "OpenAI",
+  anthropic: "Anthropic",
+  deepseek: "DeepSeek",
+  gemini: "Gemini",
+};
 
 const settingSections = [
   {
@@ -45,10 +55,40 @@ const settingSections = [
     status: "Coming soon",
   },
   {
+    title: "Onboarding Paths",
+    description: "Fresh Start, Awakening, Document Migrator, or API Bridge for creating a new persona.",
+    href: "/studio/onboarding",
+    mark: "O",
+  },
+  {
+    title: "Station Assistant",
+    description: "Operational helper for archive, publishing, and Space work. Not a persona.",
+    href: "/studio/assistant",
+    mark: "?",
+  },
+  {
+    title: "Global Archive",
+    description: "Search owner-scoped archived material and import status across every companion.",
+    href: "/studio/archive",
+    mark: "A",
+  },
+  {
     title: "Export workspace",
     description: "Generate a complete JSON and Markdown package of your Station workspace.",
     href: "/studio/export",
     mark: "E",
+  },
+  {
+    title: "Public Space",
+    description: "Your authored microsite: published documents, pages, and public presence.",
+    href: "/space",
+    mark: "PS",
+  },
+  {
+    title: "Publishing Dashboard",
+    description: "Drafts and public-writing handoff across every companion.",
+    href: "/studio/publishing",
+    mark: "PD",
   },
   {
     title: "Notifications",
@@ -70,22 +110,39 @@ const initialProfileSnapshot: ProfileSnapshotState = {
 
 export default function SettingsPage() {
   const [profileSnapshot, setProfileSnapshot] = useState<ProfileSnapshotState>(initialProfileSnapshot);
+  const [personas, setPersonas] = useState<PersonaSummary[]>([]);
+  const [personasLoading, setPersonasLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
 
     getSession()
-      .then((session) => {
+      .then(async (session) => {
         if (!active) return;
         const tierLabel = billingTierReadbackLabel(session?.user.tier);
         setProfileSnapshot({
           status: tierLabel ? "ready" : "unavailable",
           tierLabel,
         });
+
+        if (!session?.accessToken) {
+          setPersonasLoading(false);
+          return;
+        }
+        try {
+          const data = await apiGet<{ personas: PersonaSummary[] }>("/personas", session.accessToken);
+          if (!active) return;
+          setPersonas(data.personas ?? []);
+        } catch {
+          if (active) setPersonas([]);
+        } finally {
+          if (active) setPersonasLoading(false);
+        }
       })
       .catch(() => {
         if (!active) return;
         setProfileSnapshot({ status: "unavailable", tierLabel: null });
+        setPersonasLoading(false);
       });
 
     return () => {
@@ -186,6 +243,35 @@ export default function SettingsPage() {
             </section>
           </aside>
         </div>
+
+        <section style={{ ...panel, marginTop: 18 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <h2 style={sectionTitle}>Your companions</h2>
+            <Link href="/studio/new" className="station-link-button">Add persona</Link>
+          </div>
+          {personasLoading ? (
+            <p style={{ margin: 0, color: "#687078", fontSize: 13 }}>Loading companions...</p>
+          ) : personas.length === 0 ? (
+            <p style={{ margin: 0, color: "#687078", fontSize: 13 }}>No personas yet.</p>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 10 }}>
+              {personas.map((persona) => (
+                <Link
+                  key={persona.id}
+                  href={`/studio/personas/${persona.id}/edit`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <article className="station-card" style={card}>
+                    <h3 style={{ margin: "0 0 5px", color: "#1f2529", fontSize: 14 }}>{persona.name}</h3>
+                    <p style={{ margin: 0, color: "#687078", fontSize: 12 }}>
+                      {PROVIDER_LABELS[persona.provider] ?? persona.provider} - {persona.visibility}
+                    </p>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
       </div>
     </main>
   );

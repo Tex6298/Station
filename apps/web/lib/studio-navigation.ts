@@ -3,7 +3,6 @@ import type { PersonaSummary } from "@station/types/persona";
 export const STUDIO_MOBILE_NAV_SUMMARY_LABEL = "Toggle Studio mobile navigation";
 export const SIGNED_MOBILE_TOP_NAV_MENU_ROUTES = ["/studio", "/projects", "/space", "/developer-spaces"] as const;
 export const TOP_NAV_PUBLIC_ROUTES = [
-  { href: "/discover", label: "Discover" },
   { href: "/writing", label: "Writing" },
   { href: "/forums", label: "Forums" },
 ] as const;
@@ -44,6 +43,20 @@ export type StudioPersonaCompanionShortcut = {
   href: string;
   detail: string;
 };
+
+export interface IntegrityDuePersona {
+  id: string;
+  name: string;
+  lastSession: string | null;
+  sessionStatus: "never" | "overdue" | "due_soon" | "ok";
+}
+
+export function integrityStatus(status: IntegrityDuePersona["sessionStatus"]) {
+  if (status === "never") return { label: "No session", detail: "Start one to strengthen continuity", tone: "danger" as const, action: "Start" };
+  if (status === "overdue") return { label: "Overdue", detail: "Integrity session overdue", tone: "danger" as const, action: "Start" };
+  if (status === "due_soon") return { label: "Due soon", detail: "Session due this week", tone: "warning" as const, action: "Start" };
+  return { label: "Up to date", detail: "Continuity check current", tone: "good" as const, action: "View" };
+}
 
 export const studioPublicLinks = [
   { label: "Blog Posts", href: "/studio/publishing", mark: "B" },
