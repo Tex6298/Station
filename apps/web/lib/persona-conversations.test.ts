@@ -3,8 +3,10 @@ import test from "node:test";
 import {
   filterPersonaConversations,
   personaConversationBelongsToPersona,
+  personaConversationsPath,
   personaConversationTarget,
   personaConversationTitle,
+  uniqueRecentConversationPersonas,
 } from "./persona-conversations";
 
 const conversations = [
@@ -31,4 +33,14 @@ test("conversation labels and filters stay deterministic", () => {
   assert.equal(personaConversationTitle({ title: null }), "Untitled conversation");
   assert.deepEqual(filterPersonaConversations(conversations, "QUIET"), [conversations[1]]);
   assert.deepEqual(filterPersonaConversations(conversations, ""), conversations);
+});
+
+test("recent conversation fanout requests each persona once with an encoded path", () => {
+  const first = { id: "persona/one", name: "First label" };
+  const duplicate = { id: "persona/one", name: "Duplicate label" };
+  const second = { id: "persona two", name: "Second" };
+
+  assert.deepEqual(uniqueRecentConversationPersonas([first, duplicate, second]), [first, second]);
+  assert.equal(personaConversationsPath(first.id), "/conversations/persona/persona%2Fone");
+  assert.equal(personaConversationsPath(second.id), "/conversations/persona/persona%20two");
 });

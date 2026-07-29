@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR533 product-owner UI reconciliation open
+## Current gate - PR533 product-owner UI reconciliation ready for ARGUS
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -45,7 +45,8 @@ ACCEPT_PR532_FULL_HOSTED_REHEARSAL_READ_ONLY_REVIEW
 CLOSE_PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ACCEPTED
 PAUSE_AFTER_PR532_WAIT_FOR_MARTY
 OPEN_PR533_PRODUCT_OWNER_UI_RECONCILIATION
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS
+READY_PR533_PRODUCT_OWNER_UI_RECONCILIATION_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -82,6 +83,7 @@ PR532 final rehearsal result: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_R
 PR532 final review: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ARGUS_RESULT.md
 PR532 closeout: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_CLOSEOUT_MIMIR.md
 PR533 product-owner UI reconciliation: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_MIMIR.md
+PR533 DAEDALUS result: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_DAEDALUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -113,8 +115,21 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS should begin PR533 source audit and bounded implementation repair, then wake ARGUS for review.
+Next: ARGUS should hostile-review the PR533 bounded source and validation receipt. If accepted, wake ARIADNE for the packet's hosted desktop/mobile and System/Light/Dark rehearsal.
 ```
+
+DAEDALUS completed the bounded PR533 source reconciliation around Adam's
+accepted `962fe8ca` hierarchy. One Studio provider now owns workspace and recent-
+conversation loading; desktop rail, mobile rail, and dashboard share the result.
+The quick card has tested hover, pinned click/keyboard, focus/Escape, viewport-
+safe positioning, truthful detail state, loaded Lucide controls, and a direct
+mobile companion-settings fallback. Relocated Memory, Integrity, Archive,
+publishing, Public Space, recent conversations, companion settings, and global
+Settings destinations remain reachable without changing auth/privacy or backend
+contracts. Focused suites, web lint/typecheck, and private mocked desktop/mobile
+browser proof pass. Next build compiled and generated `40/40` pages before the
+documented Windows standalone symlink `EPERM`; ARGUS owns source review before
+any hosted rehearsal.
 
 PR533 is open from Adam's product-owner UI source commit `962fe8ca`, with
 Marty's wakeup `f7027aff` making that hierarchy authoritative for affected

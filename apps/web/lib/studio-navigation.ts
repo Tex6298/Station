@@ -39,7 +39,7 @@ export type StudioDashboardMemoryStop = {
 };
 
 export type StudioPersonaCompanionShortcut = {
-  label: "Memory" | "Inbox" | "Timeline" | "Profile" | "Integrity";
+  label: "Memory" | "Inbox" | "Timeline" | "Archive" | "Profile" | "Integrity";
   href: string;
   detail: string;
 };
@@ -296,6 +296,7 @@ export function studioPersonaCompanionShortcuts(personaId: string): StudioPerson
     { label: "Memory", href: `${base}/memory`, detail: "Review what carries forward" },
     { label: "Inbox", href: `${base}/memory-inbox`, detail: "Review continuity suggestions" },
     { label: "Timeline", href: `${base}/continuity`, detail: "Trace the relationship" },
+    { label: "Archive", href: `${base}/files`, detail: "Review private source material" },
     { label: "Profile", href: `${base}/edit`, detail: "Review profile facts and limited controls" },
     { label: "Integrity", href: `${base}/calibration`, detail: "Check alignment" },
   ];

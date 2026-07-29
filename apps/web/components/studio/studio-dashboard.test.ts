@@ -34,7 +34,7 @@ test("dashboard header drops the four-button action row — folded into the side
 test("dashboard keeps companions ahead of recent conversations in the primary grid", () => {
   const primaryGrid = source.indexOf('className="studio-dashboard-primary-grid"');
   const companionList = source.indexOf("<ContinueList personas={personas} />");
-  const recentConversations = source.indexOf("<RecentConversations personas={personas} accessToken={accessToken} />");
+  const recentConversations = source.indexOf("<RecentConversations", companionList);
 
   assert.ok(primaryGrid >= 0);
   assert.ok(companionList > primaryGrid);

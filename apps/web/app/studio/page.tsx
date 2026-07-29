@@ -4,7 +4,15 @@ import { StudioDashboard } from "@/components/studio/studio-dashboard";
 import { useStudioWorkspace } from "@/lib/use-studio-workspace";
 
 export default function StudioPage() {
-  const { personas, loading, error, signedIn, accessToken } = useStudioWorkspace();
+  const {
+    personas,
+    loading,
+    error,
+    signedIn,
+    recentConversations,
+    recentConversationsLoading,
+    recentConversationsError,
+  } = useStudioWorkspace();
 
   return (
     <StudioDashboard
@@ -12,7 +20,9 @@ export default function StudioPage() {
       loading={loading}
       error={error}
       signedIn={signedIn}
-      accessToken={accessToken}
+      recentConversations={recentConversations}
+      recentConversationsLoading={recentConversationsLoading}
+      recentConversationsError={recentConversationsError}
     />
   );
 }

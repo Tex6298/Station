@@ -57,6 +57,19 @@ export interface RecentConversationEntry {
   personaName: string;
 }
 
+export function uniqueRecentConversationPersonas<T extends { id: string }>(personas: T[]): T[] {
+  const seen = new Set<string>();
+  return personas.filter((persona) => {
+    if (seen.has(persona.id)) return false;
+    seen.add(persona.id);
+    return true;
+  });
+}
+
+export function personaConversationsPath(personaId: string) {
+  return `/conversations/persona/${encodeURIComponent(personaId)}`;
+}
+
 function conversationUpdatedAt(conversation: PersonaConversationSummary) {
   const value = conversation.updated_at ?? conversation.updatedAt ?? conversation.created_at ?? conversation.createdAt;
   const parsed = value ? Date.parse(value) : NaN;

@@ -96,6 +96,7 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
       ["Memory", "/studio/personas/persona-1/memory"],
       ["Inbox", "/studio/personas/persona-1/memory-inbox"],
       ["Timeline", "/studio/personas/persona-1/continuity"],
+      ["Archive", "/studio/personas/persona-1/files"],
       ["Profile", "/studio/personas/persona-1/edit"],
       ["Integrity", "/studio/personas/persona-1/calibration"],
     ],
@@ -105,6 +106,7 @@ test("Studio persona companion shortcuts expose the accepted owner routes", () =
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Memory")?.detail, "Review what carries forward");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Inbox")?.detail, "Review continuity suggestions");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Timeline")?.detail, "Trace the relationship");
+  assert.equal(shortcuts.find((shortcut) => shortcut.label === "Archive")?.detail, "Review private source material");
   assert.equal(shortcuts.find((shortcut) => shortcut.label === "Profile")?.detail, "Review profile facts and limited controls");
   assert.equal(shortcuts.some((shortcut) => shortcut.href.includes("/conversations/candidates/inbox")), false);
   assert.equal(shortcuts.some((shortcut) => shortcut.href.startsWith("/space")), false);

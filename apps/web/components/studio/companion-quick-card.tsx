@@ -1,10 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MessageCircle, Settings } from "lucide-react";
 import type { Persona, PersonaSummary } from "@station/types/persona";
 import { apiGet, apiPatch } from "@/lib/api-client";
+import {
+  companionQuickCardTransition,
+  type CompanionQuickCardEvent,
+  type CompanionQuickCardMode,
+} from "@/lib/companion-quick-card";
 import {
   integrityStatus,
   studioPersonaCompanionShortcuts,
@@ -30,9 +36,14 @@ export function CompanionRow({
   const pathname = usePathname();
   const href = studioPersonaHref(persona);
   const active = pathname.startsWith(href);
-  const [open, setOpen] = useState(false);
+  const [openMode, setOpenMode] = useState<CompanionQuickCardMode>("closed");
   const containerRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [cardPosition, setCardPosition] = useState<{ left: number; top: number } | null>(null);
+  const cardId = `companion-quick-card-${useId().replace(/:/g, "")}`;
+  const open = openMode !== "closed";
 
   function cancelClose() {
     if (closeTimer.current) {
@@ -41,16 +52,35 @@ export function CompanionRow({
     }
   }
 
-  function scheduleClose() {
+  function transition(event: CompanionQuickCardEvent) {
+    setOpenMode((current) => companionQuickCardTransition(current, event));
+  }
+
+  function scheduleClose(event: "pointer-leave" | "dismiss") {
     cancelClose();
-    closeTimer.current = setTimeout(() => setOpen(false), CLOSE_DELAY_MS);
+    closeTimer.current = setTimeout(() => transition(event), CLOSE_DELAY_MS);
+  }
+
+  function handleBlur(event: React.FocusEvent<HTMLDivElement>) {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) return;
+    scheduleClose("dismiss");
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Escape" || !open) return;
+    event.preventDefault();
+    event.stopPropagation();
+    cancelClose();
+    transition("dismiss");
+    triggerRef.current?.focus();
   }
 
   useEffect(() => {
     if (!open) return;
     function handlePointerDown(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setOpen(false);
+        setOpenMode((current) => companionQuickCardTransition(current, "dismiss"));
       }
     }
     document.addEventListener("mousedown", handlePointerDown);
@@ -59,13 +89,48 @@ export function CompanionRow({
 
   useEffect(() => () => cancelClose(), []);
 
+  useEffect(() => {
+    if (!open) {
+      setCardPosition(null);
+      return;
+    }
+
+    function placeCard() {
+      const anchor = containerRef.current?.getBoundingClientRect();
+      const card = cardRef.current?.getBoundingClientRect();
+      if (!anchor || !card) return;
+      const margin = 8;
+      const left = Math.max(margin, Math.min(anchor.right + 6, window.innerWidth - card.width - margin));
+      const top = Math.max(margin, Math.min(anchor.top, window.innerHeight - card.height - margin));
+      setCardPosition({ left, top });
+    }
+
+    placeCard();
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(placeCard);
+    if (cardRef.current) resizeObserver?.observe(cardRef.current);
+    window.addEventListener("resize", placeCard);
+    window.addEventListener("scroll", placeCard, true);
+    return () => {
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", placeCard);
+      window.removeEventListener("scroll", placeCard, true);
+    };
+  }, [open]);
+
   return (
     <div
       ref={containerRef}
       className="studio-companion-quick-wrap"
       data-open={open ? "true" : "false"}
-      onMouseEnter={cancelClose}
-      onMouseLeave={scheduleClose}
+      data-open-mode={openMode}
+      onMouseEnter={() => {
+        cancelClose();
+        transition("pointer-enter");
+      }}
+      onMouseLeave={() => scheduleClose("pointer-leave")}
+      onFocusCapture={cancelClose}
+      onBlurCapture={handleBlur}
+      onKeyDown={handleKeyDown}
     >
       <Link
         href={href}
@@ -89,31 +154,52 @@ export function CompanionRow({
           aria-label={`Start a new chat with ${persona.name}`}
           title="New chat"
         >
-          <i className="ti ti-message-circle-2" aria-hidden="true" />
+          <MessageCircle size={13} strokeWidth={1.8} aria-hidden="true" />
         </Link>
         <button
+          ref={triggerRef}
           type="button"
           className="studio-companion-quick-trigger"
           aria-label={`${persona.name} quick settings`}
           aria-expanded={open}
+          aria-controls={cardId}
+          aria-haspopup="dialog"
           title="Quick settings"
           onFocus={cancelClose}
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => {
+            cancelClose();
+            transition("toggle-pin");
+          }}
         >
-          <i className="ti ti-settings" aria-hidden="true" />
+          <Settings size={13} strokeWidth={1.8} aria-hidden="true" />
         </button>
       </div>
 
-      {open ? <CompanionQuickCard persona={persona} accessToken={accessToken} integrity={integrity} /> : null}
+      {open ? (
+        <CompanionQuickCard
+          id={cardId}
+          cardRef={cardRef}
+          position={cardPosition}
+          persona={persona}
+          accessToken={accessToken}
+          integrity={integrity}
+        />
+      ) : null}
     </div>
   );
 }
 
 function CompanionQuickCard({
+  id,
+  cardRef,
+  position,
   persona,
   accessToken,
   integrity,
 }: {
+  id: string;
+  cardRef: React.RefObject<HTMLDivElement>;
+  position: { left: number; top: number } | null;
   persona: PersonaSummary;
   accessToken: string | null;
   integrity?: IntegrityDuePersona;
@@ -123,17 +209,31 @@ function CompanionQuickCard({
   const [savingAvatar, setSavingAvatar] = useState(false);
   const [savingAnonymousChat, setSavingAnonymousChat] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [detailStatus, setDetailStatus] = useState<"loading" | "ready" | "unavailable">(
+    accessToken ? "loading" : "unavailable",
+  );
 
   useEffect(() => {
     let cancelled = false;
-    if (!accessToken) return;
+    if (!accessToken) {
+      setDetailStatus("unavailable");
+      return;
+    }
+    setDetailStatus("loading");
     apiGet<{ persona?: Persona }>(`/personas/${persona.id}`, accessToken)
       .then((data) => {
-        if (cancelled || !data.persona) return;
+        if (cancelled) return;
+        if (!data.persona) {
+          setDetailStatus("unavailable");
+          return;
+        }
         setDetail(data.persona);
         setAvatarInput(data.persona.avatarUrl ?? "");
+        setDetailStatus("ready");
       })
-      .catch(() => {});
+      .catch(() => {
+        if (!cancelled) setDetailStatus("unavailable");
+      });
     return () => {
       cancelled = true;
     };
@@ -147,7 +247,7 @@ function CompanionQuickCard({
   const editHref = `/studio/personas/${persona.id}/edit`;
 
   async function saveAvatar() {
-    if (!accessToken || savingAvatar) return;
+    if (!accessToken || detailStatus !== "ready" || savingAvatar) return;
     setSavingAvatar(true);
     setNotice(null);
     try {
@@ -185,7 +285,14 @@ function CompanionQuickCard({
   }
 
   return (
-    <div className="studio-companion-quick-card" role="dialog" aria-label={`${persona.name} quick settings`}>
+    <div
+      ref={cardRef}
+      id={id}
+      className="studio-companion-quick-card"
+      role="dialog"
+      aria-label={`${persona.name} quick settings`}
+      style={position ? { left: position.left, top: position.top } : { visibility: "hidden" }}
+    >
       <Link href={editHref} className="studio-companion-quick-card-title">
         {persona.name}
       </Link>
@@ -204,6 +311,15 @@ function CompanionQuickCard({
         ))}
       </nav>
 
+      {detailStatus === "loading" ? (
+        <p className="studio-companion-quick-card-notice" role="status">Loading companion settings...</p>
+      ) : null}
+      {detailStatus === "unavailable" ? (
+        <p className="studio-companion-quick-card-notice" role="status">
+          Quick settings unavailable. Open full settings to retry.
+        </p>
+      ) : null}
+
       <div className="studio-companion-quick-card-field">
         <label htmlFor={`quick-avatar-${persona.id}`}>Avatar URL</label>
         <div className="studio-companion-quick-card-field-row">
@@ -212,8 +328,9 @@ function CompanionQuickCard({
             value={avatarInput}
             onChange={(event) => setAvatarInput(event.currentTarget.value)}
             placeholder="https://..."
+            disabled={detailStatus !== "ready" || savingAvatar}
           />
-          <button type="button" onClick={saveAvatar} disabled={savingAvatar}>
+          <button type="button" onClick={saveAvatar} disabled={detailStatus !== "ready" || savingAvatar}>
             {savingAvatar ? "Saving..." : "Save"}
           </button>
         </div>
@@ -223,7 +340,7 @@ function CompanionQuickCard({
         <input
           type="checkbox"
           checked={anonymousChatEnabled}
-          disabled={!isPublic || !publicChatEnabled || savingAnonymousChat}
+          disabled={detailStatus !== "ready" || !isPublic || !publicChatEnabled || savingAnonymousChat}
           onChange={toggleAnonymousChat}
         />
         <span>

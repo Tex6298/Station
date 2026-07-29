@@ -42,7 +42,6 @@ export function PersonaCompanionSidebar({
   const careLinks = [
     ...shortcuts,
     { label: "Canon", href: `/studio/personas/${persona.id}/canon` },
-    { label: "Archive", href: `/studio/personas/${persona.id}/files` },
   ];
 
   function closeMobileAfterSelection(event: React.MouseEvent<HTMLElement>) {

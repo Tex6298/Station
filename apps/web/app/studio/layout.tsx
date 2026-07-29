@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { StudioSidebar } from "@/components/studio/studio-sidebar";
 import { isExactPersonaHomeRoute } from "@/lib/studio-navigation";
+import { StudioWorkspaceProvider } from "@/lib/use-studio-workspace";
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -12,11 +13,13 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <div className="studio-app-shell" data-studio-shell="workbench">
-      <StudioSidebar />
-      <div className="studio-app-content">
-        {children}
+    <StudioWorkspaceProvider>
+      <div className="studio-app-shell" data-studio-shell="workbench">
+        <StudioSidebar />
+        <div className="studio-app-content">
+          {children}
+        </div>
       </div>
-    </div>
+    </StudioWorkspaceProvider>
   );
 }

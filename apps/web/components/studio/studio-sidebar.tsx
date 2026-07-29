@@ -15,8 +15,10 @@ import {
   studioPersonaIdFromRoute,
   type IntegrityDuePersona,
 } from "@/lib/studio-navigation";
-import { personaConversationTitle } from "@/lib/persona-conversations";
-import { useRecentConversations } from "@/lib/use-recent-conversations";
+import {
+  personaConversationTitle,
+  type RecentConversationEntry,
+} from "@/lib/persona-conversations";
 import { useStudioWorkspace } from "@/lib/use-studio-workspace";
 import type { PersonaSummary } from "@station/types/persona";
 import type { DeveloperSpaceRecord } from "@station/types/developer-space";
@@ -53,9 +55,17 @@ function RailLink({
   );
 }
 
-function RecentConversationsRail({ personas, accessToken }: { personas: PersonaSummary[]; accessToken: string | null }) {
-  const { entries, loading } = useRecentConversations(personas, accessToken, 6);
-
+function RecentConversationsRail({
+  personas,
+  entries,
+  loading,
+  error,
+}: {
+  personas: PersonaSummary[];
+  entries: RecentConversationEntry[];
+  loading: boolean;
+  error: string | null;
+}) {
   if (personas.length === 0) return null;
 
   return (
@@ -63,29 +73,44 @@ function RecentConversationsRail({ personas, accessToken }: { personas: PersonaS
       <div className="studio-rail-section-label">Recent conversations</div>
       {loading ? (
         <p className="studio-rail-empty">Loading...</p>
+      ) : error && entries.length === 0 ? (
+        <p className="studio-rail-empty" role="status">Unavailable.</p>
       ) : entries.length === 0 ? (
         <p className="studio-rail-empty">No conversations yet.</p>
       ) : (
-        <div className="studio-rail-recent-list">
-          {entries.map(({ conversation, personaId, personaName }) => (
-            <Link
-              key={conversation.id}
-              href={studioPersonaConversationHref(personaId, conversation.id)}
-              className="studio-rail-recent-item"
-              title={personaConversationTitle(conversation)}
-            >
-              <strong>{personaConversationTitle(conversation)}</strong>
-              <small>{personaName}</small>
-            </Link>
-          ))}
-        </div>
+        <>
+          <div className="studio-rail-recent-list">
+            {entries.map(({ conversation, personaId, personaName }) => (
+              <Link
+                key={conversation.id}
+                href={studioPersonaConversationHref(personaId, conversation.id)}
+                className="studio-rail-recent-item"
+                title={personaConversationTitle(conversation)}
+              >
+                <strong>{personaConversationTitle(conversation)}</strong>
+                <small>{personaName}</small>
+              </Link>
+            ))}
+          </div>
+          {error ? <p className="studio-rail-empty" role="status">Some conversations unavailable.</p> : null}
+        </>
       )}
     </div>
   );
 }
 
 export function StudioSidebar() {
-  const { personas, integrityDue, accessToken } = useStudioWorkspace();
+  const {
+    personas,
+    integrityDue,
+    loading: workspaceLoading,
+    error: workspaceError,
+    signedIn,
+    accessToken,
+    recentConversations,
+    recentConversationsLoading,
+    recentConversationsError,
+  } = useStudioWorkspace();
   const [personaFilter, setPersonaFilter] = useState("");
   const [developerSpaces, setDeveloperSpaces] = useState<DeveloperSpaceRecord[]>([]);
   const pathname = usePathname();
@@ -113,7 +138,9 @@ export function StudioSidebar() {
       <StudioMobileNav
         personas={personas}
         newChatHref={newChatHref}
-        accessToken={accessToken}
+        recentEntries={recentConversations}
+        recentLoading={recentConversationsLoading}
+        recentError={recentConversationsError}
         hasDeveloperSpace={hasDeveloperSpace}
       />
       <aside className="studio-sidebar-desktop" aria-label="Studio workspace navigation">
@@ -143,7 +170,13 @@ export function StudioSidebar() {
 
           <div className="studio-rail-section-label">Companions</div>
           <div className="studio-rail-personas">
-            {personas.length > 0
+            {workspaceLoading ? (
+              <p className="studio-rail-empty">Loading companions...</p>
+            ) : workspaceError ? (
+              <p className="studio-rail-empty" role="status">Companions unavailable.</p>
+            ) : !signedIn ? (
+              <p className="studio-rail-empty">Sign in to load companions.</p>
+            ) : personas.length > 0
               ? visiblePersonas.map((persona, index) => (
                 <CompanionRow
                   key={persona.id}
@@ -154,12 +187,17 @@ export function StudioSidebar() {
                 />
               ))
               : <p className="studio-rail-empty">No personas yet.</p>}
-            {personas.length > 0 && visiblePersonas.length === 0
+            {!workspaceLoading && !workspaceError && personas.length > 0 && visiblePersonas.length === 0
               ? <p className="studio-rail-empty">No matching personas.</p>
               : null}
           </div>
 
-          <RecentConversationsRail personas={personas} accessToken={accessToken} />
+          <RecentConversationsRail
+            personas={personas}
+            entries={recentConversations}
+            loading={recentConversationsLoading}
+            error={recentConversationsError}
+          />
         </nav>
 
         <RailLink label="Settings" href="/settings" mark="S" className="studio-rail-settings" />
@@ -171,16 +209,20 @@ export function StudioSidebar() {
 function StudioMobileNav({
   personas,
   newChatHref,
-  accessToken,
+  recentEntries,
+  recentLoading,
+  recentError,
   hasDeveloperSpace,
 }: {
   personas: PersonaSummary[];
   newChatHref: string;
-  accessToken: string | null;
+  recentEntries: RecentConversationEntry[];
+  recentLoading: boolean;
+  recentError: string | null;
   hasDeveloperSpace: boolean;
 }) {
   const disclosureRef = useRef<HTMLDetailsElement>(null);
-  const { entries: recentEntries } = useRecentConversations(personas, accessToken, 4);
+  const mobileRecentEntries = recentEntries.slice(0, 4);
 
   function closeAfterSelection(event: React.MouseEvent<HTMLElement>) {
     if (event.target instanceof Element && event.target.closest("a")) {
@@ -216,18 +258,27 @@ function StudioMobileNav({
           </div>
         </div>
 
-        {recentEntries.length > 0 ? (
+        {recentLoading || recentError || mobileRecentEntries.length > 0 ? (
           <div className="studio-mobile-nav-section">
             <span>Recent conversations</span>
-            <div className="studio-mobile-persona-list">
-              {recentEntries.map(({ conversation, personaId, personaName }) => (
-                <MobileNavLink
-                  key={conversation.id}
-                  href={studioPersonaConversationHref(personaId, conversation.id)}
-                  label={`${personaConversationTitle(conversation)} - ${personaName}`}
-                />
-              ))}
-            </div>
+            {recentLoading ? <p className="studio-rail-empty">Loading...</p> : null}
+            {!recentLoading && recentError && mobileRecentEntries.length === 0 ? (
+              <p className="studio-rail-empty" role="status">Recent conversations unavailable.</p>
+            ) : null}
+            {mobileRecentEntries.length > 0 ? (
+              <div className="studio-mobile-persona-list">
+                {mobileRecentEntries.map(({ conversation, personaId, personaName }) => (
+                  <MobileNavLink
+                    key={conversation.id}
+                    href={studioPersonaConversationHref(personaId, conversation.id)}
+                    label={`${personaConversationTitle(conversation)} - ${personaName}`}
+                  />
+                ))}
+              </div>
+            ) : null}
+            {!recentLoading && recentError && mobileRecentEntries.length > 0 ? (
+              <p className="studio-rail-empty" role="status">Some conversations unavailable.</p>
+            ) : null}
           </div>
         ) : null}
 
@@ -241,6 +292,21 @@ function StudioMobileNav({
               : <p>No personas yet.</p>}
           </div>
         </div>
+
+        {personas.length > 0 ? (
+          <div className="studio-mobile-nav-section">
+            <span>Companion settings</span>
+            <div className="studio-mobile-persona-list">
+              {personas.map((persona) => (
+                <MobileNavLink
+                  key={persona.id}
+                  href={`/studio/personas/${persona.id}/edit`}
+                  label={`${persona.name} settings`}
+                />
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="studio-mobile-nav-grid" aria-label="Account">
           <MobileNavLink href="/settings" label="Settings" />

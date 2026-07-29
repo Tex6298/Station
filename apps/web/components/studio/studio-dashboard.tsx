@@ -5,8 +5,10 @@ import {
   studioNewChatHref,
   studioPersonaConversationHref,
 } from "@/lib/studio-navigation";
-import { personaConversationTitle } from "@/lib/persona-conversations";
-import { useRecentConversations } from "@/lib/use-recent-conversations";
+import {
+  personaConversationTitle,
+  type RecentConversationEntry,
+} from "@/lib/persona-conversations";
 import {
   StudioEmptyState,
   StudioErrorState,
@@ -20,7 +22,9 @@ type StudioDashboardProps = {
   loading: boolean;
   error: string | null;
   signedIn: boolean;
-  accessToken: string | null;
+  recentConversations: RecentConversationEntry[];
+  recentConversationsLoading: boolean;
+  recentConversationsError: string | null;
 };
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -78,37 +82,48 @@ function ContinueList({ personas }: { personas: PersonaSummary[] }) {
   );
 }
 
-function RecentConversations({ personas, accessToken }: { personas: PersonaSummary[]; accessToken: string | null }) {
-  const { entries, loading } = useRecentConversations(personas, accessToken);
-
+function RecentConversations({
+  entries,
+  loading,
+  error,
+}: {
+  entries: RecentConversationEntry[];
+  loading: boolean;
+  error: string | null;
+}) {
   return (
     <section className="studio-dashboard-panel" data-priority="primary">
       <SectionTitle title="Recent conversations" />
       {loading ? (
         <EmptyLine text="Loading recent conversations..." />
+      ) : error && entries.length === 0 ? (
+        <EmptyLine text={error} status="error" />
       ) : entries.length === 0 ? (
         <EmptyLine text="No conversations yet. Start a chat with a companion." />
       ) : (
-        <div className="studio-dashboard-list">
-          {entries.map(({ conversation, personaId, personaName }) => (
-            <Link
-              key={conversation.id}
-              href={studioPersonaConversationHref(personaId, conversation.id)}
-              className="studio-dashboard-row"
-            >
-              <span className="studio-dashboard-icon" aria-hidden="true">C</span>
-              <span className="studio-dashboard-row-copy">
-                <strong>{personaConversationTitle(conversation)}</strong>
-                <small>{personaName}</small>
-              </span>
-              {(conversation.updated_at ?? conversation.updatedAt) ? (
-                <span className="studio-dashboard-row-time">
-                  {timeAgo((conversation.updated_at ?? conversation.updatedAt) as string)}
+        <>
+          <div className="studio-dashboard-list">
+            {entries.map(({ conversation, personaId, personaName }) => (
+              <Link
+                key={conversation.id}
+                href={studioPersonaConversationHref(personaId, conversation.id)}
+                className="studio-dashboard-row"
+              >
+                <span className="studio-dashboard-icon" aria-hidden="true">C</span>
+                <span className="studio-dashboard-row-copy">
+                  <strong>{personaConversationTitle(conversation)}</strong>
+                  <small>{personaName}</small>
                 </span>
-              ) : null}
-            </Link>
-          ))}
-        </div>
+                {(conversation.updated_at ?? conversation.updatedAt) ? (
+                  <span className="studio-dashboard-row-time">
+                    {timeAgo((conversation.updated_at ?? conversation.updatedAt) as string)}
+                  </span>
+                ) : null}
+              </Link>
+            ))}
+          </div>
+          {error ? <EmptyLine text={error} status="warning" /> : null}
+        </>
       )}
     </section>
   );
@@ -123,8 +138,14 @@ function SectionTitle({ title, action, href }: { title: string; action?: string;
   );
 }
 
-function EmptyLine({ text }: { text: string }) {
-  return <p className="studio-dashboard-empty">{text}</p>;
+function EmptyLine({
+  text,
+  status,
+}: {
+  text: string;
+  status?: "error" | "warning";
+}) {
+  return <p className="studio-dashboard-empty" data-status={status} role={status ? "status" : undefined}>{text}</p>;
 }
 
 function ColorDot({ index }: { index: number }) {
@@ -132,7 +153,15 @@ function ColorDot({ index }: { index: number }) {
   return <span className="studio-dashboard-dot" style={{ background: colors[index % colors.length] }} aria-hidden="true" />;
 }
 
-export function StudioDashboard({ personas, loading, error, signedIn, accessToken }: StudioDashboardProps) {
+export function StudioDashboard({
+  personas,
+  loading,
+  error,
+  signedIn,
+  recentConversations,
+  recentConversationsLoading,
+  recentConversationsError,
+}: StudioDashboardProps) {
   if (loading) {
     return (
       <Shell>
@@ -172,7 +201,11 @@ export function StudioDashboard({ personas, loading, error, signedIn, accessToke
       <Header personas={personas} />
       <div className="studio-dashboard-primary-grid">
         <ContinueList personas={personas} />
-        <RecentConversations personas={personas} accessToken={accessToken} />
+        <RecentConversations
+          entries={recentConversations}
+          loading={recentConversationsLoading}
+          error={recentConversationsError}
+        />
       </div>
     </Shell>
   );

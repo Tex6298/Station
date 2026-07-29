@@ -8093,9 +8093,13 @@ main[style*="rgb(11, 14, 20)"] {
   border-color: var(--station-frame-active);
 }
 
+.studio-companion-quick-trigger:focus-visible {
+  outline: 2px solid var(--station-frame-active);
+  outline-offset: 2px;
+}
+
 .studio-companion-quick-card {
-  position: absolute;
-  left: calc(100% + 6px);
+  position: fixed;
   top: 0;
   z-index: 100;
   display: grid;
@@ -8248,7 +8252,7 @@ main[style*="rgb(11, 14, 20)"] {
   text-decoration: underline;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 959px) {
   .studio-companion-quick-triggers,
   .studio-companion-quick-card {
     display: none;
