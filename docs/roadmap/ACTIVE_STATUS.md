@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR534 Project collaboration source accepted for MIMIR
+## Current gate - PR534A hosted migration and deployment open
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -64,7 +64,9 @@ READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_DAEDALUS
 READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_ARGUS
 ACCEPT_PR534_PROJECT_COLLABORATION_MEMBERSHIP_SOURCE_ONLY_WITH_ARGUS_PATCH
 READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_MIMIR
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
+CLOSE_PR534_PROJECT_COLLABORATION_MEMBERSHIP_SOURCE_REVIEW_ACCEPTED
+OPEN_PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -115,6 +117,7 @@ PR534 Project collaboration preflight result: docs/roadmap/PR534_PROJECT_COLLABO
 PR534 implementation: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDALUS.md
 PR534 implementation result: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDALUS_RESULT.md
 PR534 source review: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_ARGUS_RESULT.md
+PR534A hosted migration/deploy: docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_DAEDALUS.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -146,7 +149,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: MIMIR should close the PR534 source-review stage and choose the next authorized move. Migration apply and exact-SHA hosted proof remain a separate later stage.
+Next: DAEDALUS should apply and verify exact migration 090, confirm hosted web/API at accepted source, then wake ARIADNE for the separate disposable exact-SHA collaboration lifecycle proof.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
