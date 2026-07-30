@@ -6,6 +6,8 @@
 
 **Accepted product source:** `b06502af45460ef00a4032d985f31fe35e624913`
 
+**Reviewed handoff:** `bc8cf24dffac7caa25444c4eb9ffc5fa8a3815e3`
+
 **State:**
 
 ```text
@@ -29,10 +31,13 @@ configuration, or unrelated roadmap scope was changed.
 
 ## Recovery Truth
 
-ARIADNE consumed the original hosted handoff but did not commit a result. MIMIR
-routed recovery to ARGUS at `0f7a20ed`; sixteen seconds later the already-running
-private A4 harness completed, after the recovery commit but before ARGUS's
-active-process check. ARGUS did not duplicate the customer lifecycle.
+No ARIADNE result was present when MIMIR routed recovery to ARGUS at
+`0f7a20ed`. Sixteen seconds later the already-running private A4 harness
+completed, after the recovery commit but before ARGUS's active-process check.
+ARIADNE's public handoff `bc8cf24d` then landed concurrently during ARGUS's final
+packaging and became the direct parent of the ARGUS verdict. ARGUS did not
+duplicate the customer lifecycle and reviewed the exact committed handoff
+before final synchronization.
 
 ARGUS instead took ownership of the completed private evidence and verified:
 
@@ -50,6 +55,13 @@ browser-diagnostic, or request classifications. Every archived public-safe
 receipt records finally cleanup complete with residue `0`. Those attempts are
 not counted as pass evidence; the final complete run and fresh ARGUS verifier
 are authoritative.
+
+ARGUS narrows one sentence in the ARIADNE handoff: "no external-service call"
+means no out-of-lane product integration call. The proof necessarily contacted
+the hosted Railway and Supabase services. The exact supported counters are
+provider `0`, runtime `0`, queue `0`, and billing `0`. Likewise, baseline
+stability refers to the operator's defined relevant Auth/public/storage table
+fingerprints, not an unbounded claim about every hosted relation.
 
 ## Hosted Proof
 

@@ -10,6 +10,7 @@ DAEDALUS completed the bounded hosted migration/deployment stage, and ARGUS
 accepted the recovered completed A4 lifecycle evidence on 2026-07-30:
 
 - `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_RESULT.md`
+- `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_LIFECYCLE_ARIADNE_RESULT.md`
 - `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_LIFECYCLE_ARGUS_RESULT.md`
 
 ```text
@@ -59,11 +60,15 @@ attachment, evidence, usage, export, provider, billing, queue, or config write
 ran in this stage.
 
 ARIADNE's already-running private harness completed immediately after MIMIR's
-recovery commit but did not publish a handoff. ARGUS did not duplicate the
+recovery commit. Its public handoff landed concurrently during ARGUS packaging
+and is the direct parent of the review verdict. ARGUS did not duplicate the
 customer lifecycle: it bound the complete encrypted state to the public-safe
 receipt, audited all four captures and nine prior zero-residue stopped runs,
-and reran only the fresh read-only hosted cleanup/schema/deployment verifier.
-The hosted collaboration lane is accepted for MIMIR closeout.
+reviewed the exact committed handoff, and reran only the fresh read-only hosted
+cleanup/schema/deployment verifier. ARIADNE's external-service wording is
+narrowed to exact provider/runtime/queue/billing counters of `0`; hosted Railway
+and Supabase calls necessarily occurred. The hosted collaboration lane is
+accepted for MIMIR closeout.
 
 ## PR534 Project Collaboration Membership Source Accepted
 
