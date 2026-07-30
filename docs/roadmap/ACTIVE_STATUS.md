@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR533 product-owner UI reconciliation ready for ARGUS
+## Current gate - PR533 product-owner UI reconciliation ready for ARIADNE hosted rehearsal
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -46,7 +46,9 @@ CLOSE_PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ACCEPTED
 PAUSE_AFTER_PR532_WAIT_FOR_MARTY
 OPEN_PR533_PRODUCT_OWNER_UI_RECONCILIATION
 READY_PR533_PRODUCT_OWNER_UI_RECONCILIATION_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+ACCEPT_PR533_PRODUCT_OWNER_UI_RECONCILIATION_FOR_HOSTED_REHEARSAL
+READY_PR533_FOR_ARIADNE_HOSTED_REHEARSAL
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -84,6 +86,7 @@ PR532 final review: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_ARGUS
 PR532 closeout: docs/roadmap/PR532_DISPOSABLE_FULL_PR524B_HOSTED_PROOF_CLOSEOUT_MIMIR.md
 PR533 product-owner UI reconciliation: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_MIMIR.md
 PR533 DAEDALUS result: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_DAEDALUS_RESULT.md
+PR533 ARGUS review: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -115,7 +118,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should hostile-review the PR533 bounded source and validation receipt. If accepted, wake ARIADNE for the packet's hosted desktop/mobile and System/Light/Dark rehearsal.
+Next: ARIADNE should run the PR533 packet's hosted desktop/mobile and System/Light/Dark rehearsal, then commit a public-safe result and wake ARGUS for final review.
 ```
 
 DAEDALUS completed the bounded PR533 source reconciliation around Adam's
