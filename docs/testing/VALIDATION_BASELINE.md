@@ -4,14 +4,19 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR534A Project Collaboration Hosted Schema Ready For ARIADNE
+## PR534A Project Collaboration Hosted Lifecycle Accepted
 
-DAEDALUS completed the bounded hosted migration/deployment stage on 2026-07-30:
+DAEDALUS completed the bounded hosted migration/deployment stage, and ARGUS
+accepted the recovered completed A4 lifecycle evidence on 2026-07-30:
 
 - `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_RESULT.md`
+- `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_LIFECYCLE_ARGUS_RESULT.md`
 
 ```text
 READY_PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_FOR_ARIADNE
+PASS_PR534A_PROJECT_COLLABORATION_HOSTED_LIFECYCLE
+ACCEPT_PR534A_PROJECT_COLLABORATION_HOSTED_LIFECYCLE
+READY_PR534A_PROJECT_COLLABORATION_FOR_MIMIR_CLOSEOUT
 ```
 
 Validation:
@@ -29,6 +34,18 @@ Validation:
 | Hosted API compatibility | Pass; signed-out private `401`, public Project `200`, owner list/detail/invitations `200` with private no-store responses, sign-out `204` |
 | Probe cleanup/no-drift | Pass; owner session and refresh counts restored exactly and public/storage product fingerprint unchanged |
 | Railway web/API | Pass; both ready on `main` at exact accepted SHA `b06502af4546`; API database/migration/storage checks green |
+| Exact invitation boundary | Pass; wrong-case `404`, one sanitized exact-case member, target invitation `1`, unrelated actor `0`, invited/private anonymous detail denied generically |
+| Viewer API allowlist | Pass; one shared Project, exact five-field detail envelope, two Developer Spaces, two evidence summaries, private route exposure `0` |
+| Viewer browser | Pass at desktop and `390x844`; overflow/control escapes `0`, owner Developer Space requests/mutations `0`, revoked refresh denied, unclassified errors/failures `0` |
+| Raw-table and owner-route denial | Pass; seven table classes expose zero rows and all twelve owner route classes deny active viewer plus dormant `admin`, `editor`, and `billing` rows |
+| Lifecycle and invariants | Pass; revoke/fresh denial, re-invite/decline, stale hide/reject, fresh re-invite/cancel, second owner rejection, and mismatched owner rejection |
+| Encrypted state/public receipt binding | Pass; state `complete`, public receipt exact, cleanup/stability true, residue `0` |
+| Fresh hosted cleanup verifier | Pass; `PR534A_CLEANUP_VERIFIED`, residue `0`, baseline/schema stable, ledger rows `1` |
+| Four-capture human-eye review | Pass; desktop/mobile viewer list/detail and revoked generic denial are legible, contained, and free of owner surfaces/private payloads |
+| Public receipt safety | Pass; `17/17` contract assertions and zero UUID/email/JWT/private-key candidates |
+| External-call counters | Provider `0`, runtime `0`, queue `0`, billing `0` |
+| Exact final cleanup | Pass; Auth users/identities/sessions/refresh rows, profiles, Projects, memberships, dependent product rows, and storage objects all `0` |
+| `node --check .station-private/pr534a/ariadne-hosted-proof.mjs` | Pass |
 | `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
 
 The migration committed once. An over-strict independent ACL check initially
@@ -41,10 +58,12 @@ repair, product source change, fixture, Project, membership, invitation,
 attachment, evidence, usage, export, provider, billing, queue, or config write
 ran in this stage.
 
-ARIADNE still must execute the separate disposable exact-SHA invite, target
-readback, accept, viewer allowlist, raw/dependent denial, revoke/fresh denial,
-re-invite, decline, stale, dormant-role, invariant, desktop/mobile, and exact
-cleanup proof before hosted collaboration can be accepted.
+ARIADNE's already-running private harness completed immediately after MIMIR's
+recovery commit but did not publish a handoff. ARGUS did not duplicate the
+customer lifecycle: it bound the complete encrypted state to the public-safe
+receipt, audited all four captures and nine prior zero-residue stopped runs,
+and reran only the fresh read-only hosted cleanup/schema/deployment verifier.
+The hosted collaboration lane is accepted for MIMIR closeout.
 
 ## PR534 Project Collaboration Membership Source Accepted
 
@@ -77,10 +96,9 @@ Validation:
 | Added-line high-risk secret scan | Pass, zero candidates |
 | `git diff --check` | Pass; line-ending notices only |
 
-Migration `090` has not been applied to hosted Supabase. Local source readiness
-does not supersede the later separately authorized exact-SHA disposable hosted
-proof. A PostgreSQL migration engine was not available for local apply/rollback
-execution. MIMIR owns the next route; hosted acceptance is not claimed.
+At source-review time migration `090` had not been applied and hosted acceptance
+was not claimed. The separately authorized PR534A stage above has since applied
+and ledgered the exact migration and completed the disposable hosted proof.
 
 ## PR534 Project Collaboration Preflight Accepted
 
