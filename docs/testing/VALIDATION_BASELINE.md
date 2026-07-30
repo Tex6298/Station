@@ -4,6 +4,48 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR534A Project Collaboration Hosted Schema Ready For ARIADNE
+
+DAEDALUS completed the bounded hosted migration/deployment stage on 2026-07-30:
+
+- `docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_RESULT.md`
+
+```text
+READY_PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_FOR_ARIADNE
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Migration source bind | Pass; exact SHA-256 `F7106E40227C9D1371FB5349B2D53E5BC9D8BEBB3C4DAB888DDF2868C73B61EF` |
+| Hosted preflight | Pass; one exact `089`, no `090`, zero target objects, four matching owner rows, zero contradictory/missing/duplicate owners, zero viewers, zero active writers |
+| Exact migration apply | Pass; accepted transaction/advisory/table locks and PostgREST reload committed unchanged |
+| Hosted ledger | Pass; exactly one version `20260730095001` / name `090_project_collaboration_viewer_membership` row with exact path/hash/provenance/idempotency and one rollback receipt |
+| Catalog and invariant proof | Pass; three columns, two validated checks, two indexes, three triggers, six definitions/owners/fixed search paths, zero invariant/lifecycle violations |
+| RLS and ACL proof | Pass; raw browser table grants/policies absent, four RPCs browser-denied and service-executable, trusted service table privileges retained |
+| Unrelated hosted state | Pass; exact public/storage/Auth row and unrelated catalog fingerprints unchanged |
+| PostgREST reload/visibility | Pass; service sees relation/three columns/four RPCs, anon sees none and direct table read returns `401` |
+| Hosted API compatibility | Pass; signed-out private `401`, public Project `200`, owner list/detail/invitations `200` with private no-store responses, sign-out `204` |
+| Probe cleanup/no-drift | Pass; owner session and refresh counts restored exactly and public/storage product fingerprint unchanged |
+| Railway web/API | Pass; both ready on `main` at exact accepted SHA `b06502af4546`; API database/migration/storage checks green |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+
+The migration committed once. An over-strict independent ACL check initially
+withheld the ledger because trusted `service_role` could execute the invariant
+helper; a second guard initially counted the exact new deferred trigger as an
+unrelated constraint. Read-only inspection proved both were checker
+classifications, every browser denial and unrelated fingerprint remained
+exact, and the ledger was inserted only after those checks passed. No catalog
+repair, product source change, fixture, Project, membership, invitation,
+attachment, evidence, usage, export, provider, billing, queue, or config write
+ran in this stage.
+
+ARIADNE still must execute the separate disposable exact-SHA invite, target
+readback, accept, viewer allowlist, raw/dependent denial, revoke/fresh denial,
+re-invite, decline, stale, dormant-role, invariant, desktop/mobile, and exact
+cleanup proof before hosted collaboration can be accepted.
+
 ## PR534 Project Collaboration Membership Source Accepted
 
 ARGUS accepted DAEDALUS's bounded source implementation with a narrow review

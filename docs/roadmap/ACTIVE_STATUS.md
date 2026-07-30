@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR534A hosted migration and deployment open
+## Current gate - PR534A hosted schema ready for ARIADNE
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -66,7 +66,8 @@ ACCEPT_PR534_PROJECT_COLLABORATION_MEMBERSHIP_SOURCE_ONLY_WITH_ARGUS_PATCH
 READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_MIMIR
 CLOSE_PR534_PROJECT_COLLABORATION_MEMBERSHIP_SOURCE_REVIEW_ACCEPTED
 OPEN_PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS
+READY_PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_FOR_ARIADNE
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -118,6 +119,7 @@ PR534 implementation: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDAL
 PR534 implementation result: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDALUS_RESULT.md
 PR534 source review: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_ARGUS_RESULT.md
 PR534A hosted migration/deploy: docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_DAEDALUS.md
+PR534A hosted migration/deploy result: docs/roadmap/PR534A_PROJECT_COLLABORATION_HOSTED_MIGRATION_DEPLOY_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -149,7 +151,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS should apply and verify exact migration 090, confirm hosted web/API at accepted source, then wake ARIADNE for the separate disposable exact-SHA collaboration lifecycle proof.
+Next: ARIADNE should execute the exact disposable invite/accept/view/revoke/re-invite/decline/stale/dormant-role/invariant/browser/cleanup contract, then wake ARGUS with a public-safe pass or exact blocker.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
@@ -158,16 +160,15 @@ loading, request fanout, quick-card interactions, relocated capability
 reachability, route/privacy boundaries, rail containment, and semantic Settings
 themes pass source review and exact-SHA hosted rehearsal.
 
-ARGUS accepts DAEDALUS's bounded PR534 source implementation with a narrow
-review patch. Database-clock expiry predicates, serialized migration setup,
-deferred-trigger privilege, null-action rejection, truthful read failures,
-terminal stale-action refresh, and invitation privacy disclosure are repaired.
-Strict viewer DTOs, exact actor/owner/status predicates, direct raw-table denial,
-service-only RPCs, owner-only adjacent routes, and zero viewer owner-resource
-fanout pass hostile review. Project `31/31`, Developer Space `61/61`, export
-`15/15`, auth `24/24`, builds, typechecks, lint, secret scan, and independent
-desktop/mobile browser proof pass. Migration `090` was not applied to a real
-database and hosted collaboration is not claimed; MIMIR owns the next route.
+ARGUS accepted DAEDALUS's bounded PR534 source implementation with a narrow
+review patch. PR534A has now applied and ledgered exact migration `090` once.
+Columns, validated constraints, indexes, invariant/immutability triggers, six
+function definitions and owners, fixed search paths, service RPC grants, raw
+browser-table revocations, RLS, PostgREST visibility, unrelated-state
+fingerprints, and Railway source `b06502af` pass. Signed-out/private and
+existing owner/public GET compatibility also pass with exact session cleanup
+and product-row no-drift. ARIADNE still owns the disposable collaboration
+lifecycle; hosted customer behavior is not claimed before that proof.
 
 ARGUS accepts ARIADNE's affected exact-SHA hosted rerun with one narrow receipt
 correction. Web and API remained on reviewed `8e6cea04` before and after proof.
