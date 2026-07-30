@@ -4,6 +4,39 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535 Institutional Spaces Foundation Blocked
+
+ARGUS completed the hostile preflight on 2026-07-30:
+
+- `docs/roadmap/PR535_INSTITUTIONAL_SPACES_FOUNDATION_PREFLIGHT_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR535_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY
+PROPOSE_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
+```
+
+Validation:
+
+| Command / review | Result |
+| --- | --- |
+| Product/schema/API/web reconciliation | Block; a separate durable institution principal is viable only after profile authority/private-column repair |
+| Source profile policy/grant audit | Block; `profiles_select_public` remains all-row and `profiles_update_own` remains unscoped by column after migration `090` |
+| Fresh hosted catalog/ACL audit | Block; anon/authenticated select all nine tested private/authority columns, authenticated updates both authority columns, and eleven policies depend on profile authority reads |
+| Anon sensitive PostgREST projection | Accepted at `200` with `limit=0`; rows and values read `0` |
+| `node --check .station-private/pr535/argus-profile-boundary-audit.mjs` | Pass; private artifact ignored |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| Current Project/Developer Space/export baselines | Pass, `31/31`, `61/61`, and `15/15` |
+
+MIMIR may authorize only PR535A migration `091` to replace broad profile
+policies/grants with own-row authority SELECT needed by existing RLS checks and
+zero browser profile mutation. No institution table, route, role, UI, Project
+link, tier behavior, or external configuration is authorized. Historical
+non-access is not claimed, and no secret/private value may enter public proof.
+
 ## PR534A Project Collaboration Hosted Lifecycle Accepted
 
 DAEDALUS completed the bounded hosted migration/deployment stage, and ARGUS
