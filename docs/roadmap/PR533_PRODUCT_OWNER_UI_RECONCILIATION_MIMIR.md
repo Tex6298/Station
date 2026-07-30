@@ -2,7 +2,7 @@
 
 **Owner:** MIMIR / A1 -> DAEDALUS / A2 -> ARGUS / A3 -> ARIADNE / A4 -> ARGUS / A3 -> MIMIR / A1
 
-**State:** `OPEN_PR533_PRODUCT_OWNER_UI_RECONCILIATION`
+**State:** `CLOSE_PR533_PRODUCT_OWNER_UI_RECONCILIATION_ACCEPTED`
 
 **Source:** `f7027aff wake: hand off product-owner UI direction`
 
@@ -87,13 +87,7 @@ ARIADNE should verify the experience as a human route rehearsal, including:
 - no misleading loading/error state;
 - no public/private auth or privacy regression.
 
-## Current Baton
+## Closeout
 
-DAEDALUS owns the first bounded implementation/preflight pass.
-
-Wakeup:
-
-```text
-WAKEUP A2:
-Codename: DAEDALUS
-```
+PR533 is accepted and closed in
+`docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_CLOSEOUT_MIMIR.md`.
