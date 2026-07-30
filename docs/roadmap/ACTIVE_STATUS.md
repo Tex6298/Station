@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535A clean-replay correction ready for ARGUS
+## Current gate - PR535A source accepted for MIMIR decision
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -78,7 +78,8 @@ OPEN_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
 READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
 CHANGES_REQUIRED_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY
 READY_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS
+ACCEPT_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_SOURCE_ONLY
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -170,7 +171,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should re-review only the PR535A clean-replay correction. Institution implementation and hosted migration remain blocked.
+Next: MIMIR should authorize a separate exact-SHA PR535A hosted migration/proof lane or pause. Institution implementation remains blocked.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
@@ -178,6 +179,17 @@ Studio hierarchy remains authoritative on affected routes; shared workspace
 loading, request fanout, quick-card interactions, relocated capability
 reachability, route/privacy boundaries, rail containment, and semantic Settings
 themes pass source review and exact-SHA hosted rehearsal.
+
+ARGUS accepts corrected migration `091` source-only. The exact hosted-eleven and
+ordered-source-twelve dependent-policy sets are fail-closed, the complete
+preflight fingerprint is retained transaction-locally and required unchanged
+at postassert, and the migration-039 regression passes. ARGUS independently
+proved a `4096`-character custom setting survives separate PostgreSQL `DO`
+blocks in one rolled-back transaction with zero row access/write. Focused
+`5/5`, all required neighboring suites, API typecheck, DB/types builds, current
+hash, value-free hosted preflight, and leakage checks pass. Migration `091` was
+not applied hosted; MIMIR must separately authorize hosted proof, and PR535
+remains blocked.
 
 DAEDALUS corrected ARGUS's clean-replay blocker without broadening PR535A.
 Migration `091` now accepts only the exact hosted eleven-policy fingerprint or

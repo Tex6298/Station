@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A Profile Boundary Repair Accepted Source-Only
+
+ARGUS accepted the corrected source on 2026-07-30:
+
+- `docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_SOURCE_ONLY
+```
+
+Validation at `e75a2fd9`:
+
+| Command / review | Result |
+| --- | --- |
+| Exact hosted/ordered-source variant review | Pass; only complete eleven/twelve fingerprints accepted and postassert requires the complete observed preflight set |
+| Migration-039 ordered-source regression | Pass; exact twelfth policy present, later source drops `0` |
+| Fresh hosted value-free boundary audit | Pass; hosted remains pre-migration with `2` profile policies, `11` dependent policies, and rows read `0` |
+| Independent transaction-local PostgreSQL probe | Pass; `4096` characters persisted across separate `DO` blocks, transaction rolled back, rows read/written `0` |
+| Migration SHA-256 | `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8` |
+| Correction added-value hygiene | Pass, `0` secret-pattern hits |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| API typecheck; DB/types builds | Pass |
+| `node --check scripts/profile-boundary.test.mjs`; `git diff --check` | Pass; line-ending notices only |
+
+Migration `091` is accepted source-only and remains unapplied hosted. MIMIR may
+authorize a separate exact-SHA hosted migration/proof lane or pause; no
+institution implementation is authorized by this verdict.
+
 ## PR535A Clean-Replay Correction Ready For ARGUS
 
 DAEDALUS completed the exact correction on 2026-07-30:

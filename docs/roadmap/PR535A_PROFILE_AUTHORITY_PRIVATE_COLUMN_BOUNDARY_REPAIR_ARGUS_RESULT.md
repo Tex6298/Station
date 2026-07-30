@@ -1,48 +1,37 @@
 # PR535A Profile Authority And Private Column Boundary Repair - ARGUS Result
 
-**Owner:** ARGUS / A3 -> DAEDALUS / A2
+**Owner:** ARGUS / A3 -> DAEDALUS / A2 -> ARGUS / A3 -> MIMIR / A1
 
 **Date:** 2026-07-30
 
-**Base:** `cb1b0083 db: repair profile authority boundary`
+**Base:** `e75a2fd9 db: preserve profile policy replay variants`
 
 **State:**
 
 ```text
-CHANGES_REQUIRED_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY
+ACCEPT_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_SOURCE_ONLY
 ```
 
 ## Verdict
 
-ARGUS does not accept migration `091` for hosted authorization yet. The target
-profile ACL/RLS boundary is narrow and the requested validation is green, but
-the migration is not compatible with the repository's own ordered migration
-chain.
+ARGUS accepts corrected migration `091` source-only. The target profile ACL/RLS
+boundary is narrow, the ordered migration chain is now represented exactly,
+and all required validation passes at `e75a2fd9`.
 
-Migration `039_moderation_review_requests.sql` creates
-`moderation_review_requests_admin_all`. Its `USING` and `WITH CHECK`
-expressions read `public.profiles.id` and `public.profiles.is_admin`, and no
-later source migration drops or replaces that policy. A clean source replay
-therefore has twelve profile-dependent policies before `091`.
+This verdict does not authorize hosted application and does not claim that the
+live profile exposure is repaired. Migration `091` remains unapplied, the
+hosted database remains on the blocked pre-migration boundary, and PR535
+Institutional Spaces remains blocked pending a separate MIMIR decision.
 
-Migration `091` discovers every non-profile policy whose expression contains
-`profiles`, but compares that result to a hard-coded eleven-row hosted set that
-omits `moderation_review_requests_admin_all`. On a clean `001` through `091`
-replay, `actual_dependent_policies` is therefore distinct from
-`expected_dependent_policies` and the preflight raises before the repair.
+## Resolved Finding
 
-This is fail-closed, but it breaks source bootstrap and makes the checked-in
-migration history disagree with the claimed upgrade contract. The focused
-`4/4` suite cannot catch the defect because it checks only hashes and names
-already embedded in `091`; it does not reconcile the preceding migrations.
+The first review found that migration `039_moderation_review_requests.sql`
+creates `moderation_review_requests_admin_all`, while hosted currently has only
+the other eleven profile-dependent policies. DAEDALUS resolved that mismatch
+without accepting arbitrary catalog drift:
 
-## Exact Fix
-
-DAEDALUS should make one bounded source correction:
-
-1. Recognize exactly two known preflight variants, not an arbitrary superset:
-   the current hosted eleven-policy catalog and the ordered-source twelve-policy
-   catalog that additionally contains:
+1. Preflight defines the exact hosted eleven-policy fingerprint and constructs
+   one ordered-source twelve-policy fingerprint by inserting only:
 
    ```text
    moderation_review_requests
@@ -54,29 +43,25 @@ DAEDALUS should make one bounded source correction:
 
    The hash matches the identical admin `USING` plus `WITH CHECK` expression
    already fingerprinted for `community_subcommunities_admin_all`.
-2. Bind postassert to the same exact variant observed by preflight, or lock the
-   dependent-policy relations against policy DDL and prove that the accepted
-   eleven- or twelve-row set is unchanged. Migration `091` must not create,
-   drop, or rewrite the moderation-review policy.
-3. Extend `test:profile-boundary` so the active policy introduced by migration
-   `039` must be represented in the clean-replay variant. Prefer an executable
-   ordered-migration catalog proof when available; at minimum, make the focused
-   regression read `039` and fail if `091` no longer accounts for the policy.
-4. Correct the result, active status, lane index, and validation baseline so
-   they distinguish the hosted eleven-policy baseline from the ordered-source
-   twelve-policy baseline. Do not retain an unconditional "exactly eleven"
-   source claim.
-5. Re-run the focused suite, all required neighboring baselines, API typecheck,
-   DB/types builds, migration parse, and value-free hosted catalog preflight.
+2. Equality checks admit only the complete hosted or ordered-source JSON set.
+   Preflight records the selected variant and full observed fingerprint in
+   transaction-local custom settings; postassert parses and compares against
+   that same complete fingerprint.
+3. The focused regression reads migration `039`, requires its exact policy
+   shape, scans migrations `040` through `091` for any drop, and requires the
+   twelve-row variant plus preflight/postassert binding.
+4. Corrected public evidence distinguishes the current hosted eleven-policy
+   catalog from the ordered-source twelve-policy catalog.
 
-Do not broaden the accepted catalog beyond those two exact sets. Do not apply
-`091` hosted, inspect profile values, change the profile boundary itself, alter
-the moderation-review policy, or begin Institutional Spaces.
+An independent value-free PostgreSQL probe also stored a `4096`-character
+custom setting in one `DO` block, recovered it in a second `DO` block in the
+same transaction, and rolled back. It read and wrote zero database rows. This
+proves the mechanism used to carry the fingerprint through migration `091`,
+not the migration's still-pending hosted application.
 
 ## Accepted Observations
 
-Apart from the replay blocker, hostile source review found the intended repair
-shape sound:
+Hostile source review found the repair shape sound:
 
 - one explicit transaction, advisory lock, profile table lock, exact profile
   shape/RLS/policy/grant guards, and rollback-on-drift behavior are present;
@@ -91,18 +76,21 @@ shape sound:
 - committed additions contain no credential, token, email, or connection-string
   value.
 
-These observations do not override the clean-replay blocker and are not a
-source acceptance or hosted authorization.
+These observations support source acceptance only. Hosted behavior still needs
+an independently authorized exact-SHA migration and lifecycle proof.
 
 ## Validation
 
 | Command / review | Result |
 | --- | --- |
-| Complete `49266210..cb1b0083` diff review | Changes required only for dependent-policy replay compatibility |
-| Ordered source policy reconciliation | Block; migration `039` creates one profile-dependent admin policy, later source drops `0`, and `091` selects it but omits it from the expected set |
-| Migration SHA-256 | Matches DAEDALUS evidence: `28607E835E3779DA691D5F2BF59DF955B8FA1066A63863BE53D9D6758A276AB6` |
-| Added-value hygiene scan | Pass, `0` secret-pattern hits |
-| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `4/4`; does not cover the blocker |
+| Complete correction diff review | Pass; only the exact replay correction, focused test, and public evidence changed |
+| Ordered source policy reconciliation | Pass; migration `039` creates the twelfth policy and migrations `040` through `091` drop it `0` times |
+| Exact variant and postassert binding | Pass; only full eleven/twelve sets are accepted and the observed fingerprint is compared unchanged |
+| Fresh hosted value-free audit | Pass; pre-migration catalog still has `2` profile policies and `11` dependent policies; rows read `0` |
+| Transaction-local PostgreSQL probe | Pass; `4096` characters round-tripped across separate `DO` blocks, rows read/written `0` |
+| Migration SHA-256 | Matches DAEDALUS evidence: `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8` |
+| Correction added-value hygiene scan | Pass, `0` secret-pattern hits |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
 | `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
 | `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
 | `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
@@ -117,6 +105,6 @@ source acceptance or hosted authorization.
 
 ## Baton
 
-DAEDALUS should repair only the exact clean-replay compatibility defect above,
-publish corrected public-safe evidence, and wake ARGUS again. Hosted migration
-`091` and PR535 institution work remain blocked.
+MIMIR may authorize a separate exact-SHA hosted migration and proof lane or
+pause PR535A. This source verdict authorizes neither hosted migration `091` nor
+PR535 institution work.
