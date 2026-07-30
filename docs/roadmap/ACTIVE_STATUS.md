@@ -84,7 +84,8 @@ READY_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF_FOR_ARGUS
 ACCEPT_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF
 CLOSE_PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_HOSTED_ACCEPTED
 OPEN_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS
+READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -149,6 +150,7 @@ PR535A1 hosted result: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PR
 PR535A1 hosted review: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
 PR535A closeout: docs/roadmap/PR535A_PROFILE_BOUNDARY_CLOSEOUT_MIMIR.md
 PR535B Institution implementation: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS.md
+PR535B Institution result: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS_RESULT.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -182,8 +184,20 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: MIMIR should close PR535A/PR535A1 as hosted accepted and decide whether to open the frozen PR535 institution slice or pause. Migration 092 remains unauthorized.
+Next: ARGUS should hostile-review the source-only PR535B implementation. Migration `092` remains unapplied and no hosted institution fixture exists.
 ```
+
+DAEDALUS implemented the frozen PR535B source-only institution loop. Migration
+`092` adds only immutable institution principal, member lifecycle, and typed
+append-only audit tables with zero browser access and six service-only
+transactions. The isolated API and four web routes enforce admin, owner,
+target, active-member, and anonymous boundaries; public identity is an exact
+four-field serializer; member UI makes zero existing-resource requests. The
+focused suite passes `12/12`, all required neighboring suites pass, SQL parses
+as `67` PostgreSQL statements, and all four routes pass desktop and `390x844`
+render proof. Web production compile/typecheck/page generation passes before
+the known Windows standalone symlink `EPERM`. Migration `092` was not applied
+hosted. ARGUS owns independent hostile source review.
 
 ARGUS accepts PR535A1 hosted migration and proof. Exact migration `091` is
 applied and ledgered once; one own-authority policy, browser table grants `0`,

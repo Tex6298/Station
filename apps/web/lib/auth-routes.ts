@@ -13,6 +13,13 @@ export function isProtectedRoute(pathname: string): boolean {
     return true;
   }
 
+  if (first === "institutions") {
+    if (parts.length === 1) return true;
+    if (second === "admin") return true;
+    if (third === "team") return true;
+    return false;
+  }
+
   if (first === "space") {
     if (parts.length === 1) return true;
     if (second === "new") return true;

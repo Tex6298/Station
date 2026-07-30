@@ -4,6 +4,42 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535B Institution Principal, Team, And Public Identity Ready For ARGUS
+
+DAEDALUS completed the authorized source-only implementation on 2026-07-30:
+
+- `docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS_RESULT.md`
+
+```text
+READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
+```
+
+| Command / proof | Result | Notes |
+| --- | --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass | Lockfile current; no dependency change. |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass | `12` tests cover the full lifecycle, exact serializers, cache/error boundaries, role denial, stale/re-invite behavior, migration guards, route protection, and member zero-fanout. |
+| Ephemeral libpg_query PostgreSQL parse | Pass | Migration `092` parsed as `67` statements; the temporary parser dependency was outside the repo and is not retained. |
+| Desktop and `390x844` Playwright route proof | Pass | All four routes rendered without overflow/page errors; member API capture contained only `/auth/me` and the bounded team endpoint. |
+| `npm exec --yes pnpm@10.32.1 -- run test:profile-boundary` | Pass | `5` tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | `24` tests, including institution route protection. |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass | `31` tests; personal Project ownership and viewer isolation remain green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass | `11` tests; personal Space ownership remains green. |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass | `61` tests; Developer Spaces remain isolated. |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass | `35` public serialization tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass | `57` permission/public-safety tests. |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass | `15` tests; exports remain personal. |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass | API and web typecheck completed. |
+| `npm exec --yes pnpm@10.32.1 -- --filter @station/web lint` | Pass | No warnings or errors. |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Partial / known Windows failure | `8/9` tasks passed. Web compiled, linted/typechecked, collected page data, and generated `42/42` pages before the documented standalone trace-copy symlink `EPERM`. Only the pre-existing `globals.css:740` autoprefixer warning appeared. |
+| `git diff --check` | Pass | CRLF normalization notices only; final rerun recorded at commit handoff. |
+
+Migration `092` SHA-256 is
+`928FCB9395E1803253491F1C367470F46DB9139E9A9BDCB23FD79967333B3E0D`.
+It remains source-only and unapplied hosted. No hosted fixture or ledger row was
+created. Existing resources remain personal: no existing table, policy,
+serializer, entitlement, ownership check, route, or row changed or inherited
+institution access.
+
 ## PR535A1 Profile Boundary Hosted Proof Accepted
 
 ARGUS completed independent hosted review on 2026-07-30:

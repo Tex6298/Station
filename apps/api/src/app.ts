@@ -22,6 +22,7 @@ import { notificationsRouter } from "./routes/notifications";
 import { reportsRouter } from "./routes/reports";
 import { socialRouter } from "./routes/social";
 import { projectsRouter } from "./routes/projects";
+import { institutionsRouter } from "./routes/institutions";
 import { developerSpacesRouter } from "./routes/developer-spaces";
 import { exportsRouter } from "./routes/exports";
 import { storageRouter } from "./routes/storage";
@@ -83,6 +84,7 @@ export function createApp() {
   app.use("/reports", reportsRouter);
   app.use("/social", socialRouter);
   app.use("/projects", projectsRouter);
+  app.use("/institutions", institutionsRouter);
   app.use("/developer-spaces", developerSpacesRouter);
   app.use("/exports", exportsRouter);
   app.use("/storage", storageRouter);

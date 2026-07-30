@@ -211,6 +211,27 @@ export type ProjectMemberStatus = "invited" | "active" | "removed";
 export type ProjectViewerInviteOutcome = "invited" | "already_invited" | "already_active" | "unavailable";
 export type ProjectViewerResponseOutcome = "accepted" | "declined" | "stale" | "unavailable";
 export type ProjectViewerRevokeOutcome = "revoked" | "unavailable";
+export type InstitutionVerificationStatus = "unverified" | "verified" | "revoked";
+export type InstitutionPublicStatus = "private" | "public";
+export type InstitutionMemberRole = "member";
+export type InstitutionMemberStatus = "invited" | "active" | "removed";
+export type InstitutionAuditAction =
+  | "provisioned"
+  | "verification_granted"
+  | "verification_revoked"
+  | "published"
+  | "unpublished"
+  | "member_invited"
+  | "invitation_accepted"
+  | "invitation_declined"
+  | "invitation_expired"
+  | "member_revoked";
+export type InstitutionProvisionOutcome = "created" | "conflict" | "unavailable";
+export type InstitutionVerificationOutcome = "verified" | "revoked" | "unchanged" | "unavailable";
+export type InstitutionPublicationOutcome = "published" | "unpublished" | "unchanged" | "not_verified" | "unavailable";
+export type InstitutionInviteOutcome = "invited" | "already_invited" | "already_active" | "unavailable";
+export type InstitutionInvitationResponseOutcome = "accepted" | "declined" | "stale" | "unavailable";
+export type InstitutionMemberRevokeOutcome = "revoked" | "unavailable";
 
 type SupabaseTable<Row, Insert = Row, Update = Partial<Insert>> = {
   Row: Row;
@@ -444,6 +465,79 @@ export interface Database {
           updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["project_members"]["Insert"]>;
+      };
+      institutions: {
+        Row: {
+          id: string;
+          owner_user_id: string;
+          name: string;
+          slug: string;
+          summary: string | null;
+          verification_status: InstitutionVerificationStatus;
+          public_status: InstitutionPublicStatus;
+          verified_at: string | null;
+          verified_by_user_id: string | null;
+          verification_revoked_at: string | null;
+          verification_revoked_by_user_id: string | null;
+          published_at: string | null;
+          unpublished_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["institutions"]["Row"], "id" | "summary" | "verification_status" | "public_status" | "verified_at" | "verified_by_user_id" | "verification_revoked_at" | "verification_revoked_by_user_id" | "published_at" | "unpublished_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          summary?: string | null;
+          verification_status?: InstitutionVerificationStatus;
+          public_status?: InstitutionPublicStatus;
+          verified_at?: string | null;
+          verified_by_user_id?: string | null;
+          verification_revoked_at?: string | null;
+          verification_revoked_by_user_id?: string | null;
+          published_at?: string | null;
+          unpublished_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["institutions"]["Insert"]>;
+      };
+      institution_members: {
+        Row: {
+          id: string;
+          institution_id: string;
+          user_id: string;
+          role: InstitutionMemberRole;
+          status: InstitutionMemberStatus;
+          invite_expires_at: string;
+          responded_at: string | null;
+          removed_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["institution_members"]["Row"], "id" | "role" | "status" | "responded_at" | "removed_at" | "created_at" | "updated_at"> & {
+          id?: string;
+          role?: InstitutionMemberRole;
+          status?: InstitutionMemberStatus;
+          responded_at?: string | null;
+          removed_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["institution_members"]["Insert"]>;
+      };
+      institution_audit_events: {
+        Row: {
+          id: string;
+          institution_id: string;
+          actor_user_id: string;
+          subject_user_id: string;
+          action: InstitutionAuditAction;
+          created_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["institution_audit_events"]["Row"], "id" | "created_at"> & {
+          id?: string;
+          created_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["institution_audit_events"]["Insert"]>;
       };
       storage_usage: {
         Row: {
@@ -2208,6 +2302,76 @@ export interface Database {
     }>;
     Views: {};
     Functions: {
+      provision_institution_v1: {
+        Args: {
+          p_actor_user_id: string;
+          p_owner_user_id: string;
+          p_name: string;
+          p_slug: string;
+          p_summary: string | null;
+        };
+        Returns: Array<{
+          outcome: InstitutionProvisionOutcome;
+          institution_id: string | null;
+        }>;
+      };
+      transition_institution_verification_v1: {
+        Args: {
+          p_institution_id: string;
+          p_actor_user_id: string;
+          p_verified: boolean;
+        };
+        Returns: Array<{
+          outcome: InstitutionVerificationOutcome;
+          verification_status: InstitutionVerificationStatus | null;
+          public_status: InstitutionPublicStatus | null;
+        }>;
+      };
+      transition_institution_publication_v1: {
+        Args: {
+          p_institution_id: string;
+          p_actor_user_id: string;
+          p_public: boolean;
+        };
+        Returns: Array<{
+          outcome: InstitutionPublicationOutcome;
+          public_status: InstitutionPublicStatus | null;
+        }>;
+      };
+      invite_institution_member_v1: {
+        Args: {
+          p_institution_id: string;
+          p_actor_user_id: string;
+          p_target_user_id: string;
+        };
+        Returns: Array<{
+          outcome: InstitutionInviteOutcome;
+          invited_at: string | null;
+          expires_at: string | null;
+        }>;
+      };
+      respond_institution_invitation_v1: {
+        Args: {
+          p_institution_id: string;
+          p_actor_user_id: string;
+          p_action: "accept" | "decline";
+        };
+        Returns: Array<{
+          outcome: InstitutionInvitationResponseOutcome;
+          responded_at: string | null;
+        }>;
+      };
+      revoke_institution_member_v1: {
+        Args: {
+          p_institution_id: string;
+          p_actor_user_id: string;
+          p_target_user_id: string;
+        };
+        Returns: Array<{
+          outcome: InstitutionMemberRevokeOutcome;
+          removed_at: string | null;
+        }>;
+      };
       create_project_with_owner_v1: {
         Args: {
           p_actor_user_id: string;

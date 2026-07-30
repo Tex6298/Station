@@ -31,6 +31,7 @@ export const config = {
     "/billing/:path*",
     "/settings/:path*",
     "/projects/:path*",
+    "/institutions/:path*",
     "/developer-spaces/:path*",
     "/forums/:path*",
   ],

@@ -6675,6 +6675,279 @@ main[style*="rgb(11, 14, 20)"] {
   opacity: 0.62;
 }
 
+.institution-page,
+.public-institution-page {
+  --institution-verified: #18794e;
+  --institution-verified-soft: #e9f7ef;
+  --institution-verified-border: #78c49b;
+}
+
+.institution-stack,
+.institution-section,
+.institution-card,
+.institution-owner-controls,
+.institution-member-list {
+  display: grid;
+  gap: 12px;
+}
+
+.institution-loading {
+  display: grid;
+  min-height: 240px;
+  place-items: center;
+  color: var(--station-page-muted);
+}
+
+.institution-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.institution-section-heading h2,
+.institution-admin-form h2,
+.institution-owner-controls h2,
+.institution-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.institution-section-heading p,
+.institution-admin-form p,
+.institution-owner-controls p,
+.institution-card p,
+.institution-card small,
+.institution-member-row span {
+  margin: 4px 0 0;
+  color: var(--station-page-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.institution-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.institution-card {
+  align-content: space-between;
+  min-width: 0;
+}
+
+.institution-empty {
+  border-block: 1px solid var(--station-page-border);
+  padding: 18px 4px;
+  color: var(--station-page-muted);
+  font-size: 0.9rem;
+}
+
+.institution-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.institution-admin-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
+  gap: 16px;
+}
+
+.institution-admin-form {
+  position: sticky;
+  top: calc(var(--station-global-nav-height) + 16px);
+}
+
+.institution-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  color: var(--station-page-text);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.institution-invite-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+
+.institution-owner-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.institution-owner-controls > :last-child {
+  grid-column: 1 / -1;
+}
+
+.institution-member-list {
+  gap: 0;
+  border-top: 1px solid var(--station-page-border);
+}
+
+.institution-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--station-page-border);
+}
+
+.institution-member-row > div {
+  display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.institution-wrap {
+  overflow-wrap: anywhere;
+}
+
+.institution-page button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.institution-page a:focus-visible,
+.institution-page button:focus-visible,
+.institution-page input:focus-visible,
+.institution-page textarea:focus-visible {
+  outline: 2px solid var(--station-page-accent);
+  outline-offset: 2px;
+}
+
+.public-institution-page {
+  min-height: calc(100svh - var(--station-global-nav-height));
+  padding: 0;
+  background: var(--station-page-bg);
+}
+
+.public-institution-identity {
+  display: grid;
+  min-height: calc(100svh - var(--station-global-nav-height) - 72px);
+  align-items: center;
+  border-bottom: 1px solid var(--station-page-border);
+  background: var(--station-page-surface);
+  padding: 48px 24px;
+}
+
+.public-institution-identity-inner,
+.public-institution-footer-inner {
+  width: min(100%, 960px);
+  margin: 0 auto;
+}
+
+.public-institution-identity-inner {
+  display: grid;
+  gap: 18px;
+}
+
+.public-institution-identity h1 {
+  max-width: 18ch;
+  margin: 0;
+  color: var(--station-page-text);
+  font-size: 3.75rem;
+  line-height: 1.02;
+  letter-spacing: 0;
+  overflow-wrap: anywhere;
+}
+
+.public-institution-identity p {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--station-page-muted);
+  font-size: 1.08rem;
+  line-height: 1.65;
+}
+
+.public-institution-verified {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border: 1px solid var(--institution-verified-border);
+  border-radius: 999px;
+  background: var(--institution-verified-soft);
+  color: var(--institution-verified);
+  padding: 5px 9px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.public-institution-footer-band {
+  min-height: 72px;
+  background: var(--station-page-soft-2);
+  padding: 20px 24px;
+}
+
+.public-institution-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--station-page-muted);
+  font-size: 0.86rem;
+}
+
+.public-institution-footer-inner a {
+  color: var(--station-page-text);
+  font-weight: 700;
+}
+
+@media (max-width: 720px) {
+  .institution-card-grid,
+  .institution-admin-layout,
+  .institution-owner-controls,
+  .institution-invite-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .institution-admin-form {
+    position: static;
+  }
+
+  .institution-owner-controls > :last-child {
+    grid-column: auto;
+  }
+
+  .institution-member-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .institution-member-row .station-muted-button,
+  .institution-invite-row .station-link-button {
+    width: 100%;
+  }
+
+  .public-institution-identity {
+    min-height: calc(100svh - var(--station-global-nav-height) - 64px);
+    padding: 36px 20px;
+  }
+
+  .public-institution-identity h1 {
+    font-size: 2.6rem;
+  }
+
+  .public-institution-footer-band {
+    min-height: 64px;
+    padding: 16px 20px;
+  }
+
+  .public-institution-footer-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
 @media (max-width: 720px) {
   .project-collaboration-list {
     grid-template-columns: minmax(0, 1fr);
