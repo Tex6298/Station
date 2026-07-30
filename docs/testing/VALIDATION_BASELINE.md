@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A1 Profile Boundary Hosted Proof Ready For ARGUS
+
+DAEDALUS completed the authorized exact-SHA hosted run on 2026-07-30:
+
+- `docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md`
+
+```text
+READY_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF_FOR_ARGUS
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Exact migration source bind | Pass; accepted source `e75a2fd9`, SHA-256 `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8` |
+| Value-free hosted preflight | Pass; `16` columns, `2` inherited policies, `21` table grants, `192` column grants, exact eleven dependent policies, exact `090`, no `091`, zero writers |
+| Railway executable-source check | Pass; web/API ready together on `main` at `cb1b0083`, with zero `apps/` or `packages/` drift to accepted source |
+| Exact migration apply | Pass; one unchanged transaction with advisory/table locks, preflight/postassert, schema reload, and commit |
+| Hosted ledger | Pass; exactly one version `20260730173301` / `091_profiles_private_column_authority_boundary` row with exact path/hash/source/idempotency and restore-only receipts |
+| Post-migration profile ACL/RLS | Pass; one own-authority policy, browser table grants `0`, browser column grants `6`, service table/column grants `7`/`64` |
+| Dependent policy and unrelated catalog proof | Pass; eleven policies and every unrelated catalog fingerprint unchanged |
+| Hostile direct profile proof | Pass; sensitive anon/auth `401`/`403`, own authority `200`, other rows `0`, tier/admin/display writes each `403`, values unchanged |
+| API/public compatibility | Pass; auth, billing, Settings, tier/admin routes, four dependent policies, public Space, and disposable public persona serializers |
+| Exact cleanup/no-drift | Pass; two Auth users and one persona removed; user/identity/session/refresh/profile/persona residue `0`; bound rows exact |
+| Fresh restarted hosted verifier | Pass; ledger `1`, residue `0`, catalog/rows/deployment exact |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass; lockfile current |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| API typecheck; DB/types builds | Pass |
+| Profile test and private operator syntax | Pass |
+
+ARGUS owns independent hosted review. PR535 Institutional Spaces and migration
+`092` remain blocked until that verdict and MIMIR's next decision.
+
 ## PR535A Profile Boundary Repair Accepted Source-Only
 
 ARGUS accepted the corrected source on 2026-07-30:
@@ -36,9 +77,9 @@ Validation at `e75a2fd9`:
 | API typecheck; DB/types builds | Pass |
 | `node --check scripts/profile-boundary.test.mjs`; `git diff --check` | Pass; line-ending notices only |
 
-Migration `091` is accepted source-only and remains unapplied hosted. MIMIR may
-authorize a separate exact-SHA hosted migration/proof lane or pause; no
-institution implementation is authorized by this verdict.
+At this source verdict, migration `091` remained unapplied. The separately
+authorized PR535A1 stage above has since applied and proved the exact migration;
+institution implementation is still not authorized pending review.
 
 ## PR535A Clean-Replay Correction Ready For ARGUS
 
@@ -74,11 +115,11 @@ Validation:
 | `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass |
 | `node --check scripts/profile-boundary.test.mjs`; `git diff --check` | Pass; line-ending notices only |
 
-Migration `091` remains source-only and was not applied hosted. The correction
-does not alter either accepted dependent policy set, the profile ACL/RLS target,
-profile values, institution objects, auth/session behavior, product UI,
-dependencies, lockfiles, or external configuration. PR535 remains blocked
-pending renewed ARGUS source review.
+At this handoff migration `091` remained source-only. The correction did not
+alter either accepted dependent policy set, the profile ACL/RLS target, profile
+values, institution objects, auth/session behavior, product UI, dependencies,
+lockfiles, or external configuration. The separately authorized PR535A1 stage
+above has since applied the exact source and now awaits hosted ARGUS review.
 
 ## PR535A Profile Boundary Repair Changes Required
 
