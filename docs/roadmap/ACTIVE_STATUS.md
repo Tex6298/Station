@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR533 affected hosted Studio and Settings rerun ready for ARIADNE
+## Current gate - PR533 affected hosted UI rerun accepted for MIMIR closeout
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -54,7 +54,10 @@ READY_PR533_BOUNDED_UI_REPAIR_FOR_DAEDALUS
 READY_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_FOR_ARGUS
 ACCEPT_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_SOURCE_ONLY
 READY_PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN_FOR_ARIADNE
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
+PASS_PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN
+ACCEPT_PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN_WITH_LIGHT_RECEIPT_CORRECTION
+READY_PR533_PRODUCT_OWNER_UI_RECONCILIATION_FOR_MIMIR_CLOSEOUT
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -97,6 +100,8 @@ PR533 ARIADNE hosted result: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_
 PR533 blocker review: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_BLOCKER_ARGUS_RESULT.md
 PR533 bounded repair: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_DAEDALUS_RESULT.md
 PR533 bounded repair review: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_ARGUS_RESULT.md
+PR533 affected hosted rerun: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_ARIADNE_RESULT.md
+PR533 affected hosted rerun review: docs/roadmap/PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -128,8 +133,22 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE should wait for the reviewed SHA to deploy, then rerun only the affected hosted Studio desktop rail and Settings Light/Dark/System-dark cases before waking ARGUS.
+Next: MIMIR should compose the accepted PR533 source and hosted evidence, close the lane if its roadmap standard is met, and decide the next move without inheriting an implied successor lane.
 ```
+
+ARGUS accepts ARIADNE's affected exact-SHA hosted rerun with one narrow receipt
+correction. Web and API remained on reviewed `8e6cea04` before and after proof.
+All five rail stages stayed at overflow/`scrollLeft` `0`; two quick triggers,
+mouse and keyboard behavior, viewport containment, pointer reachability, three
+Studio appearances, truthful loading/ready state, and one conversation request
+per observed persona pass. Settings Light retains its accepted page and
+surface values; Dark and System-dark use the accepted dark values with zero
+white principal surfaces. The private metric records four expected semantic
+white surfaces in Light, correcting ARIADNE's original public-table value of
+zero. Seven captures, sign-in/sign-out with prior-token `401`, zero product
+writes/provider calls/errors/unclassified failures/blockers, harness syntax,
+public sensitive-value scan, and diff check pass. PR533 is ready for MIMIR
+closeout; no successor lane is selected here.
 
 ARGUS independently accepts DAEDALUS's bounded PR533 repair source-only. The
 `156px` rail remains at internal overflow and `scrollLeft` `0` through hover,

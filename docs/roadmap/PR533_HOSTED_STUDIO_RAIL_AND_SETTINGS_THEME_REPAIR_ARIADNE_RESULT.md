@@ -48,9 +48,9 @@ Dark appearances against the existing long-name owner data.
 
 ## Settings Appearance Result
 
-| Case | Viewport | Page | Principal surface | Fixed-white principal surfaces |
+| Case | Viewport | Page | Principal surface | Measured white principal surfaces |
 | --- | --- | --- | --- | ---: |
-| Light | `1440x900` | `rgb(244, 243, 239)` | `rgb(255, 255, 255)` | `0` |
+| Light | `1440x900` | `rgb(244, 243, 239)` | `rgb(255, 255, 255)` | `4` (expected Light surfaces) |
 | Dark | `1440x900` | `rgb(25, 25, 24)` | `rgb(36, 35, 32)` | `0` |
 | System-dark | `390x844` | `rgb(25, 25, 24)` | `rgb(36, 35, 32)` | `0` |
 
@@ -58,6 +58,9 @@ Dark appearances against the existing long-name owner data.
   notification rows resolved to coherent semantic surfaces.
 - Light retained its intended white card surface. Dark and System-dark contained
   no fixed-white principal surface.
+- The white-surface metric counts expected semantic white surfaces in Light; the
+  blocker gate is zero white principal surfaces whenever the resolved theme is
+  Dark.
 - The focused Settings control rendered a `2px solid rgb(174, 161, 239)` outline.
 - All three Settings cases had zero document horizontal overflow.
 - Human-eye review found legible hierarchy, coherent controls, and no overlap or
