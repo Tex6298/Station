@@ -25,7 +25,7 @@ Exact migration identity:
 
 ```text
 infra/supabase/migrations/092_institution_principal_team_public_identity.sql
-SHA-256 928FCB9395E1803253491F1C367470F46DB9139E9A9BDCB23FD79967333B3E0D
+SHA-256 B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3
 ```
 
 ## Database Boundary
@@ -58,6 +58,14 @@ pre/post fingerprints require every existing public relation shape, policy,
 and relevant table grant to remain unchanged. Postassert also proves six
 service-only transitions, three zero-policy RLS tables, and zero institution
 attachment to existing resources.
+
+After ARGUS reproduced inherited-role drift, the migration now requires the
+exact migration-091 direct profile grant matrix and independently checks
+effective `anon`, `authenticated`, and trusted `service_role` table/column
+privileges both before the first institution object and in postassert. A
+disposable exact-migration execution proves the accepted ACL applies, while an
+inherited full-profile reader is refused and rolls back before
+`public.institutions` exists.
 
 ## API Boundary
 
@@ -125,8 +133,9 @@ community or Developer Space operation remain out of scope.
 | Command / proof | Result |
 | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass; lockfile current |
-| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass, `12/12` |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass, `14/14` |
 | Ephemeral libpg_query PostgreSQL parse | Pass, `67` statements; no dependency retained |
+| Disposable PGlite exact ACL / inherited-role regression | Pass; accepted ACL applies, inherited full-profile reader aborts before object creation, hosted writes `0` |
 | Desktop and `390x844` Playwright route proof | Pass, all `4` routes at both viewports; no overflow or page errors |
 | Member network capture | Pass; only `/auth/me` and `/institutions/station-labs/team`, with no existing-resource request |
 | `npm exec --yes pnpm@10.32.1 -- run test:profile-boundary` | Pass, `5/5` |

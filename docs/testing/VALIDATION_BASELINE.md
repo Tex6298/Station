@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535B Exact Profile ACL Guard Corrected For ARGUS
+
+DAEDALUS completed the bounded migration-`092` correction on 2026-07-30:
+
+```text
+READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_ARGUS
+```
+
+Migration `092` now requires the exact direct migration-`091` profile grant
+matrix and independently proves effective browser and trusted-service
+table/column privileges before any institution object and again in postassert.
+Its corrected SHA-256 is
+`B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3`.
+
+| Command / proof | DAEDALUS result |
+| --- | --- |
+| Disposable exact-migration PGlite execution | Pass; accepted migration-`091` ACL creates all three institution tables |
+| Inherited full-profile reader regression | Pass; effective `authenticated` SELECT is detected, migration aborts, and `public.institutions` remains absent |
+| PostgreSQL AST parse | Pass; `67` statements |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass, `14/14` |
+| `npm exec --yes pnpm@10.32.1 -- run test:profile-boundary` | Pass, `5/5` |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass, `24/24` |
+| `npm exec --yes pnpm@10.32.1 -- run test:projects` | Pass, `31/31` |
+| `npm exec --yes pnpm@10.32.1 -- run test:spaces` | Pass, `11/11` |
+| `npm exec --yes pnpm@10.32.1 -- run test:developer-spaces` | Pass, `61/61` |
+| `npm exec --yes pnpm@10.32.1 -- run test:writing` | Pass, `35/35` |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass, `57/57` |
+| `npm exec --yes pnpm@10.32.1 -- run test:exports` | Pass, `15/15` |
+| Root API/web typecheck; web lint | Pass; zero lint warnings/errors |
+| Hosted migrations / writes / fixtures | `0 / 0 / 0` |
+
+The correction changes only migration `092`, its focused regression, and
+source/status evidence. It does not alter profile policy semantics, apply the
+migration hosted, or expand the PR535B product surface.
+
 ## PR535B Exact Profile ACL Guard Required
 
 ARGUS completed independent source review on 2026-07-30:
@@ -51,8 +86,9 @@ READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
 | Command / proof | Result | Notes |
 | --- | --- | --- |
 | `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass | Lockfile current; no dependency change. |
-| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass | `12` tests cover the full lifecycle, exact serializers, cache/error boundaries, role denial, stale/re-invite behavior, migration guards, route protection, and member zero-fanout. |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass | `14` tests cover the full lifecycle, exact serializers, cache/error boundaries, role denial, stale/re-invite behavior, migration guards, route protection, inherited ACL refusal, truthful private-index copy, and member zero-fanout. |
 | Ephemeral libpg_query PostgreSQL parse | Pass | Migration `092` parsed as `67` statements; the temporary parser dependency was outside the repo and is not retained. |
+| Disposable PGlite exact ACL / inherited-role regression | Pass | Accepted ACL applies; inherited full-profile reader aborts before institution object creation; hosted writes `0`. |
 | Desktop and `390x844` Playwright route proof | Pass | All four routes rendered without overflow/page errors; member API capture contained only `/auth/me` and the bounded team endpoint. |
 | `npm exec --yes pnpm@10.32.1 -- run test:profile-boundary` | Pass | `5` tests. |
 | `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass | `24` tests, including institution route protection. |
@@ -68,7 +104,7 @@ READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
 | `git diff --check` | Pass | CRLF normalization notices only; final rerun recorded at commit handoff. |
 
 Migration `092` SHA-256 is
-`928FCB9395E1803253491F1C367470F46DB9139E9A9BDCB23FD79967333B3E0D`.
+`B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3`.
 It remains source-only and unapplied hosted. No hosted fixture or ledger row was
 created. Existing resources remain personal: no existing table, policy,
 serializer, entitlement, ownership check, route, or row changed or inherited

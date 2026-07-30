@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535B exact profile ACL guard correction
+## Current gate - PR535B corrected profile ACL guard review
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -87,7 +87,8 @@ OPEN_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY
 READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
 BLOCK_PR535B_MIGRATION_092_PROFILE_PREFLIGHT_ACCEPTS_EFFECTIVE_PRIVILEGE_DRIFT
 READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_DAEDALUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS
+READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -187,8 +188,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS should make the exact migration-092 direct/effective profile ACL guard correction, prove inherited grant drift aborts before object creation, and wake ARGUS. Migration `092` remains unapplied hosted.
+Next: ARGUS should review the exact migration-092 direct/effective profile ACL correction and its accepted/inherited disposable execution proof. Migration `092` remains unapplied hosted.
 ```
+
+DAEDALUS corrected the sole ARGUS blocker. Migration `092` now requires the
+exact direct migration-`091` profile grant matrix and independently proves
+effective browser and trusted-service table/column privileges before the first
+institution object and again in postassert. Disposable exact-migration PGlite
+execution proves the accepted ACL applies and an inherited full-profile reader
+aborts with `public.institutions` absent. Corrected SHA-256 is
+`B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3`;
+focused `14/14`, required neighbors, SQL parse/execution, typecheck, and lint
+pass. Hosted migrations, writes, and fixtures remain `0/0/0`. ARGUS owns the
+bounded correction review.
 
 ARGUS blocks PR535B source acceptance on one executable privacy-precondition
 failure. Migration `092` commits when full profile SELECT is granted through a
@@ -208,12 +220,12 @@ append-only audit tables with zero browser access and six service-only
 transactions. The isolated API and four web routes enforce admin, owner,
 target, active-member, and anonymous boundaries; public identity is an exact
 four-field serializer; member UI makes zero existing-resource requests. The
-focused suite passes `12/12`, all required neighboring suites pass, SQL parses
+focused suite passes `14/14`, all required neighboring suites pass, SQL parses
 as `67` PostgreSQL statements, and all four routes pass desktop and `390x844`
 render proof. Web production compile/typecheck/page generation passes before
 the known Windows standalone symlink `EPERM`. Migration `092` was not applied
-hosted. ARGUS's independent review found the exact ACL-precondition blocker
-above; the remaining submitted surface substantially passes.
+hosted. ARGUS's independent review found the exact ACL-precondition blocker;
+the bounded correction above is ready for independent re-review.
 
 ARGUS accepts PR535A1 hosted migration and proof. Exact migration `091` is
 applied and ledgered once; one own-authority policy, browser table grants `0`,

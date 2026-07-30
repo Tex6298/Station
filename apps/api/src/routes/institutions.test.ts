@@ -802,3 +802,27 @@ test("migration 092 freezes raw access, authority, lifecycle, audit, and zero in
     assert.equal((migration.split(tag).length - 1) % 2, 0, `${tag} must be balanced`);
   }
 });
+
+test("migration 092 places inherited profile-grant refusal before institution creation", () => {
+  const migration = readFileSync(
+    resolve("infra/supabase/migrations/092_institution_principal_team_public_identity.sql"),
+    "utf8"
+  );
+  const firstInstitutionObject = migration.indexOf("create table public.institutions");
+  const postassertStart = migration.indexOf("do $pr535b_postassert$");
+  assert.ok(firstInstitutionObject > 0);
+  assert.ok(postassertStart > firstInstitutionObject);
+
+  const preflight = migration.slice(0, firstInstitutionObject);
+  const postassert = migration.slice(postassertStart);
+  assert.match(preflight, /requires the exact direct migration 091 profile ACL/i);
+  assert.match(preflight, /pg_catalog\.has_table_privilege\([\s\S]*?'public\.profiles'/i);
+  assert.match(preflight, /pg_catalog\.has_column_privilege\([\s\S]*?'public\.profiles'/i);
+  assert.match(preflight, /byok_openai_key[\s\S]*byok_anthropic_key[\s\S]*byok_deepseek_key/i);
+  assert.match(preflight, /effective browser profile ACL differs from migration 091/i);
+  assert.match(preflight, /effective trusted service profile ACL differs from migration 091/i);
+
+  assert.match(postassert, /postassert direct profile ACL differs from migration 091/i);
+  assert.match(postassert, /postassert effective browser profile ACL differs from migration 091/i);
+  assert.match(postassert, /postassert trusted service profile ACL differs from migration 091/i);
+});

@@ -40,13 +40,31 @@ begin
     raise exception 'PR535B requires the accepted migration 091 profile boundary';
   end if;
 
-  if exists (
+  if (
+    select count(*)
+    from information_schema.role_table_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+  ) <> 7 or exists (
     select 1
     from information_schema.role_table_grants grant_row
     where grant_row.table_schema = 'public'
       and grant_row.table_name = 'profiles'
-      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated')
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+      and (
+        grant_row.grantee <> 'service_role'
+        or grant_row.privilege_type not in (
+          'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+        )
+      )
   ) or (
+    select count(*)
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+  ) <> 70 or (
     select count(*)
     from information_schema.role_column_grants grant_row
     where grant_row.table_schema = 'public'
@@ -54,18 +72,109 @@ begin
       and grant_row.grantee in ('anon', 'authenticated')
       and grant_row.privilege_type = 'SELECT'
       and grant_row.column_name in ('id', 'tier', 'is_admin')
-  ) <> 6 or exists (
+  ) <> 6 or (
+    select count(*)
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee = 'service_role'
+      and grant_row.privilege_type in ('INSERT', 'REFERENCES', 'SELECT', 'UPDATE')
+      and grant_row.column_name in (
+        'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+        'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+        'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+        'is_admin', 'created_at', 'updated_at'
+      )
+  ) <> 64 or exists (
     select 1
     from information_schema.role_column_grants grant_row
     where grant_row.table_schema = 'public'
       and grant_row.table_name = 'profiles'
-      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated')
-      and (
-        grant_row.privilege_type <> 'SELECT'
-        or grant_row.column_name not in ('id', 'tier', 'is_admin')
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+      and not (
+        (
+          grant_row.grantee in ('anon', 'authenticated')
+          and grant_row.privilege_type = 'SELECT'
+          and grant_row.column_name in ('id', 'tier', 'is_admin')
+        )
+        or (
+          grant_row.grantee = 'service_role'
+          and grant_row.privilege_type in ('INSERT', 'REFERENCES', 'SELECT', 'UPDATE')
+          and grant_row.column_name in (
+            'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+            'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+            'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+            'is_admin', 'created_at', 'updated_at'
+          )
+        )
       )
   ) then
-    raise exception 'PR535B requires the exact accepted migration 091 profile grants';
+    raise exception 'PR535B requires the exact direct migration 091 profile ACL';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(array['anon', 'authenticated']::text[]) browser_role(role_name)
+    cross join unnest(array[
+      'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+    ]::text[]) profile_privilege(privilege_name)
+    where pg_catalog.has_table_privilege(
+      browser_role.role_name,
+      'public.profiles',
+      profile_privilege.privilege_name
+    )
+  ) or exists (
+    select 1
+    from unnest(array['anon', 'authenticated']::text[]) browser_role(role_name)
+    cross join unnest(array[
+      'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+      'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+      'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+      'is_admin', 'created_at', 'updated_at'
+    ]::text[]) profile_column(column_name)
+    cross join unnest(array['INSERT', 'REFERENCES', 'SELECT', 'UPDATE']::text[])
+      profile_privilege(privilege_name)
+    where pg_catalog.has_column_privilege(
+      browser_role.role_name,
+      'public.profiles',
+      profile_column.column_name,
+      profile_privilege.privilege_name
+    ) is distinct from (
+      profile_privilege.privilege_name = 'SELECT'
+      and profile_column.column_name in ('id', 'tier', 'is_admin')
+    )
+  ) then
+    raise exception 'PR535B effective browser profile ACL differs from migration 091';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(array[
+      'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+    ]::text[]) profile_privilege(privilege_name)
+    where not pg_catalog.has_table_privilege(
+      'service_role',
+      'public.profiles',
+      profile_privilege.privilege_name
+    )
+  ) or exists (
+    select 1
+    from unnest(array[
+      'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+      'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+      'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+      'is_admin', 'created_at', 'updated_at'
+    ]::text[]) profile_column(column_name)
+    cross join unnest(array['INSERT', 'REFERENCES', 'SELECT', 'UPDATE']::text[])
+      profile_privilege(privilege_name)
+    where not pg_catalog.has_column_privilege(
+      'service_role',
+      'public.profiles',
+      profile_column.column_name,
+      profile_privilege.privilege_name
+    )
+  ) then
+    raise exception 'PR535B effective trusted service profile ACL differs from migration 091';
   end if;
 
   if pg_catalog.to_regclass('public.institutions') is not null
@@ -1010,6 +1119,143 @@ declare
   grant_fingerprint jsonb;
   transition_function_count integer;
 begin
+  if (
+    select count(*)
+    from information_schema.role_table_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+  ) <> 7 or exists (
+    select 1
+    from information_schema.role_table_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+      and (
+        grant_row.grantee <> 'service_role'
+        or grant_row.privilege_type not in (
+          'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+        )
+      )
+  ) or (
+    select count(*)
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+  ) <> 70 or (
+    select count(*)
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('anon', 'authenticated')
+      and grant_row.privilege_type = 'SELECT'
+      and grant_row.column_name in ('id', 'tier', 'is_admin')
+  ) <> 6 or (
+    select count(*)
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee = 'service_role'
+      and grant_row.privilege_type in ('INSERT', 'REFERENCES', 'SELECT', 'UPDATE')
+      and grant_row.column_name in (
+        'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+        'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+        'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+        'is_admin', 'created_at', 'updated_at'
+      )
+  ) <> 64 or exists (
+    select 1
+    from information_schema.role_column_grants grant_row
+    where grant_row.table_schema = 'public'
+      and grant_row.table_name = 'profiles'
+      and grant_row.grantee in ('PUBLIC', 'anon', 'authenticated', 'service_role')
+      and not (
+        (
+          grant_row.grantee in ('anon', 'authenticated')
+          and grant_row.privilege_type = 'SELECT'
+          and grant_row.column_name in ('id', 'tier', 'is_admin')
+        )
+        or (
+          grant_row.grantee = 'service_role'
+          and grant_row.privilege_type in ('INSERT', 'REFERENCES', 'SELECT', 'UPDATE')
+          and grant_row.column_name in (
+            'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+            'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+            'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+            'is_admin', 'created_at', 'updated_at'
+          )
+        )
+      )
+  ) then
+    raise exception 'PR535B postassert direct profile ACL differs from migration 091';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(array['anon', 'authenticated']::text[]) browser_role(role_name)
+    cross join unnest(array[
+      'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+    ]::text[]) profile_privilege(privilege_name)
+    where pg_catalog.has_table_privilege(
+      browser_role.role_name,
+      'public.profiles',
+      profile_privilege.privilege_name
+    )
+  ) or exists (
+    select 1
+    from unnest(array['anon', 'authenticated']::text[]) browser_role(role_name)
+    cross join unnest(array[
+      'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+      'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+      'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+      'is_admin', 'created_at', 'updated_at'
+    ]::text[]) profile_column(column_name)
+    cross join unnest(array['INSERT', 'REFERENCES', 'SELECT', 'UPDATE']::text[])
+      profile_privilege(privilege_name)
+    where pg_catalog.has_column_privilege(
+      browser_role.role_name,
+      'public.profiles',
+      profile_column.column_name,
+      profile_privilege.privilege_name
+    ) is distinct from (
+      profile_privilege.privilege_name = 'SELECT'
+      and profile_column.column_name in ('id', 'tier', 'is_admin')
+    )
+  ) then
+    raise exception 'PR535B postassert effective browser profile ACL differs from migration 091';
+  end if;
+
+  if exists (
+    select 1
+    from unnest(array[
+      'DELETE', 'INSERT', 'REFERENCES', 'SELECT', 'TRIGGER', 'TRUNCATE', 'UPDATE'
+    ]::text[]) profile_privilege(privilege_name)
+    where not pg_catalog.has_table_privilege(
+      'service_role',
+      'public.profiles',
+      profile_privilege.privilege_name
+    )
+  ) or exists (
+    select 1
+    from unnest(array[
+      'id', 'username', 'display_name', 'bio', 'avatar_url', 'tier',
+      'stripe_customer_id', 'stripe_subscription_id', 'subscription_status',
+      'byok_openai_key', 'byok_anthropic_key', 'byok_deepseek_key', 'ai_mode',
+      'is_admin', 'created_at', 'updated_at'
+    ]::text[]) profile_column(column_name)
+    cross join unnest(array['INSERT', 'REFERENCES', 'SELECT', 'UPDATE']::text[])
+      profile_privilege(privilege_name)
+    where not pg_catalog.has_column_privilege(
+      'service_role',
+      'public.profiles',
+      profile_column.column_name,
+      profile_privilege.privilege_name
+    )
+  ) then
+    raise exception 'PR535B postassert trusted service profile ACL differs from migration 091';
+  end if;
+
   if exists (
     select 1
     from information_schema.columns column_row
