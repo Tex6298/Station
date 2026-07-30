@@ -6559,6 +6559,13 @@ main[style*="rgb(11, 14, 20)"] {
   font-weight: 800;
 }
 
+.station-settings-page a:focus-visible,
+.station-settings-page button:focus-visible,
+.station-settings-page input:focus-visible {
+  outline: 2px solid var(--station-page-accent);
+  outline-offset: 2px;
+}
+
 .public-encounter-page .station-page-inner {
   display: grid;
   gap: 14px;
@@ -7926,10 +7933,20 @@ main[style*="rgb(11, 14, 20)"] {
 .studio-rail-scroll {
   display: flex;
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   flex-direction: column;
+  overflow-x: clip;
   overflow-y: auto;
   padding: 9px 7px;
+}
+
+.studio-rail-personas,
+.studio-rail-recent,
+.studio-rail-recent-list {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .studio-rail-section-label {
@@ -8044,8 +8061,11 @@ main[style*="rgb(11, 14, 20)"] {
 }
 
 .studio-rail-recent-item small {
+  overflow: hidden;
   color: var(--station-frame-muted);
   font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .studio-companion-quick-wrap {
@@ -8053,6 +8073,9 @@ main[style*="rgb(11, 14, 20)"] {
   display: flex;
   align-items: center;
   gap: 2px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 .studio-companion-quick-wrap .studio-rail-persona {

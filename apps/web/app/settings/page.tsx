@@ -74,7 +74,7 @@ export default function SettingsPage() {
   }, []);
 
   return (
-    <main className="station-page">
+    <main className="station-page station-settings-page">
       <div className="station-page-inner">
         <header className="station-page-header">
           <div>
@@ -91,13 +91,13 @@ export default function SettingsPage() {
           <section style={settingsCards}>
             {SETTINGS_DESTINATION_SECTIONS.map((section) => {
               const content = (
-                <article className="station-card" style={section.href ? card : unavailableCard}>
+                <article className="station-card station-settings-card" style={section.href ? card : unavailableCard}>
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
                     <span style={markBox}>{section.mark}</span>
                     {section.status && <span style={statusPill}>{section.status}</span>}
                   </div>
-                  <h2 style={{ margin: "12px 0 7px", color: "#1f2529", fontSize: 16 }}>{section.title}</h2>
-                  <p style={{ margin: 0, color: "#687078", fontSize: 13, lineHeight: 1.55 }}>{section.description}</p>
+                  <h2 style={{ margin: "12px 0 7px", color: "var(--station-page-text)", fontSize: 16 }}>{section.title}</h2>
+                  <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 13, lineHeight: 1.55 }}>{section.description}</p>
                 </article>
               );
 
@@ -114,33 +114,33 @@ export default function SettingsPage() {
           </section>
 
           <aside style={settingsAside}>
-            <section id="ai-provider" style={panel}>
+            <section id="ai-provider" className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>AI Provider</h2>
               <AiProviderSettingsPanel />
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>Usage and Credits</h2>
               <TokenUsagePanel />
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>Storage</h2>
               <StorageUsagePanel />
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>AI Activity</h2>
               <AiObservabilityPanel />
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>Profile Snapshot</h2>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ ...markBox, width: 42, height: 42, borderRadius: "50%" }}>A</span>
                 <div>
-                  <div style={{ color: "#1f2529", fontSize: 14, fontWeight: 800 }}>Station user</div>
-                  <div style={{ color: "#687078", fontSize: 12 }}>
+                  <div style={{ color: "var(--station-page-text)", fontSize: 14, fontWeight: 800 }}>Station user</div>
+                  <div style={{ color: "var(--station-page-muted)", fontSize: 12 }}>
                     {profileSnapshot.status === "loading"
                       ? "Loading tier..."
                       : profileSnapshot.tierLabel ?? "Tier unavailable"}
@@ -152,14 +152,14 @@ export default function SettingsPage() {
               </button>
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>Notification Preferences</h2>
               <NotificationPreferencesPanel />
             </section>
 
-            <section style={panel}>
+            <section className="station-settings-panel" style={panel}>
               <h2 style={sectionTitle}>Danger Zone</h2>
-              <p style={{ margin: "0 0 12px", color: "#d9a2a2", fontSize: 13, lineHeight: 1.55 }}>
+              <p style={{ margin: "0 0 12px", color: "var(--station-page-red)", fontSize: 13, lineHeight: 1.55 }}>
                 Account deletion is not self-service yet. Contact Station support for deletion or export requests.
               </p>
               <button type="button" disabled className="station-disabled-action">Delete account unavailable</button>
@@ -167,15 +167,15 @@ export default function SettingsPage() {
           </aside>
         </div>
 
-        <section style={{ ...panel, marginTop: 18 }}>
+        <section className="station-settings-panel" style={{ ...panel, marginTop: 18 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
             <h2 style={sectionTitle}>Your companions</h2>
             <Link href="/studio/new" className="station-link-button">Add persona</Link>
           </div>
           {personasLoading ? (
-            <p style={{ margin: 0, color: "#687078", fontSize: 13 }}>Loading companions...</p>
+            <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 13 }}>Loading companions...</p>
           ) : personas.length === 0 ? (
-            <p style={{ margin: 0, color: "#687078", fontSize: 13 }}>No personas yet.</p>
+            <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 13 }}>No personas yet.</p>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 240px), 1fr))", gap: 10 }}>
               {personas.map((persona) => (
@@ -184,9 +184,9 @@ export default function SettingsPage() {
                   href={`/studio/personas/${persona.id}/edit`}
                   style={{ textDecoration: "none" }}
                 >
-                  <article className="station-card" style={card}>
-                    <h3 style={{ margin: "0 0 5px", color: "#1f2529", fontSize: 14 }}>{persona.name}</h3>
-                    <p style={{ margin: 0, color: "#687078", fontSize: 12 }}>
+                  <article className="station-card station-settings-card" style={card}>
+                    <h3 style={{ margin: "0 0 5px", color: "var(--station-page-text)", fontSize: 14 }}>{persona.name}</h3>
+                    <p style={{ margin: 0, color: "var(--station-page-muted)", fontSize: 12 }}>
                       {PROVIDER_LABELS[persona.provider] ?? persona.provider} - {persona.visibility}
                     </p>
                   </article>
@@ -200,9 +200,10 @@ export default function SettingsPage() {
   );
 }
 
-const panel = {
-  border: "1px solid #d8d3c8",
-  background: "#ffffff",
+const panel: CSSProperties = {
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-surface)",
+  color: "var(--station-page-text)",
   borderRadius: 8,
   padding: 16,
 };
@@ -239,30 +240,30 @@ const unavailableCard = {
   opacity: 0.72,
 };
 
-const markBox = {
+const markBox: CSSProperties = {
   width: 32,
   height: 32,
   borderRadius: 8,
-  border: "1px solid #d8d3c8",
-  background: "#f8f7f4",
-  color: "#534ab7",
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-accent)",
   display: "grid",
   placeItems: "center",
   fontSize: 12,
   fontWeight: 800,
 };
 
-const sectionTitle = {
+const sectionTitle: CSSProperties = {
   margin: "0 0 12px",
-  color: "#1f2529",
+  color: "var(--station-page-text)",
   fontSize: 16,
 };
 
-const statusPill = {
-  border: "1px solid #d8d3c8",
+const statusPill: CSSProperties = {
+  border: "1px solid var(--station-page-border)",
   borderRadius: 999,
-  background: "#f8f7f4",
-  color: "#687078",
+  background: "var(--station-page-soft-2)",
+  color: "var(--station-page-muted)",
   padding: "0.18rem 0.5rem",
   fontSize: 11,
   fontWeight: 800,

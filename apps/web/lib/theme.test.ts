@@ -187,3 +187,30 @@ test("principal partner route token pairs retain meaningful text contrast in Lig
     }
   }
 });
+
+test("Settings principal surfaces consume semantic theme tokens without a local light palette", () => {
+  const css = readFileSync("apps/web/app/globals.css", "utf8");
+  const page = readFileSync("apps/web/app/settings/page.tsx", "utf8");
+  const provider = readFileSync("apps/web/components/settings/ai-provider-settings-panel.tsx", "utf8");
+  const notifications = readFileSync("apps/web/components/settings/notification-preferences-panel.tsx", "utf8");
+  const lightToken = stationThemeTokens(css, "light");
+
+  assert.equal(lightToken("--station-page-bg"), "#f4f3ef");
+  assert.equal(lightToken("--station-page-surface"), "#ffffff");
+
+  for (const [name, source] of [
+    ["Settings page", page],
+    ["AI provider panel", provider],
+    ["notification preferences panel", notifications],
+  ] as const) {
+    assert.match(source, /var\(--station-page-/i, `${name} should consume Station page tokens`);
+    assert.doesNotMatch(source, /#[0-9a-f]{3,8}/i, `${name} should not carry a fixed local palette`);
+  }
+
+  assert.match(page, /background:\s*"var\(--station-page-surface\)"/);
+  assert.match(page, /border:\s*"1px solid var\(--station-page-border\)"/);
+  assert.match(provider, /var\(--station-page-selected-bg\)/);
+  assert.match(provider, /var\(--station-page-success-bg\)/);
+  assert.match(notifications, /var\(--station-page-success-text\)/);
+  assert.match(notifications, /var\(--station-page-danger-border\)/);
+});

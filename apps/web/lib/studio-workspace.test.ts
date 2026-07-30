@@ -48,3 +48,24 @@ test("general mobile Studio navigation provides a direct companion-settings fall
   assert.match(sidebarSource, /label=\{`\$\{persona\.name\} settings`\}/);
   assert.match(cssSource, /@media \(max-width: 959px\) \{\s*\.studio-companion-quick-triggers,/);
 });
+
+test("desktop Studio rail contains long-name rows without hiding quick controls", () => {
+  const cssSource = readFileSync("apps/web/app/globals.css", "utf8");
+  const railScroll = cssSource.match(/\.studio-rail-scroll\s*\{([^}]+)\}/s)?.[1] ?? "";
+  const quickWrap = cssSource.match(/\.studio-companion-quick-wrap\s*\{([^}]+)\}/s)?.[1] ?? "";
+
+  assert.match(railScroll, /min-width:\s*0/);
+  assert.match(railScroll, /overflow-x:\s*clip/);
+  assert.match(
+    cssSource,
+    /\.studio-rail-personas,\s*\.studio-rail-recent,\s*\.studio-rail-recent-list\s*\{[^}]*min-width:\s*0[^}]*width:\s*100%/s,
+  );
+  assert.match(quickWrap, /min-width:\s*0/);
+  assert.match(quickWrap, /width:\s*100%/);
+  assert.match(quickWrap, /max-width:\s*100%/);
+  assert.match(
+    cssSource,
+    /\.studio-companion-quick-wrap:hover \.studio-companion-quick-triggers,[\s\S]*?display:\s*flex/,
+  );
+  assert.match(cssSource, /\.studio-companion-quick-card\s*\{[^}]*position:\s*fixed/s);
+});

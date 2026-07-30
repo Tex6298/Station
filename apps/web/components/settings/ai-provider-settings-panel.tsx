@@ -118,12 +118,12 @@ export function AiProviderSettingsPanel() {
   }
 
   return (
-    <div style={panelStack}>
+    <div className="station-settings-provider-panel" style={panelStack}>
       <p style={mutedCopy}>{AI_PROVIDER_SETTINGS_COPY.summary}</p>
 
       <div style={modeGroup} role="radiogroup" aria-label="AI provider mode">
         {(["platform", "byok"] as const).map((mode) => (
-          <label key={mode} style={modeOption(aiMode === mode)}>
+          <label key={mode} className="station-settings-provider-mode" style={modeOption(aiMode === mode)}>
             <input
               type="radio"
               name="ai-provider-mode"
@@ -148,7 +148,7 @@ export function AiProviderSettingsPanel() {
           const readback = providerReadback.get(provider.id);
           const timestamps = timestampReadbackRows(readback);
           return (
-            <div key={provider.id} style={providerRow}>
+            <div key={provider.id} className="station-settings-provider-row" style={providerRow}>
               <div style={{ minWidth: 0 }}>
                 <div style={providerHeader}>
                   <span>{provider.label}</span>
@@ -166,6 +166,7 @@ export function AiProviderSettingsPanel() {
                   placeholder={provider.placeholder}
                   value={keyInputs[provider.id] ?? ""}
                   onChange={(event) => updateKeyInput(provider.id, event.target.value)}
+                  className="station-settings-input"
                   style={input}
                   aria-label={`${provider.label} API key`}
                 />
@@ -187,7 +188,7 @@ export function AiProviderSettingsPanel() {
         <p style={notice.type === "success" ? successCopy : errorCopy}>{notice.text}</p>
       )}
 
-      <button type="button" onClick={saveSettings} disabled={saving} style={saveButton}>
+      <button className="station-settings-save-button" type="button" onClick={saveSettings} disabled={saving} style={saveButton}>
         {saving ? "Saving..." : "Save AI provider settings"}
       </button>
     </div>
@@ -201,14 +202,14 @@ const panelStack: CSSProperties = {
 
 const mutedCopy: CSSProperties = {
   margin: 0,
-  color: "#687078",
+  color: "var(--station-page-muted)",
   fontSize: 13,
   lineHeight: 1.55,
 };
 
 const copyBox: CSSProperties = {
-  border: "1px solid #d8d3c8",
-  background: "#f8f7f4",
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-soft-2)",
   borderRadius: 8,
   padding: 12,
 };
@@ -228,11 +229,11 @@ const modeOption = (selected: boolean): CSSProperties => ({
   display: "flex",
   alignItems: "center",
   gap: 8,
-  border: `1px solid ${selected ? "#534ab7" : "#d8d3c8"}`,
-  background: selected ? "#f0eefb" : "#ffffff",
+  border: `1px solid ${selected ? "var(--station-page-accent)" : "var(--station-page-border)"}`,
+  background: selected ? "var(--station-page-selected-bg)" : "var(--station-page-surface)",
   borderRadius: 8,
   padding: "0.55rem 0.65rem",
-  color: "#1f2529",
+  color: "var(--station-page-text)",
   fontSize: 13,
 });
 
@@ -244,7 +245,7 @@ const providerList: CSSProperties = {
 const providerRow: CSSProperties = {
   display: "grid",
   gap: 8,
-  border: "1px solid #d8d3c8",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
   padding: 12,
 };
@@ -256,7 +257,7 @@ const providerHeader: CSSProperties = {
   justifyContent: "space-between",
   gap: 8,
   marginBottom: 8,
-  color: "#1f2529",
+  color: "var(--station-page-text)",
   fontSize: 13,
   fontWeight: 900,
 };
@@ -266,16 +267,16 @@ const metadataRows: CSSProperties = {
   flexWrap: "wrap",
   gap: "0.35rem 0.5rem",
   marginBottom: 8,
-  color: "#687078",
+  color: "var(--station-page-muted)",
   fontSize: 11,
   lineHeight: 1.35,
 };
 
 const statusPill = (configured: boolean): CSSProperties => ({
-  border: "1px solid #d8d3c8",
+  border: `1px solid ${configured ? "var(--station-page-success-border)" : "var(--station-page-border)"}`,
   borderRadius: 999,
-  background: configured ? "#edf7ef" : "#f8f7f4",
-  color: configured ? "#24713a" : "#687078",
+  background: configured ? "var(--station-page-success-bg)" : "var(--station-page-soft-2)",
+  color: configured ? "var(--station-page-success-text)" : "var(--station-page-muted)",
   padding: "0.14rem 0.48rem",
   fontSize: 11,
   fontWeight: 800,
@@ -283,11 +284,11 @@ const statusPill = (configured: boolean): CSSProperties => ({
 
 const input: CSSProperties = {
   width: "100%",
-  border: "1px solid #d8d3c8",
+  border: "1px solid var(--station-page-border)",
   borderRadius: 8,
   padding: "0.55rem 0.65rem",
-  color: "#1f2529",
-  background: "#ffffff",
+  color: "var(--station-page-text)",
+  background: "var(--station-page-surface)",
   fontSize: 13,
   boxSizing: "border-box",
 };
@@ -296,15 +297,15 @@ const clearRow: CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 8,
-  color: "#687078",
+  color: "var(--station-page-muted)",
   fontSize: 12,
 };
 
 const saveButton: CSSProperties = {
   border: 0,
   borderRadius: 8,
-  background: "#1f2529",
-  color: "#ffffff",
+  background: "var(--station-page-text)",
+  color: "var(--station-page-on-strong)",
   padding: "0.65rem 0.85rem",
   fontWeight: 900,
   cursor: "pointer",
@@ -312,14 +313,14 @@ const saveButton: CSSProperties = {
 
 const successCopy: CSSProperties = {
   margin: 0,
-  color: "#24713a",
+  color: "var(--station-page-success-text)",
   fontSize: 13,
   fontWeight: 800,
 };
 
 const errorCopy: CSSProperties = {
   margin: 0,
-  color: "#b3261e",
+  color: "var(--station-page-red)",
   fontSize: 13,
   fontWeight: 800,
 };

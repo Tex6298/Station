@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR533 Hosted Rail And Settings Theme Repair Ready For ARGUS
+
+DAEDALUS completed the bounded repair on 2026-07-30:
+
+- `docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_DAEDALUS_RESULT.md`
+
+```text
+READY_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_FOR_ARGUS
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Focused rail/theme assertions before repair | Expected fail, `13/15`; only the two newly added blocker regressions failed |
+| Focused rail/theme assertions after repair | Pass, `15/15` |
+| `npx --yes pnpm@10.32.1 test:studio-ui` | Pass, `277/277` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 exec tsx --test apps/web/lib/notification-preferences.test.ts` | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass; zero warnings/errors |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| Mocked long-name Studio browser proof | Pass; rail overflow/`scrollLeft` `0` before/after hover, pin, Escape, and keyboard pin; two triggers and fixed card remain reachable; mobile fallback exact |
+| Mocked Settings appearance proof | Pass; Light `rgb(244, 243, 239)`/`rgb(255, 255, 255)`, Dark and System-dark `rgb(25, 25, 24)`/`rgb(36, 35, 32)`, `2px` focus outline, document overflow `0` |
+| Human-eye screenshots | Pass for local proof; long-name desktop/mobile Studio and Light/Dark/System-dark Settings are coherent |
+| Changed-path/dependency, sensitive-literal, and `git diff --check` review | Pass; bounded source/tests/docs only, no dependency drift or secret-shaped added value, line-ending notices only |
+
+The repair does not alter provider or notification state machines, route/auth/
+privacy behavior, API/schema/backend contracts, dependencies, or hosted data.
+Local proof does not supersede ARIADNE's hosted blocker; ARGUS must accept source
+before ARIADNE reruns only the affected hosted cases.
+
 ## PR533 Product-Owner UI Reconciliation Ready For ARGUS
 
 DAEDALUS completed the bounded source reconciliation on 2026-07-29:

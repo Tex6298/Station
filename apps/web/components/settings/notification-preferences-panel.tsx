@@ -193,10 +193,10 @@ export function NotificationPreferencesPanel() {
   const disabled = state.status !== "ready";
 
   return (
-    <div style={panelStack}>
+    <div className="station-settings-notification-panel" style={panelStack}>
       <p style={mutedCopy}>{NOTIFICATION_PREFERENCES_COPY.summary}</p>
 
-      <div style={preferenceRow}>
+      <div className="station-settings-preference-row" style={preferenceRow}>
         <div style={{ minWidth: 0 }}>
           <div style={rowTitle}>{NOTIFICATION_PREFERENCES_COPY.label}</div>
           <p style={mutedCopy}>{NOTIFICATION_PREFERENCES_COPY.description}</p>
@@ -249,7 +249,7 @@ const panelStack: CSSProperties = {
 
 const mutedCopy: CSSProperties = {
   margin: 0,
-  color: "#687078",
+  color: "var(--station-page-muted)",
   fontSize: 13,
   lineHeight: 1.55,
 };
@@ -259,13 +259,14 @@ const preferenceRow: CSSProperties = {
   alignItems: "center",
   justifyContent: "space-between",
   gap: 12,
-  border: "1px solid #d8d3c8",
+  border: "1px solid var(--station-page-border)",
+  background: "var(--station-page-surface)",
   borderRadius: 8,
   padding: 12,
 };
 
 const rowTitle: CSSProperties = {
-  color: "#1f2529",
+  color: "var(--station-page-text)",
   fontSize: 14,
   fontWeight: 900,
   marginBottom: 4,
@@ -280,19 +281,23 @@ const switchWrap: CSSProperties = {
 const checkbox: CSSProperties = {
   width: 22,
   height: 22,
-  accentColor: "#534ab7",
+  accentColor: "var(--station-page-accent)",
 };
 
 const statusCopy: CSSProperties = {
   margin: 0,
-  color: "#24713a",
+  color: "var(--station-page-success-text)",
   fontSize: 13,
   fontWeight: 800,
 };
 
 const errorCopy: CSSProperties = {
   margin: 0,
-  color: "#b3261e",
+  border: "1px solid var(--station-page-danger-border)",
+  borderRadius: 8,
+  background: "var(--station-page-danger-bg)",
+  color: "var(--station-page-red)",
+  padding: "0.55rem 0.65rem",
   fontSize: 13,
   fontWeight: 800,
 };
@@ -312,12 +317,12 @@ const unavailableRow: CSSProperties = {
   alignItems: "center",
   justifyContent: "space-between",
   gap: 10,
-  color: "#1f2529",
+  color: "var(--station-page-text)",
   fontSize: 13,
 };
 
 const unavailablePill: CSSProperties = {
-  color: "#687078",
+  color: "var(--station-page-muted)",
   fontSize: 12,
   fontWeight: 800,
 };

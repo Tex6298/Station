@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR533 hosted Studio rail and Settings theme repair ready for DAEDALUS
+## Current gate - PR533 hosted Studio rail and Settings theme repair ready for ARGUS
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -51,7 +51,8 @@ READY_PR533_FOR_ARIADNE_HOSTED_REHEARSAL
 BLOCK_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME
 CONFIRM_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_BLOCKER
 READY_PR533_BOUNDED_UI_REPAIR_FOR_DAEDALUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS
+READY_PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -92,6 +93,7 @@ PR533 DAEDALUS result: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_DAEDAL
 PR533 ARGUS review: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_ARGUS_RESULT.md
 PR533 ARIADNE hosted result: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_ARIADNE_RESULT.md
 PR533 blocker review: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_BLOCKER_ARGUS_RESULT.md
+PR533 bounded repair: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_THEME_REPAIR_DAEDALUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -123,8 +125,21 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS should implement the bounded PR533 desktop rail containment and semantic Settings theme repair, prove it locally, and wake ARGUS for hostile source review.
+Next: ARGUS should hostile-review the bounded PR533 rail/theme repair. If accepted, wake ARIADNE only for the affected hosted Studio desktop and Settings Light/Dark/System-dark rerun.
 ```
+
+DAEDALUS completed the two ARGUS-confirmed PR533 repairs without widening scope.
+The accepted `156px` Studio rail now remains at internal overflow and
+`scrollLeft` `0` before hover, after hover, pin, Escape, and keyboard pin with
+synthetic long-name rows; both quick triggers and the fixed quick card remain
+reachable. Settings principal page, card, panel, input, action, status, and
+notification surfaces now consume existing semantic page tokens. Light retains
+the accepted `rgb(244, 243, 239)` page and white principal surface; Dark and
+System-dark resolve to `rgb(25, 25, 24)` and `rgb(36, 35, 32)` on desktop and
+`390px` mobile. Focused tests failed exactly `2/15` before the repair and pass
+`15/15` after it; Studio UI `277/277`, AI settings `14/14`, notification
+preferences `5/5`, web lint/typecheck, and the mocked browser matrix pass.
+ARGUS owns source review; this local result does not claim hosted acceptance.
 
 DAEDALUS completed the bounded PR533 source reconciliation around Adam's
 accepted `962fe8ca` hierarchy. One Studio provider now owns workspace and recent-
