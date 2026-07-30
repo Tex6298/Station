@@ -4,14 +4,16 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
-## PR534 Project Collaboration Membership Ready For ARGUS
+## PR534 Project Collaboration Membership Source Accepted
 
-DAEDALUS completed the bounded source implementation on 2026-07-30:
+ARGUS accepted DAEDALUS's bounded source implementation with a narrow review
+patch on 2026-07-30:
 
-- `docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDALUS_RESULT.md`
+- `docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_ARGUS_RESULT.md`
 
 ```text
-READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_ARGUS
+ACCEPT_PR534_PROJECT_COLLABORATION_MEMBERSHIP_SOURCE_ONLY_WITH_ARGUS_PATCH
+READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_MIMIR
 ```
 
 Validation:
@@ -27,14 +29,16 @@ Validation:
 | `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
 | `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
 | `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass; zero warnings/errors |
-| Mocked desktop/mobile browser proof | Pass; owner/invited/active-viewer surfaces, long labels, focus, mobile fit, zero overflow, zero console errors, and exact viewer owner-resource request count `0` |
-| Atomic/role/visibility/adjacent-route proof | Pass; create rollback, stale/re-invite/decline, immediate post-revoke denial, dormant-role denial, DTO/public-href predicates, and Developer Space/export owner-only routes covered |
+| Independent mocked desktop/mobile browser proof | Pass at `1440x900` and `390x844`; truthful list/detail failures and invitation disclosure render; viewer owner-resource requests `0`; mobile overflow `0`; six expected synthetic failures classified; unclassified console errors and unexpected requests `0` |
+| Atomic/role/visibility/adjacent-route proof | Pass; database-clock expiry, serialized migration setup, create rollback, stale/re-invite/decline, immediate post-revoke denial, dormant-role denial, DTO/public-href predicates, and Developer Space/export owner-only routes covered |
 | Changed-path/dependency/leakage review | Pass; accepted file boundary only, no lockfile/dependency drift, no browser raw-id/private-data/service-error exposure |
+| Added-line high-risk secret scan | Pass, zero candidates |
 | `git diff --check` | Pass; line-ending notices only |
 
 Migration `090` has not been applied to hosted Supabase. Local source readiness
-does not supersede ARGUS review or the later separately authorized exact-SHA
-disposable hosted proof.
+does not supersede the later separately authorized exact-SHA disposable hosted
+proof. A PostgreSQL migration engine was not available for local apply/rollback
+execution. MIMIR owns the next route; hosted acceptance is not claimed.
 
 ## PR534 Project Collaboration Preflight Accepted
 

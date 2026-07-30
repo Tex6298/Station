@@ -8,7 +8,7 @@ import type {
   ProjectViewerMember,
   SharedProjectDetailResponse,
 } from "@station/types";
-import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { ProjectExportPanel } from "@/components/projects/project-export-panel";
 import {
@@ -369,11 +369,20 @@ export default function ProjectDetailPage() {
       await refreshMembers(token);
       setActionMessage(member.status === "invited" ? "Invitation cancelled." : "Viewer access revoked.");
     } catch (e) {
-      setActionError(
-        memberUpdated
-          ? "Viewer access changed, but the collaborator list could not be refreshed."
-          : e instanceof Error ? e.message : "Could not update this viewer."
-      );
+      if (!memberUpdated && e instanceof ApiRequestError && e.status === 404) {
+        try {
+          await refreshMembers(token);
+          setActionError(e.message);
+        } catch {
+          setActionError("Viewer state changed, but the collaborator list could not be refreshed.");
+        }
+      } else {
+        setActionError(
+          memberUpdated
+            ? "Viewer access changed, but the collaborator list could not be refreshed."
+            : e instanceof Error ? e.message : "Could not update this viewer."
+        );
+      }
     } finally {
       setPendingMemberAction(null);
     }
@@ -427,7 +436,7 @@ export default function ProjectDetailPage() {
             <div className="station-eyebrow">Private Project</div>
             <h1 className="station-page-title" style={{ margin: 0 }}>Sign in to view this Project</h1>
             <p className="station-page-lede">
-              Project detail pages use authenticated owner APIs only.
+              Project detail pages use authenticated owner or read-only viewer access.
             </p>
             <Link href={`/login?redirect=${encodeURIComponent(`/projects/${idOrSlug}`)}`} className="station-link-button" style={{ width: "fit-content" }}>
               Sign in
@@ -531,7 +540,7 @@ export default function ProjectDetailPage() {
               <h2 id="project-collaborators-heading">Collaborators</h2>
               <p>Invite one existing Station username for read-only Project access.</p>
             </div>
-            <span className="station-status-pill">{members.length}</span>
+            <span className="station-status-pill">{membersError ? "Unavailable" : members.length}</span>
           </div>
 
           <form className="project-collaboration-invite" onSubmit={handleInvite}>
@@ -559,7 +568,7 @@ export default function ProjectDetailPage() {
               </button>
             </div>
             <small id="project-viewer-disclosure">
-              Viewers receive bounded read-only Project metadata. Private owner tools, usage, keys, and exports stay unavailable.
+              Viewers receive read-only Project, attached Developer Space, and evidence metadata. Private owner tools, usage, keys, and exports stay unavailable.
             </small>
           </form>
 
@@ -724,7 +733,11 @@ export default function ProjectDetailPage() {
             </p>
           </div>
 
-          {attachCandidates.length === 0 ? (
+          {ownerSpacesError ? (
+            <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
+              Available owner Developer Spaces could not be determined.
+            </div>
+          ) : attachCandidates.length === 0 ? (
             <div className="station-panel" style={{ textAlign: "center", padding: "2rem 1.5rem", color: "#687078" }}>
               No available owner Developer Spaces.
             </div>

@@ -3,6 +3,15 @@
 -- Service-owned lifecycle; no direct browser table access.
 -- ============================================================
 
+begin;
+
+select pg_advisory_xact_lock(
+  hashtextextended('station.pr534.project_collaboration_viewer_membership.090', 0)
+);
+
+lock table public.projects in share row exclusive mode;
+lock table public.project_members in share row exclusive mode;
+
 alter table public.project_members
   add column if not exists invite_expires_at timestamptz,
   add column if not exists responded_at timestamptz,
@@ -112,6 +121,7 @@ create index if not exists project_members_pending_viewer_user_idx
 create or replace function public.assert_project_owner_membership_v1()
 returns trigger
 language plpgsql
+security definer
 set search_path = pg_catalog, public
 as $$
 declare
@@ -357,7 +367,8 @@ declare
   membership_row public.project_members;
   clock_time timestamptz := statement_timestamp();
 begin
-  if p_action not in ('accept', 'decline')
+  if p_action is null
+    or p_action not in ('accept', 'decline')
     or not exists (select 1 from public.projects p where p.id = p_project_id)
   then
     return query select 'unavailable'::text, null::timestamptz;
@@ -479,6 +490,8 @@ alter function public.invite_project_viewer_v1(uuid, uuid, uuid) owner to postgr
 alter function public.respond_project_viewer_invitation_v1(uuid, uuid, text) owner to postgres;
 alter function public.revoke_project_viewer_v1(uuid, uuid, uuid) owner to postgres;
 
+revoke all on function public.assert_project_owner_membership_v1()
+  from public, anon, authenticated;
 revoke all on function public.create_project_with_owner_v1(uuid, text, text, text, text, text)
   from public, anon, authenticated;
 revoke all on function public.invite_project_viewer_v1(uuid, uuid, uuid)
@@ -502,3 +515,7 @@ comment on column public.project_members.invite_expires_at is
 
 comment on function public.invite_project_viewer_v1(uuid, uuid, uuid) is
   'Service-only exact-target viewer invitation transition with bounded outcomes.';
+
+notify pgrst, 'reload schema';
+
+commit;

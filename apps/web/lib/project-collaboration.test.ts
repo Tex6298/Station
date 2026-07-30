@@ -74,7 +74,15 @@ test("Project detail source branches before owner-only controls and keeps collab
   assert.match(detailSource, /detail\.access\.role === "viewer"/);
   assert.match(detailSource, /Read-only viewer/);
   assert.match(detailSource, /Collaborators/);
+  assert.match(detailSource, /attached Developer Space, and evidence metadata/);
+  assert.match(detailSource, /Available owner Developer Spaces could not be determined/);
+  assert.match(detailSource, /e instanceof ApiRequestError && e\.status === 404/);
   assert.match(listSource, /Pending invitations/);
+  assert.match(listSource, /Pending invitations are unavailable/);
+  assert.match(listSource, /invitationLoadError/);
   assert.match(listSource, /Shared with you/);
+  assert.match(listSource, /Shared Projects are unavailable/);
+  assert.match(listSource, /Owner Projects are unavailable/);
+  assert.match(listSource, /!actionCompleted && e instanceof ApiRequestError/);
   assert.doesNotMatch(`${detailSource}\n${listSource}`, /invite by email|seat count|institution team/i);
 });

@@ -595,16 +595,14 @@ async function loadInvitations(actorUserId: string): Promise<{ invitations: Proj
     .eq("user_id", actorUserId)
     .eq("role", "viewer")
     .eq("status", "invited")
+    .gt("invite_expires_at", "now")
     .order("created_at", { ascending: false });
 
   if (membershipError) return { invitations: [], error: true };
-  const now = Date.now();
   const currentMemberships = ((memberships ?? []) as Array<Pick<
     ProjectMemberRow,
     "project_id" | "created_at" | "invite_expires_at"
-  >>).filter((membership) => (
-    membership.invite_expires_at !== null && Date.parse(membership.invite_expires_at) > now
-  ));
+  >>);
   if (currentMemberships.length === 0) return { invitations: [], error: false };
 
   const { data: projects, error: projectError } = await sb
@@ -918,17 +916,14 @@ projectsRouter.get("/:idOrSlug/members", async (req, res) => {
     .eq("project_id", ownerResult.project.id)
     .eq("role", "viewer")
     .in("status", ["invited", "active"])
+    .or("status.eq.active,invite_expires_at.gt.now")
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.collaborationRead);
-  const now = Date.now();
   const currentRows = ((data ?? []) as Array<Pick<
     ProjectMemberRow,
     "user_id" | "status" | "created_at" | "invite_expires_at" | "responded_at"
-  >>).filter((membership) => (
-    membership.status === "active"
-    || (membership.invite_expires_at !== null && Date.parse(membership.invite_expires_at) > now)
-  ));
+  >>);
   const profilesResult = await loadProfiles(currentRows.map((membership) => membership.user_id));
   if (profilesResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.collaborationRead);
 

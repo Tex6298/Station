@@ -77,6 +77,10 @@ class InMemorySupabase {
     return value;
   }
 
+  currentTimeMs() {
+    return this.clock;
+  }
+
   private nextId(table: string) {
     this.idCounters[table] = (this.idCounters[table] ?? 0) + 1;
     return `00000000-0000-4000-8000-${String(this.idCounters[table]).padStart(12, "0")}`;
@@ -305,6 +309,8 @@ class InMemorySupabase {
 class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, Set<unknown>]> = [];
+  private greaterThanFilters: Array<[string, unknown]> = [];
+  private orFilters: Array<Array<[string, "eq" | "gt", string]>> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
   private operation: "select" | "insert" = "select";
   private payload: Row | Row[] | null = null;
@@ -322,6 +328,23 @@ class QueryBuilder {
 
   in(field: string, values: unknown[]) {
     this.inFilters.push([field, new Set(values)]);
+    return this;
+  }
+
+  gt(field: string, value: unknown) {
+    this.greaterThanFilters.push([field, value]);
+    return this;
+  }
+
+  or(expression: string) {
+    const clauses = expression.split(",").map((clause): [string, "eq" | "gt", string] => {
+      const [field, operator, ...valueParts] = clause.split(".");
+      if (!field || (operator !== "eq" && operator !== "gt") || valueParts.length === 0) {
+        throw new Error(`Unsupported test OR filter: ${expression}`);
+      }
+      return [field, operator, valueParts.join(".")];
+    });
+    this.orFilters.push(clauses);
     return this;
   }
 
@@ -356,6 +379,14 @@ class QueryBuilder {
     for (const [field, values] of this.inFilters) {
       rows = rows.filter((row) => values.has(row[field]));
     }
+    for (const [field, value] of this.greaterThanFilters) {
+      rows = rows.filter((row) => this.isGreaterThan(row[field], value));
+    }
+    for (const clauses of this.orFilters) {
+      rows = rows.filter((row) => clauses.some(([field, operator, value]) => (
+        operator === "eq" ? row[field] === value : this.isGreaterThan(row[field], value)
+      )));
+    }
     if (this.orderSpec) {
       const { field, ascending } = this.orderSpec;
       rows.sort((a, b) => {
@@ -364,6 +395,14 @@ class QueryBuilder {
       });
     }
     return rows;
+  }
+
+  private isGreaterThan(rowValue: unknown, filterValue: unknown) {
+    const rowTimestamp = Date.parse(String(rowValue ?? ""));
+    const filterTimestamp = filterValue === "now"
+      ? this.db.currentTimeMs()
+      : Date.parse(String(filterValue ?? ""));
+    return Number.isFinite(rowTimestamp) && Number.isFinite(filterTimestamp) && rowTimestamp > filterTimestamp;
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
@@ -1846,6 +1885,19 @@ test("owner invitation uses exact case-sensitive usernames and sanitized current
     assert.deepEqual(ownerMembers.body.members, [invited.body.member]);
     assertNoSharedProjectInternals(ownerMembers.body);
 
+    const pendingMembership = db.tables.project_members.find((row) => (
+      row.user_id === "viewer-user" && row.status === "invited"
+    ));
+    assert.ok(pendingMembership);
+    pendingMembership.invite_expires_at = "2026-07-01T00:00:00.000Z";
+    const ownerMembersAfterExpiry = await requestJson<{ members: Row[] }>(
+      app,
+      "GET",
+      "/projects/shared-field-lab/members",
+      { token: "owner-token" }
+    );
+    assert.deepEqual(ownerMembersAfterExpiry.body.members, []);
+
     const crossOwner = await requestJson(app, "GET", "/projects/shared-field-lab/members", {
       token: "other-token",
     });
@@ -1885,6 +1937,26 @@ test("only the target sees an unexpired invitation and invited viewers cannot op
     status: "removed",
     invite_expires_at: "2026-07-01T09:00:00.000Z",
     removed_at: "2026-07-02T09:00:00.000Z",
+  });
+  const staleProject = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000711",
+    owner_user_id: "owner-user",
+    name: "Expired Invitation Project",
+    slug: "expired-invitation-project",
+    visibility: "private",
+  });
+  db.insertRow("project_members", {
+    project_id: staleProject.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  db.insertRow("project_members", {
+    project_id: staleProject.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "invited",
+    invite_expires_at: "2026-07-01T09:00:00.000Z",
   });
   setSupabaseAdminForTests(db.client as any);
   const app = createProjectsApp();
@@ -2329,9 +2401,18 @@ test("migration 090 locks viewer lifecycle, owner invariants, raw access, and se
     resolve("infra/supabase/migrations/090_project_collaboration_viewer_membership.sql"),
     "utf8"
   );
+  const projectRouteSource = readFileSync(resolve("apps/api/src/routes/projects.ts"), "utf8");
   const lifecycleCheck = migration.match(/add constraint project_members_viewer_lifecycle_check[\s\S]*?not valid;/i)?.[0] ?? "";
+  const invariantFunction = migration.match(
+    /create or replace function public\.assert_project_owner_membership_v1\(\)[\s\S]*?\$\$;/i
+  )?.[0] ?? "";
+  const responseFunction = migration.match(
+    /create or replace function public\.respond_project_viewer_invitation_v1\([\s\S]*?\$\$;/i
+  )?.[0] ?? "";
 
   assert.match(migration, /add column if not exists invite_expires_at timestamptz/i);
+  assert.match(migration, /begin;[\s\S]*pg_advisory_xact_lock[\s\S]*station\.pr534\.project_collaboration_viewer_membership\.090/i);
+  assert.match(migration, /lock table public\.projects in share row exclusive mode;[\s\S]*lock table public\.project_members in share row exclusive mode;/i);
   assert.match(migration, /add column if not exists responded_at timestamptz/i);
   assert.match(migration, /add column if not exists removed_at timestamptz/i);
   assert.match(lifecycleCheck, /status = 'invited'[\s\S]*invite_expires_at is not null/i);
@@ -2343,8 +2424,15 @@ test("migration 090 locks viewer lifecycle, owner invariants, raw access, and se
   assert.match(migration, /project_members_pending_viewer_user_idx[\s\S]*user_id, role, status, invite_expires_at/i);
   assert.match(migration, /create constraint trigger trg_projects_owner_membership_invariant[\s\S]*deferrable initially deferred/i);
   assert.match(migration, /create constraint trigger trg_project_members_owner_membership_invariant[\s\S]*deferrable initially deferred/i);
+  assert.match(invariantFunction, /security definer/i);
+  assert.match(migration, /revoke all on function public\.assert_project_owner_membership_v1\(\)[\s\S]*from public, anon, authenticated/i);
+  assert.match(responseFunction, /if p_action is null[\s\S]*p_action not in \('accept', 'decline'\)/i);
   assert.match(migration, /drop policy if exists "project_members_all_project_owner"/i);
   assert.match(migration, /revoke all on table public\.project_members from public, anon, authenticated/i);
+  assert.match(projectRouteSource, /\.gt\("invite_expires_at", "now"\)/);
+  assert.match(projectRouteSource, /\.or\("status\.eq\.active,invite_expires_at\.gt\.now"\)/);
+  assert.doesNotMatch(projectRouteSource, /Date\.now\(\)/);
+  assert.match(migration, /notify pgrst, 'reload schema';[\s\S]*commit;/i);
 
   for (const functionName of [
     "create_project_with_owner_v1",

@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ProjectInvitation, SharedProjectSummary } from "@station/types";
-import { apiGet, apiPost } from "@/lib/api-client";
+import { ApiRequestError, apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   projectCollaborationDate,
@@ -60,6 +60,8 @@ export default function ProjectsPage() {
   const [pendingInvitationAction, setPendingInvitationAction] = useState<string | null>(null);
   const [slugEdited, setSlugEdited] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [projectsError, setProjectsError] = useState<string | null>(null);
+  const [invitationLoadError, setInvitationLoadError] = useState<string | null>(null);
   const [invitationError, setInvitationError] = useState<string | null>(null);
   const [createdMessage, setCreatedMessage] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -84,13 +86,15 @@ export default function ProjectsPage() {
         setProjects(projectsResult.value.projects ?? []);
         setSharedProjects(projectsResult.value.sharedProjects ?? []);
       } else {
-        setError(projectsResult.reason instanceof Error ? projectsResult.reason.message : "Could not load Projects.");
+        setProjectsError(
+          projectsResult.reason instanceof Error ? projectsResult.reason.message : "Could not load Projects."
+        );
       }
 
       if (invitationsResult.status === "fulfilled") {
         setInvitations(invitationsResult.value.invitations ?? []);
       } else {
-        setInvitationError(
+        setInvitationLoadError(
           invitationsResult.reason instanceof Error
             ? invitationsResult.reason.message
             : "Could not load Project invitations."
@@ -108,6 +112,8 @@ export default function ProjectsPage() {
     setProjects(projectData.projects ?? []);
     setSharedProjects(projectData.sharedProjects ?? []);
     setInvitations(invitationData.invitations ?? []);
+    setProjectsError(null);
+    setInvitationLoadError(null);
   }
 
   async function handleInvitationAction(invitation: ProjectInvitation, action: "accept" | "decline") {
@@ -123,11 +129,22 @@ export default function ProjectsPage() {
       await refreshCollaboration(token);
       setCreatedMessage(action === "accept" ? "Project invitation accepted." : "Project invitation declined.");
     } catch (e) {
-      setInvitationError(
-        actionCompleted
-          ? "The invitation changed, but the latest Project lists could not be loaded. Refresh to see current access."
-          : e instanceof Error ? e.message : "Could not update this Project invitation."
-      );
+      if (!actionCompleted && e instanceof ApiRequestError && (e.status === 404 || e.status === 410)) {
+        try {
+          await refreshCollaboration(token);
+          setInvitationError(e.message);
+        } catch {
+          setInvitationError(
+            "This invitation is no longer current, and the latest Project lists could not be loaded."
+          );
+        }
+      } else {
+        setInvitationError(
+          actionCompleted
+            ? "The invitation changed, but the latest Project lists could not be loaded. Refresh to see current access."
+            : e instanceof Error ? e.message : "Could not update this Project invitation."
+        );
+      }
     } finally {
       setPendingInvitationAction(null);
     }
@@ -217,7 +234,9 @@ export default function ProjectsPage() {
           </div>
         </header>
 
+        {projectsError && <div className="station-notice" data-tone="error">{projectsError}</div>}
         {error && <div className="station-notice" data-tone="error">{error}</div>}
+        {invitationLoadError && <div className="station-notice" data-tone="error">{invitationLoadError}</div>}
         {invitationError && <div className="station-notice" data-tone="error">{invitationError}</div>}
         {createdMessage && <div className="station-notice" data-tone="success">{createdMessage}</div>}
 
@@ -227,9 +246,11 @@ export default function ProjectsPage() {
               <h2 id="project-invitations-heading">Pending invitations</h2>
               <p>Invitations to view a Project read-only.</p>
             </div>
-            <span className="station-status-pill">{invitations.length}</span>
+            <span className="station-status-pill">{invitationLoadError ? "Unavailable" : invitations.length}</span>
           </div>
-          {invitations.length === 0 ? (
+          {invitationLoadError ? (
+            <div className="project-collaboration-empty">Pending invitations are unavailable.</div>
+          ) : invitations.length === 0 ? (
             <div className="project-collaboration-empty">No pending Project invitations.</div>
           ) : (
             <div className="project-collaboration-list">
@@ -274,9 +295,11 @@ export default function ProjectsPage() {
               <h2 id="shared-projects-heading">Shared with you</h2>
               <p>Projects where you have active read-only viewer access.</p>
             </div>
-            <span className="station-status-pill">{sharedProjects.length}</span>
+            <span className="station-status-pill">{projectsError ? "Unavailable" : sharedProjects.length}</span>
           </div>
-          {sharedProjects.length === 0 ? (
+          {projectsError ? (
+            <div className="project-collaboration-empty">Shared Projects are unavailable.</div>
+          ) : sharedProjects.length === 0 ? (
             <div className="project-collaboration-empty">No Projects are currently shared with you.</div>
           ) : (
             <div className="project-collaboration-list">
@@ -354,7 +377,12 @@ export default function ProjectsPage() {
           </form>
 
           <div style={{ display: "grid", gap: "0.75rem" }}>
-            {projects.length === 0 ? (
+            {projectsError ? (
+              <div className="station-panel" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
+                <h2 style={{ margin: "0 0 0.4rem" }}>Owner Projects are unavailable</h2>
+                <p style={{ margin: 0, color: "#687078" }}>Refresh before relying on the owner Project list.</p>
+              </div>
+            ) : projects.length === 0 ? (
               <div className="station-panel" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
                 <div className="kicker" style={{ justifyContent: "center", marginBottom: "0.75rem" }}>No Projects</div>
                 <h2 style={{ margin: "0 0 0.4rem" }}>Create the first owner Project</h2>
