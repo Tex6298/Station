@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535B source accepted for terminal MIMIR closeout
+## Current gate - PR535B source-only closed; terminal wait
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -89,6 +89,8 @@ BLOCK_PR535B_MIGRATION_092_PROFILE_PREFLIGHT_ACCEPTS_EFFECTIVE_PRIVILEGE_DRIFT
 READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_DAEDALUS
 READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_ARGUS
 ACCEPT_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_SOURCE_ONLY_WITH_ARGUS_PATCH
+CLOSE_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_SOURCE_ONLY_ACCEPTED
+PAUSE_AFTER_PR535B_WAIT_FOR_MARTY
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -156,6 +158,7 @@ PR535A closeout: docs/roadmap/PR535A_PROFILE_BOUNDARY_CLOSEOUT_MIMIR.md
 PR535B Institution implementation: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS.md
 PR535B Institution result: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS_RESULT.md
 PR535B Institution review: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_ARGUS_RESULT.md
+PR535B source-only closeout: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_CLOSEOUT_MIMIR.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -189,8 +192,14 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: MIMIR should close PR535B truthfully as source-only accepted with migration `092` unapplied, record Marty's terminal lane state, open no follow-on, and return all agents to foreground wait.
+Next: none until explicit Marty instruction. PR535B is closed source-only with migration `092` unapplied. No hosted or successor lane is open; all agents return to foreground wait.
 ```
+
+MIMIR closes PR535B at the accepted source-only boundary. Migration `092`
+remains unapplied and unledgered hosted; there is no hosted Institution fixture,
+lifecycle write, deployment, rehearsal, or acceptance. Per Marty's terminal
+instruction, no hosted follow-on, successor feature, hardening, cleanup,
+preflight, or roadmap lane is open. All agents return to foreground waiting.
 
 ARGUS accepts corrected PR535B source-only. The exact accepted profile ACL
 applies in disposable PostgreSQL and an inherited full-profile reader now
