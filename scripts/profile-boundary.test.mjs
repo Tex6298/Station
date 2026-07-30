@@ -6,18 +6,25 @@ import test from "node:test";
 const MIGRATION_PATH = resolve(
   "infra/supabase/migrations/091_profiles_private_column_authority_boundary.sql"
 );
+const MIGRATIONS_DIRECTORY = resolve("infra/supabase/migrations");
+const MODERATION_REVIEW_MIGRATION_PATH = resolve(
+  MIGRATIONS_DIRECTORY,
+  "039_moderation_review_requests.sql"
+);
 const migration = readFileSync(MIGRATION_PATH, "utf8");
 const sql = migration.replace(/--[^\r\n]*/g, "");
+const moderationReviewMigration = readFileSync(MODERATION_REVIEW_MIGRATION_PATH, "utf8")
+  .replace(/--[^\r\n]*/g, "");
 
 const DEPENDENT_POLICY_HASH_COUNTS = {
-  "5ee3592bf3116019f1b4f530f3c5a7c1": 2,
-  "6763043a8f0689c0b710209ad8ef6981": 4,
-  "bacc12d3c4c1bb04c9a1062d355b1d3c": 4,
-  "3769ea7fdc4ce5008d3d4d24f16d77a4": 4,
-  "41e21f83d7b4f0f8b3ce6a62dd9d3a1a": 2,
-  "479e5e2d5fbc919a1748abdc7267d637": 2,
-  "bddb9c585a8b23739adc6bf3be95e45e": 2,
-  "24c3461ab95960459b87740f77d3ec57": 2,
+  "5ee3592bf3116019f1b4f530f3c5a7c1": 1,
+  "6763043a8f0689c0b710209ad8ef6981": 2,
+  "bacc12d3c4c1bb04c9a1062d355b1d3c": 2,
+  "3769ea7fdc4ce5008d3d4d24f16d77a4": 3,
+  "41e21f83d7b4f0f8b3ce6a62dd9d3a1a": 1,
+  "479e5e2d5fbc919a1748abdc7267d637": 1,
+  "bddb9c585a8b23739adc6bf3be95e45e": 1,
+  "24c3461ab95960459b87740f77d3ec57": 1,
 };
 
 const DEPENDENT_POLICY_NAMES = [
@@ -68,11 +75,50 @@ test("migration 091 fails closed on the inherited profile contract", () => {
   assert.match(sql, /actual_column_grants is distinct from expected_column_grants/i);
 
   for (const [hash, count] of Object.entries(DEPENDENT_POLICY_HASH_COUNTS)) {
-    assert.equal(countOccurrences(sql, hash), count, `expected complete pre/post assertions for ${hash}`);
+    assert.equal(countOccurrences(sql, hash), count, `expected exact accepted-variant fingerprint for ${hash}`);
   }
   for (const policyName of DEPENDENT_POLICY_NAMES) {
-    assert.equal(countOccurrences(sql, `\"${policyName}\"`), 2, `expected pre/post assertion for ${policyName}`);
+    assert.equal(countOccurrences(sql, `\"${policyName}\"`), 1, `expected hosted baseline row for ${policyName}`);
   }
+});
+
+test("migration 091 accepts only the hosted and ordered-source dependent-policy variants", () => {
+  assert.match(
+    moderationReviewMigration,
+    /create policy "moderation_review_requests_admin_all"[\s\S]*for all[\s\S]*using \([\s\S]*from public\.profiles p[\s\S]*p\.id = auth\.uid\(\)[\s\S]*p\.is_admin = true[\s\S]*with check \([\s\S]*from public\.profiles p[\s\S]*p\.id = auth\.uid\(\)[\s\S]*p\.is_admin = true/i
+  );
+
+  const laterMigrationSource = readdirSync(MIGRATIONS_DIRECTORY)
+    .filter((name) => {
+      const sequence = Number.parseInt(name.slice(0, 3), 10);
+      return sequence > 39 && sequence <= 91 && name.endsWith(".sql");
+    })
+    .map((name) => readFileSync(resolve(MIGRATIONS_DIRECTORY, name), "utf8"))
+    .join("\n")
+    .replace(/--[^\r\n]*/g, "");
+  assert.doesNotMatch(
+    laterMigrationSource,
+    /drop policy(?: if exists)? "?moderation_review_requests_admin_all"?/i
+  );
+
+  assert.equal(countOccurrences(sql, `\"moderation_review_requests_admin_all\"`), 1);
+  assert.match(
+    sql,
+    /jsonb_insert\([\s\S]*expected_hosted_dependent_policies[\s\S]*'\{10\}'[\s\S]*\["moderation_review_requests", "moderation_review_requests_admin_all", "ALL", "\{public\}", "3769ea7fdc4ce5008d3d4d24f16d77a4"\]/i
+  );
+  assert.match(
+    sql,
+    /actual_dependent_policies = expected_hosted_dependent_policies[\s\S]*observed_dependent_policy_variant := 'hosted_eleven'[\s\S]*actual_dependent_policies = expected_ordered_source_dependent_policies[\s\S]*observed_dependent_policy_variant := 'ordered_source_twelve'/i
+  );
+  assert.match(sql, /set_config\([\s\S]*station\.pr535a_dependent_policy_variant/i);
+  assert.match(sql, /set_config\([\s\S]*station\.pr535a_dependent_policy_fingerprint/i);
+  assert.match(sql, /current_setting\([\s\S]*station\.pr535a_dependent_policy_variant/i);
+  assert.match(sql, /current_setting\([\s\S]*station\.pr535a_dependent_policy_fingerprint/i);
+  assert.match(
+    sql,
+    /actual_dependent_policies is distinct from preflight_dependent_policies/i
+  );
+  assert.doesNotMatch(sql, /drop policy(?: if exists)? "?moderation_review_requests_admin_all"?/i);
 });
 
 test("migration 091 leaves browser roles only own-row authority projection", () => {

@@ -4,20 +4,21 @@
 
 **Date:** 2026-07-30
 
-**Base:** `49266210 docs: authorize PR535A profile boundary repair`
+**Base:** `5774d051 docs: require PR535A clean replay fix`
 
 **State:**
 
 ```text
-READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
+READY_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY_FOR_ARGUS
 ```
 
 ## Verdict
 
-DAEDALUS implemented the authorized source-only profile boundary repair. The
-new migration removes broad browser profile projection and mutation while
-retaining only authenticated own-row `id`, `tier`, and `is_admin` authority
-reads needed by the existing tier/admin RLS checks.
+DAEDALUS implemented the authorized source-only profile boundary repair and the
+exact clean-replay correction required by ARGUS. The migration removes broad
+browser profile projection and mutation while retaining only authenticated
+own-row `id`, `tier`, and `is_admin` authority reads needed by the existing
+tier/admin RLS checks.
 
 Migration `091` was not applied to hosted Supabase. No profile row or private
 profile value was read, printed, rewritten, or included in evidence. PR535
@@ -30,7 +31,10 @@ separately authorized hosted migration/proof stage.
   under a transaction-scoped advisory lock and a `profiles` table lock.
 - Preflight requires the exact sixteen-column profile shape, enabled non-forced
   RLS, both inherited profile policies, the exact browser/service table and
-  column grants, and all eleven dependent authority-policy expression hashes.
+  column grants, and one of only two exact dependent-policy fingerprints: the
+  hosted eleven-policy catalog or the ordered-source twelve-policy catalog that
+  additionally contains `moderation_review_requests_admin_all` from migration
+  `039`.
 - The broad `profiles_select_public` and `profiles_update_own` policies are
   removed. All table and explicit column privileges are revoked from `PUBLIC`,
   `anon`, and `authenticated` before the replacement boundary is installed.
@@ -40,9 +44,11 @@ separately authorized hosted migration/proof stage.
 - Existing explicit `service_role` SELECT/INSERT/UPDATE/DELETE access is
   preserved. Postassert also requires its prior REFERENCES/TRIGGER/TRUNCATE
   grants to remain unchanged.
-- Postassert requires exactly one profile SELECT policy, no browser table
-  privilege, exactly six browser authority-column grants, and the unchanged
-  eleven dependent policy hashes before PostgREST reload and commit.
+- Preflight records the accepted variant and its complete fingerprint in
+  transaction-local settings. Postassert requires exactly the same observed
+  eleven- or twelve-policy fingerprint, exactly one profile SELECT policy, no
+  browser table privilege, and exactly six browser authority-column grants
+  before PostgREST reload and commit.
 - The migration contains no profile DML, profile column change, migration
   ledger write, institution object, auth/session change, or unrelated policy
   mutation.
@@ -50,16 +56,22 @@ separately authorized hosted migration/proof stage.
 Migration source SHA-256:
 
 ```text
-28607E835E3779DA691D5F2BF59DF955B8FA1066A63863BE53D9D6758A276AB6
+BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8
 ```
 
 ## Focused Proof
 
-The new root `test:profile-boundary` suite checks the fail-closed catalog
-preflight, exact policy fingerprints, complete table/column revocation,
-own-row three-column authority grant, absence of browser mutation grants and
-policies, retained service access, no profile data rewrite, and PostgREST
-reload/commit ordering.
+The root `test:profile-boundary` suite checks the fail-closed catalog preflight,
+both exact policy variants, complete table/column revocation, own-row
+three-column authority grant, absence of browser mutation grants and policies,
+retained service access, no profile data rewrite, and PostgREST reload/commit
+ordering.
+
+The clean-replay regression reads migration `039`, requires its exact admin-all
+profile-dependent policy in the twelve-row variant, verifies migrations `040`
+through `091` do not drop it, and requires postassert to compare against the
+fingerprint retained by preflight. Migration `091` neither changes nor removes
+the moderation-review policy.
 
 It also scans current product paths to prove profile-facing auth, billing,
 Settings, Project, Discover, and forum access remains API/service-owned, while
@@ -70,10 +82,11 @@ removed broad browser grant.
 
 | Command / review | Result |
 | --- | --- |
-| Read-only hosted catalog fingerprint preflight | Pass; exact two profile policies, `21` table grants, `192` expanded column grants, and eleven dependent policy hashes; no profile row/value read |
+| Ordered-source migration reconciliation | Pass; migration `039` creates the twelfth policy, migrations `040` through `091` drop it `0` times, and `091` admits only the exact eleven/twelve variants |
+| Read-only hosted catalog fingerprint preflight | Pass; exact two profile policies, `21` table grants, `192` expanded column grants, and hosted eleven-policy fingerprint; no profile row/value read |
 | Ephemeral PostgreSQL AST parse | Pass; migration `091` parsed without retaining a dependency or touching hosted Supabase |
 | `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass; lockfile already current |
-| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
 | `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
 | `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
 | `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
@@ -98,10 +111,11 @@ repaired until the exact migration is separately applied and proved.
 
 ## Baton
 
-ARGUS should hostile-review PostgreSQL syntax and upgrade safety, exact live
-preflight compatibility, table-versus-column ACL semantics, own-row RLS
-behavior, anonymous absence, authority-policy execution, service-route
-compatibility, no-DML scope, focused assertions, and the complete diff.
+ARGUS should hostile-review the exact hosted-eleven/ordered-source-twelve
+variant selection, transaction-local fingerprint binding, migration-039
+regression, PostgreSQL syntax and upgrade safety, table-versus-column ACL
+semantics, own-row RLS behavior, authority-policy execution, service-route
+compatibility, no-DML scope, and the complete correction diff.
 
 If source is accepted, ARGUS should wake MIMIR with the verdict. No agent should
 apply migration `091` hosted or begin Institutional Spaces without a new exact

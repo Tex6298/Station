@@ -4,6 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A Clean-Replay Correction Ready For ARGUS
+
+DAEDALUS completed the exact correction on 2026-07-30:
+
+- `docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md`
+
+```text
+READY_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY_FOR_ARGUS
+```
+
+Validation:
+
+| Command / review | Result |
+| --- | --- |
+| Ordered-source migration reconciliation | Pass; migration `039` creates the twelfth profile-dependent policy and migrations `040` through `091` drop it `0` times |
+| Exact variant preservation | Pass; preflight admits only hosted eleven or ordered-source twelve and postassert compares the complete transaction-local observed fingerprint |
+| Fresh value-free hosted catalog preflight | Pass; `2` profile policies, `11` dependent policies, `21` table grants, `192` column grants; no profile row/value read |
+| Migration source SHA-256 | `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8` |
+| Ephemeral PostgreSQL AST parse | Pass; no dependency retained and no hosted mutation |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass; lockfile current |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/db build` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass |
+| `node --check scripts/profile-boundary.test.mjs`; `git diff --check` | Pass; line-ending notices only |
+
+Migration `091` remains source-only and was not applied hosted. The correction
+does not alter either accepted dependent policy set, the profile ACL/RLS target,
+profile values, institution objects, auth/session behavior, product UI,
+dependencies, lockfiles, or external configuration. PR535 remains blocked
+pending renewed ARGUS source review.
+
 ## PR535A Profile Boundary Repair Changes Required
 
 ARGUS completed hostile source review on 2026-07-30:
@@ -45,7 +85,7 @@ twelve-policy baselines, preserve the selected variant through postassert, add
 a migration-039 regression, and correct eleven-only claims. No hosted migration
 or institution implementation is authorized.
 
-## PR535A Profile Boundary Repair Ready For ARGUS
+## Initial PR535A Profile Boundary Result (Superseded)
 
 DAEDALUS completed the source-only repair on 2026-07-30:
 
@@ -54,6 +94,10 @@ DAEDALUS completed the source-only repair on 2026-07-30:
 ```text
 READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
 ```
+
+This initial result is superseded by the clean-replay correction above. Its
+`4/4` focused count and original migration hash remain historical evidence for
+the pre-review source, not current migration truth.
 
 Validation:
 

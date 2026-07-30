@@ -18,7 +18,7 @@ declare
   actual_column_grants jsonb;
   expected_column_grants jsonb;
   actual_dependent_policies jsonb;
-  expected_dependent_policies jsonb := '[
+  expected_hosted_dependent_policies jsonb := '[
     ["comments", "comments_select_community_threads", "SELECT", "{public}", "5ee3592bf3116019f1b4f530f3c5a7c1"],
     ["community_moderation_actions", "community_moderation_actions_admin_insert", "INSERT", "{public}", "6763043a8f0689c0b710209ad8ef6981"],
     ["community_moderation_actions", "community_moderation_actions_select_admin", "SELECT", "{public}", "bacc12d3c4c1bb04c9a1062d355b1d3c"],
@@ -31,7 +31,16 @@ declare
     ["moderation_reports", "reports_all_admin", "ALL", "{public}", "bacc12d3c4c1bb04c9a1062d355b1d3c"],
     ["threads", "threads_select_community", "SELECT", "{public}", "24c3461ab95960459b87740f77d3ec57"]
   ]'::jsonb;
+  expected_ordered_source_dependent_policies jsonb;
+  observed_dependent_policy_variant text;
 begin
+  expected_ordered_source_dependent_policies := jsonb_insert(
+    expected_hosted_dependent_policies,
+    '{10}',
+    '["moderation_review_requests", "moderation_review_requests_admin_all", "ALL", "{public}", "3769ea7fdc4ce5008d3d4d24f16d77a4"]'::jsonb,
+    false
+  );
+
   if profiles_oid is null or not exists (
     select 1
     from pg_catalog.pg_class relation
@@ -231,9 +240,24 @@ begin
       or coalesce(policy_row.with_check, '') like '%profiles%'
     );
 
-  if actual_dependent_policies is distinct from expected_dependent_policies then
-    raise exception 'PR535A dependent profile-authority policies differ from the eleven-policy preflight';
+  if actual_dependent_policies = expected_hosted_dependent_policies then
+    observed_dependent_policy_variant := 'hosted_eleven';
+  elsif actual_dependent_policies = expected_ordered_source_dependent_policies then
+    observed_dependent_policy_variant := 'ordered_source_twelve';
+  else
+    raise exception 'PR535A dependent profile-authority policies match neither exact accepted preflight variant';
   end if;
+
+  perform pg_catalog.set_config(
+    'station.pr535a_dependent_policy_variant',
+    observed_dependent_policy_variant,
+    true
+  );
+  perform pg_catalog.set_config(
+    'station.pr535a_dependent_policy_fingerprint',
+    actual_dependent_policies::text,
+    true
+  );
 end;
 $pr535a_preflight$;
 
@@ -282,20 +306,34 @@ declare
   actual_column_grants jsonb;
   expected_column_grants jsonb;
   actual_dependent_policies jsonb;
-  expected_dependent_policies jsonb := '[
-    ["comments", "comments_select_community_threads", "SELECT", "{public}", "5ee3592bf3116019f1b4f530f3c5a7c1"],
-    ["community_moderation_actions", "community_moderation_actions_admin_insert", "INSERT", "{public}", "6763043a8f0689c0b710209ad8ef6981"],
-    ["community_moderation_actions", "community_moderation_actions_select_admin", "SELECT", "{public}", "bacc12d3c4c1bb04c9a1062d355b1d3c"],
-    ["community_subcommunities", "community_subcommunities_admin_all", "ALL", "{public}", "3769ea7fdc4ce5008d3d4d24f16d77a4"],
-    ["community_subcommunity_moderators", "community_subcommunity_moderators_owner_admin_select", "SELECT", "{public}", "41e21f83d7b4f0f8b3ce6a62dd9d3a1a"],
-    ["community_subcommunity_moderators", "community_subcommunity_moderators_owner_admin_write", "ALL", "{public}", "479e5e2d5fbc919a1748abdc7267d637"],
-    ["community_user_profiles", "community_profiles_admin_insert", "INSERT", "{public}", "6763043a8f0689c0b710209ad8ef6981"],
-    ["community_user_profiles", "community_profiles_admin_update", "UPDATE", "{public}", "3769ea7fdc4ce5008d3d4d24f16d77a4"],
-    ["documents", "documents_select_community", "SELECT", "{public}", "bddb9c585a8b23739adc6bf3be95e45e"],
-    ["moderation_reports", "reports_all_admin", "ALL", "{public}", "bacc12d3c4c1bb04c9a1062d355b1d3c"],
-    ["threads", "threads_select_community", "SELECT", "{public}", "24c3461ab95960459b87740f77d3ec57"]
-  ]'::jsonb;
+  preflight_dependent_policies jsonb;
+  preflight_dependent_policy_variant text;
 begin
+  preflight_dependent_policy_variant := pg_catalog.current_setting(
+    'station.pr535a_dependent_policy_variant',
+    true
+  );
+
+  if preflight_dependent_policy_variant is null
+    or preflight_dependent_policy_variant not in ('hosted_eleven', 'ordered_source_twelve')
+  then
+    raise exception 'PR535A dependent-policy preflight variant was not retained for postassert';
+  end if;
+
+  begin
+    preflight_dependent_policies := pg_catalog.current_setting(
+      'station.pr535a_dependent_policy_fingerprint',
+      true
+    )::jsonb;
+  exception
+    when others then
+      raise exception 'PR535A dependent-policy preflight fingerprint is unavailable for postassert';
+  end;
+
+  if preflight_dependent_policies is null then
+    raise exception 'PR535A dependent-policy preflight fingerprint is unavailable for postassert';
+  end if;
+
   if not exists (
     select 1
     from pg_catalog.pg_class relation
@@ -428,8 +466,9 @@ begin
       or coalesce(policy_row.with_check, '') like '%profiles%'
     );
 
-  if actual_dependent_policies is distinct from expected_dependent_policies then
-    raise exception 'PR535A changed a dependent profile-authority policy';
+  if actual_dependent_policies is distinct from preflight_dependent_policies then
+    raise exception 'PR535A changed the accepted % dependent profile-authority policy variant',
+      preflight_dependent_policy_variant;
   end if;
 end;
 $pr535a_postassert$;

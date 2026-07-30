@@ -30,8 +30,9 @@ infra/supabase/migrations/091_profiles_private_column_authority_boundary.sql
 The migration must:
 
 1. Run in one explicit transaction with a transaction-scoped advisory lock.
-2. Assert the expected `profiles` columns, RLS state, policies, grants, and the
-   eleven dependent profile-authority policy expressions before mutation.
+2. Assert the expected `profiles` columns, RLS state, policies, grants, and one
+   of the two exact known dependent profile-authority policy sets before
+   mutation: eleven on hosted or twelve on ordered source replay after `039`.
 3. Drop `profiles_select_public` and `profiles_update_own`.
 4. Revoke all table and column privileges on `public.profiles` from `public`,
    `anon`, and `authenticated`.
