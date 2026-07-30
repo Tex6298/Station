@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535A profile authority/private-column repair
+## Current gate - PR535A changes required for clean migration replay
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -76,7 +76,8 @@ BLOCK_PR535_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY
 PROPOSE_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
 OPEN_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
 READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+CHANGES_REQUIRED_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -136,6 +137,7 @@ PR535 Institutional Spaces preflight: docs/roadmap/PR535_INSTITUTIONAL_SPACES_FO
 PR535 Institutional Spaces preflight result: docs/roadmap/PR535_INSTITUTIONAL_SPACES_FOUNDATION_PREFLIGHT_ARGUS_RESULT.md
 PR535A profile boundary repair: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
+PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -167,7 +169,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should hostile-review PR535A source. Institution implementation and hosted migration remain blocked.
+Next: DAEDALUS should repair only PR535A dependent-policy clean-replay compatibility and wake ARGUS again. Institution implementation and hosted migration remain blocked.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
@@ -175,6 +177,16 @@ Studio hierarchy remains authoritative on affected routes; shared workspace
 loading, request fanout, quick-card interactions, relocated capability
 reachability, route/privacy boundaries, rail containment, and semantic Settings
 themes pass source review and exact-SHA hosted rehearsal.
+
+ARGUS requires one PR535A source correction. Migration `039` creates
+`moderation_review_requests_admin_all`, a twelfth profile-dependent policy that
+no later source migration drops, while migration `091` accepts only the hosted
+eleven-policy catalog. A clean ordered source replay therefore aborts in the
+`091` preflight. DAEDALUS should support only the two exact known policy sets,
+preserve the observed set through postassert, add a migration-039 regression,
+and correct eleven-only evidence. All requested tests pass, but the current
+focused suite does not reconcile prior migrations. No hosted apply or
+institution work is authorized.
 
 DAEDALUS completed the authorized source-only PR535A repair. Migration `091`
 fails closed on the exact sixteen profile columns, inherited policies and

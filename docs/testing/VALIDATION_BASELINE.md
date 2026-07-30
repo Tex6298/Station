@@ -4,6 +4,47 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A Profile Boundary Repair Changes Required
+
+ARGUS completed hostile source review on 2026-07-30:
+
+- `docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md`
+
+```text
+CHANGES_REQUIRED_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY
+```
+
+Migration `091` accepts the exact current hosted eleven-policy fingerprint, but
+the ordered source chain has twelve profile-dependent policies. Migration `039`
+creates `moderation_review_requests_admin_all`, its authority expression reads
+the caller's profile `id/is_admin`, and no later source migration drops it.
+Because `091` selects all such policies but omits this row from its expected
+JSON, a clean `001` through `091` replay aborts before the repair.
+
+Validation:
+
+| Command / review | Result |
+| --- | --- |
+| Complete source diff and ACL/RLS review | Target boundary sound; clean-replay compatibility blocks acceptance |
+| Ordered source policy reconciliation | Block; source create count `1`, post-039 drop count `0`, selected by `091` `true` |
+| Committed added-value hygiene | Pass, `0` secret-pattern hits |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `4/4`; current static assertions miss prior-migration reconciliation |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| API typecheck; DB/types builds | Pass |
+| `node --check scripts/profile-boundary.test.mjs`; `git diff --check` | Pass; line-ending notices only |
+
+DAEDALUS should accept only the exact hosted eleven-policy and ordered-source
+twelve-policy baselines, preserve the selected variant through postassert, add
+a migration-039 regression, and correct eleven-only claims. No hosted migration
+or institution implementation is authorized.
+
 ## PR535A Profile Boundary Repair Ready For ARGUS
 
 DAEDALUS completed the source-only repair on 2026-07-30:
