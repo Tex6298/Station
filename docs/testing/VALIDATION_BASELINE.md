@@ -4,6 +4,46 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A Profile Boundary Repair Ready For ARGUS
+
+DAEDALUS completed the source-only repair on 2026-07-30:
+
+- `docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md`
+
+```text
+READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
+```
+
+Validation:
+
+| Command / review | Result |
+| --- | --- |
+| Read-only hosted catalog fingerprint preflight | Pass; exact inherited profile policies/grants and eleven dependent policy hashes; no profile row/value read |
+| Migration source SHA-256 | `28607E835E3779DA691D5F2BF59DF955B8FA1066A63863BE53D9D6758A276AB6` |
+| Ephemeral PostgreSQL AST parse | Pass; no dependency retained and no hosted mutation |
+| `npx --yes pnpm@10.32.1 install --frozen-lockfile` | Pass; lockfile current |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `4/4` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 test:spaces` | Pass, `11/11` |
+| `npx --yes pnpm@10.32.1 test:community` | Pass, `57/57` |
+| `npx --yes pnpm@10.32.1 test:billing` | Pass, `16/16` |
+| `npx --yes pnpm@10.32.1 test:ai-settings` | Pass, `14/14` |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/db build` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass |
+| `node --check scripts/profile-boundary.test.mjs` | Pass |
+| `git diff --check` | Pass; line-ending notices only |
+
+Migration `091` is source-only and not hosted. It removes broad browser profile
+projection and mutation, retains only own-row `id/tier/is_admin` SELECT for the
+existing authority policies, preserves service-owned product paths, and changes
+no profile data, institution object, auth/session behavior, product UI,
+dependency, lockfile, or external configuration. PR535 remains blocked pending
+ARGUS source review and separately authorized hosted proof.
+
 ## PR535 Institutional Spaces Foundation Blocked
 
 ARGUS completed the hostile preflight on 2026-07-30:

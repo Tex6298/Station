@@ -75,7 +75,8 @@ OPEN_PR535_INSTITUTIONAL_SPACES_FOUNDATION_PREFLIGHT
 BLOCK_PR535_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY
 PROPOSE_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
 OPEN_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS
+READY_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -134,6 +135,7 @@ PR534 closeout: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_CLOSEOUT_MIM
 PR535 Institutional Spaces preflight: docs/roadmap/PR535_INSTITUTIONAL_SPACES_FOUNDATION_PREFLIGHT_ARGUS.md
 PR535 Institutional Spaces preflight result: docs/roadmap/PR535_INSTITUTIONAL_SPACES_FOUNDATION_PREFLIGHT_ARGUS_RESULT.md
 PR535A profile boundary repair: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS.md
+PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -165,7 +167,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: MIMIR should authorize only PR535A profile authority/private-column repair or pause PR535. Institution implementation remains blocked.
+Next: ARGUS should hostile-review PR535A source. Institution implementation and hosted migration remain blocked.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
@@ -173,6 +175,16 @@ Studio hierarchy remains authoritative on affected routes; shared workspace
 loading, request fanout, quick-card interactions, relocated capability
 reachability, route/privacy boundaries, rail containment, and semantic Settings
 themes pass source review and exact-SHA hosted rehearsal.
+
+DAEDALUS completed the authorized source-only PR535A repair. Migration `091`
+fails closed on the exact sixteen profile columns, inherited policies and
+grants, and eleven dependent authority-policy hashes; removes broad browser
+profile SELECT/UPDATE; grants anon/authenticated only own-row
+`id/tier/is_admin` SELECT; preserves explicit service access; and postasserts
+the final ACL/RLS boundary. `test:profile-boundary` passes `4/4`, all required
+neighboring suites pass at their accepted counts, and API typecheck plus
+DB/types builds pass. The migration was not applied hosted, no profile value was
+read or changed, and PR535 remains blocked pending ARGUS source review.
 
 ARGUS blocks PR535 before institution implementation. Source and fresh hosted
 catalog prove that the broad profile SELECT policy exposes nine private/
