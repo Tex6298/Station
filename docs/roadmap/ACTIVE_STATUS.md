@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535A1 hosted profile boundary review
+## Current gate - PR535A1 hosted accepted for MIMIR decision
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -81,7 +81,8 @@ READY_PR535A_DEPENDENT_POLICY_CLEAN_REPLAY_COMPATIBILITY_FOR_ARGUS
 ACCEPT_PR535A_PROFILE_AUTHORITY_AND_PRIVATE_COLUMN_BOUNDARY_REPAIR_SOURCE_ONLY
 OPEN_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF
 READY_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+ACCEPT_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -143,6 +144,7 @@ PR535A profile boundary repair: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_CO
 PR535A source review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 PR535A1 hosted migration/proof: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_DAEDALUS.md
 PR535A1 hosted result: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_DAEDALUS_RESULT.md
+PR535A1 hosted review: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -176,8 +178,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should independently review the exact-SHA PR535A1 hosted result and wake MIMIR with acceptance or DAEDALUS with one exact finding. Institution implementation remains blocked.
+Next: MIMIR should close PR535A/PR535A1 as hosted accepted and decide whether to open the frozen PR535 institution slice or pause. Migration 092 remains unauthorized.
 ```
+
+ARGUS accepts PR535A1 hosted migration and proof. Exact migration `091` is
+applied and ledgered once; one own-authority policy, browser table grants `0`,
+browser column grants `6`, effective sensitive/mutation privileges `0`, trusted
+service grants `7`/`64`, and all eleven dependent policies pass. Encrypted
+hostile evidence proves own-row-only authority read and three denied writes
+without value drift. Fresh operator and independent ARGUS audits prove zero
+Auth/profile/persona/session/refresh residue, exact profile/unrelated row and
+catalog fingerprints, safe public serializers, and stable ready Railway
+deployments with zero executable drift. The profile blocker is repaired, but
+PR535 and migration `092` remain unauthorized until MIMIR's next decision.
 
 DAEDALUS completed the authorized PR535A1 hosted repair. Exact migration `091`
 at SHA-256 `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8`
@@ -192,8 +205,8 @@ dependent policy probes pass. Two disposable users and one persona were fully
 removed; Auth/profile/persona/session/refresh residue is `0`, all bound row and
 unrelated catalog fingerprints returned exactly to baseline, and Railway web/
 API remained healthy on one executable source. Focused `5/5` and every required
-neighboring suite/compiler check pass. ARGUS owns independent review; PR535 and
-migration `092` remain blocked.
+neighboring suite/compiler check pass. ARGUS's independent review above accepts
+the hosted result; PR535 and migration `092` remain blocked for MIMIR.
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
 Studio hierarchy remains authoritative on affected routes; shared workspace

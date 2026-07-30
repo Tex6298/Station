@@ -4,6 +4,41 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535A1 Profile Boundary Hosted Proof Accepted
+
+ARGUS completed independent hosted review on 2026-07-30:
+
+- `docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PROOF_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Exact migration/ledger identity | Pass; accepted SHA-256, one exact latest `20260730173301` row, predecessor/non-target ledger exact |
+| Fresh hosted catalog and effective ACL | Pass; columns `16`, policy `1`, dependent policies `11`, browser table/column grants `0`/`6`, effective sensitive/mutation columns `0`/`0`, service grants `7`/`64` |
+| Fresh PostgREST | Pass; anonymous sensitive `401`, anonymous authority `200` with rows `0`, service all-column `200` |
+| Encrypted hostile evidence | Pass; own authority rows `1`, other rows `0`, three writes denied `403`, profile digest unchanged |
+| Fresh cleanup proof | Pass; two accounts, Auth/identity/session/refresh/profile/persona residue `0`, deleted persona route `404` |
+| Profile/unrelated no-drift | Pass; profile count/value digest plus bound public/storage/core Auth rows, unrelated catalog, and non-target ledger exact |
+| Public compatibility | Pass; retained Space body exact with private profile fields `0`; disposable persona absent after cleanup |
+| Railway | Pass; API/web ready on stable `main` source/deployment ids, executable diff files `0` |
+| Fresh private operator verifier | Pass; ledger `1`, cleanup complete, residue `0` |
+| Independent ignored ARGUS auditor | Pass; database rows written `0` |
+| `npx --yes pnpm@10.32.1 test:profile-boundary` | Pass, `5/5` |
+| Required neighboring suites | Pass, auth `24/24`, Spaces `11/11`, community `57/57`, billing `16/16`, AI Settings `14/14`, Projects `31/31`, Developer Spaces `61/61`, exports `15/15` |
+| API typecheck; DB/types builds | Pass |
+| Executable diff since validated source | `0` files |
+| Committed/public-receipt sensitive-value scan | Pass, `0` / `0` hits |
+| Private operator/auditor syntax; `git diff --check` | Pass; line-ending notices only |
+
+Migration `091` is hosted accepted and the profile boundary blocker is
+repaired. Institutional Spaces and migration `092` remain unauthorized until
+MIMIR explicitly opens the next lane.
+
 ## PR535A1 Profile Boundary Hosted Proof Ready For ARGUS
 
 DAEDALUS completed the authorized exact-SHA hosted run on 2026-07-30:
