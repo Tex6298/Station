@@ -208,6 +208,9 @@ export type ProjectVisibility = "private" | "unlisted" | "community" | "public";
 export type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
 export type ProjectMemberRole = "owner" | "admin" | "editor" | "viewer" | "billing";
 export type ProjectMemberStatus = "invited" | "active" | "removed";
+export type ProjectViewerInviteOutcome = "invited" | "already_invited" | "already_active" | "unavailable";
+export type ProjectViewerResponseOutcome = "accepted" | "declined" | "stale" | "unavailable";
+export type ProjectViewerRevokeOutcome = "revoked" | "unavailable";
 
 type SupabaseTable<Row, Insert = Row, Update = Partial<Insert>> = {
   Row: Row;
@@ -424,13 +427,19 @@ export interface Database {
           user_id: string;
           role: ProjectMemberRole;
           status: ProjectMemberStatus;
+          invite_expires_at: string | null;
+          responded_at: string | null;
+          removed_at: string | null;
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["project_members"]["Row"], "id" | "role" | "status" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["project_members"]["Row"], "id" | "role" | "status" | "invite_expires_at" | "responded_at" | "removed_at" | "created_at" | "updated_at"> & {
           id?: string;
           role?: ProjectMemberRole;
           status?: ProjectMemberStatus;
+          invite_expires_at?: string | null;
+          responded_at?: string | null;
+          removed_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -2199,6 +2208,51 @@ export interface Database {
     }>;
     Views: {};
     Functions: {
+      create_project_with_owner_v1: {
+        Args: {
+          p_actor_user_id: string;
+          p_name: string;
+          p_slug: string;
+          p_description: string | null;
+          p_visibility: ProjectVisibility;
+          p_connection_tier: ProjectConnectionTier;
+        };
+        Returns: Database["public"]["Tables"]["projects"]["Row"];
+      };
+      invite_project_viewer_v1: {
+        Args: {
+          p_project_id: string;
+          p_actor_user_id: string;
+          p_target_user_id: string;
+        };
+        Returns: Array<{
+          outcome: ProjectViewerInviteOutcome;
+          invited_at: string | null;
+          expires_at: string | null;
+        }>;
+      };
+      respond_project_viewer_invitation_v1: {
+        Args: {
+          p_project_id: string;
+          p_actor_user_id: string;
+          p_action: "accept" | "decline";
+        };
+        Returns: Array<{
+          outcome: ProjectViewerResponseOutcome;
+          responded_at: string | null;
+        }>;
+      };
+      revoke_project_viewer_v1: {
+        Args: {
+          p_project_id: string;
+          p_actor_user_id: string;
+          p_target_user_id: string;
+        };
+        Returns: Array<{
+          outcome: ProjectViewerRevokeOutcome;
+          removed_at: string | null;
+        }>;
+      };
       create_persona_encounter_cross_owner_consent: {
         Args: {
           p_requester_owner_user_id: string;

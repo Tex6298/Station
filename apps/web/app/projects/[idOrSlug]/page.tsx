@@ -1,10 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { ProjectEvidenceItem } from "@station/types";
-import { apiGet, apiPatch } from "@/lib/api-client";
+import type {
+  ProjectEvidenceItem,
+  ProjectViewerMember,
+  SharedProjectDetailResponse,
+} from "@station/types";
+import { apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import { ProjectExportPanel } from "@/components/projects/project-export-panel";
 import {
@@ -14,6 +18,16 @@ import {
   projectEvidenceRoleLabel,
   projectEvidenceRouteLabel,
 } from "@/lib/project-evidence";
+import {
+  isValidProjectUsername,
+  loadProjectThenOwnerResources,
+  normaliseProjectUsername,
+  projectCollaborationDate,
+  projectInvitationPath,
+  projectMemberRevokePath,
+  projectMembersPath,
+  projectViewerMemberAction,
+} from "@/lib/project-collaboration";
 
 type ProjectVisibility = "private" | "unlisted" | "community" | "public";
 type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
@@ -40,11 +54,25 @@ interface AttachedDeveloperSpaceSummary {
   updatedAt: string;
 }
 
-interface ProjectDetailResponse {
+interface OwnerProjectDetailResponse {
+  access: {
+    role: "owner";
+    readOnly: false;
+  };
   project: ProjectSummary;
   developerSpaces: AttachedDeveloperSpaceSummary[];
   evidence?: ProjectEvidenceItem[];
   activity?: Partial<ProjectActivity>;
+}
+
+type ProjectDetailResponse = OwnerProjectDetailResponse | SharedProjectDetailResponse;
+
+function isViewerProjectDetail(detail: ProjectDetailResponse): detail is SharedProjectDetailResponse {
+  return detail.access.role === "viewer";
+}
+
+function isOwnerProjectDetail(detail: ProjectDetailResponse): detail is OwnerProjectDetailResponse {
+  return !isViewerProjectDetail(detail);
 }
 
 type OwnerDeveloperSpace = AttachedDeveloperSpaceSummary & {
@@ -63,6 +91,13 @@ interface ProjectActivity {
   storageBytes: number;
   publicReads: number;
   exports: number;
+}
+
+interface OwnerProjectResources {
+  spaces: OwnerDeveloperSpace[];
+  members: ProjectViewerMember[];
+  spacesError: string | null;
+  membersError: string | null;
 }
 
 const CONNECTION_LABELS: Record<ProjectConnectionTier, string> = {
@@ -99,6 +134,109 @@ function formatCounter(value: number) {
   return new Intl.NumberFormat("en-GB").format(value);
 }
 
+function SharedProjectView({ detail }: { detail: SharedProjectDetailResponse }) {
+  const { project, owner, developerSpaces, evidence } = detail;
+  return (
+    <main className="station-page project-collaboration-page">
+      <div className="station-page-inner station-grid">
+        <header className="station-page-header">
+          <div>
+            <div className="station-eyebrow">Read-only viewer</div>
+            <h1 className="station-page-title project-collaboration-wrap">{project.name}</h1>
+            <p className="station-page-lede">{project.description || "No description yet."}</p>
+          </div>
+          <Link href="/projects" className="station-muted-button">All Projects</Link>
+        </header>
+
+        <section className="station-panel project-collaboration-summary" aria-label="Shared Project access">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2>Shared by @{owner.username}</h2>
+              <p>{owner.displayName || "Station member"}</p>
+            </div>
+            <span className="station-status-pill">Read-only</span>
+          </div>
+          <dl className="fact-grid compact">
+            <div><dt>Visibility</dt><dd>{project.visibility}</dd></div>
+            <div><dt>Updated</dt><dd>{projectCollaborationDate(project.updatedAt)}</dd></div>
+            <div><dt>Access</dt><dd>Viewer</dd></div>
+          </dl>
+          {project.publicHref ? (
+            <div className="station-action-row">
+              <Link className="station-muted-button" href={project.publicHref}>Open public page</Link>
+            </div>
+          ) : null}
+        </section>
+
+        <section className="project-collaboration-section" aria-labelledby="shared-project-spaces-heading">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2 id="shared-project-spaces-heading">Developer Spaces</h2>
+              <p>Bounded metadata shared through this Project.</p>
+            </div>
+            <span className="station-status-pill">{developerSpaces.length}</span>
+          </div>
+          {developerSpaces.length === 0 ? (
+            <div className="project-collaboration-empty">No Developer Spaces are attached.</div>
+          ) : (
+            <div className="project-collaboration-list">
+              {developerSpaces.map((space) => (
+                <article key={`${space.slug}:${space.updatedAt}`} className="station-card project-collaboration-card">
+                  <div className="project-collaboration-card-copy">
+                    <div className="kicker">{space.visibility} / {visualisationLabel(space.visualisationType)}</div>
+                    <h3>{space.projectName}</h3>
+                    <p>{space.description || "No description yet."}</p>
+                    <small>Updated {projectCollaborationDate(space.updatedAt)}</small>
+                  </div>
+                  {space.publicHref ? (
+                    <div className="station-action-row">
+                      <Link className="station-muted-button" href={space.publicHref}>Open public observatory</Link>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="project-collaboration-section" aria-labelledby="shared-project-evidence-heading">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2 id="shared-project-evidence-heading">Project evidence</h2>
+              <p>Read-only evidence metadata selected by the Project owner.</p>
+            </div>
+            <span className="station-status-pill">{evidence.length}</span>
+          </div>
+          {evidence.length === 0 ? (
+            <div className="project-collaboration-empty">No evidence is attached.</div>
+          ) : (
+            <div className="project-collaboration-list">
+              {evidence.map((item) => (
+                <article
+                  key={`${item.developerSpace.slug}:${item.document.title}:${item.document.updatedAt}`}
+                  className="station-card project-collaboration-card"
+                >
+                  <div className="project-collaboration-card-copy">
+                    <div className="kicker">{item.developerSpace.projectName} / {projectEvidenceRoleLabel(item.role)}</div>
+                    <h3>{item.document.title}</h3>
+                    <p>{item.document.documentType.replace("_", " ")}</p>
+                    <small>Updated {projectCollaborationDate(item.document.updatedAt)}</small>
+                  </div>
+                  {item.publicHref ? (
+                    <div className="station-action-row">
+                      <Link className="station-muted-button" href={item.publicHref}>Open public observatory</Link>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
+}
+
 export default function ProjectDetailPage() {
   const params = useParams<{ idOrSlug: string }>();
   const idOrSlug = decodeURIComponent(String(params.idOrSlug ?? ""));
@@ -107,8 +245,14 @@ export default function ProjectDetailPage() {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ownerSpaces, setOwnerSpaces] = useState<OwnerDeveloperSpace[]>([]);
+  const [members, setMembers] = useState<ProjectViewerMember[]>([]);
+  const [membersError, setMembersError] = useState<string | null>(null);
+  const [ownerSpacesError, setOwnerSpacesError] = useState<string | null>(null);
+  const [inviteUsername, setInviteUsername] = useState("");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [pendingMemberAction, setPendingMemberAction] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -122,13 +266,33 @@ export default function ProjectDetailPage() {
       if (!cancelled) setToken(session.access_token);
 
       try {
-        const [projectData, spacesData] = await Promise.all([
-          apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, session.access_token),
-          apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", session.access_token),
-        ]);
+        const loaded = await loadProjectThenOwnerResources(
+          () => apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, session.access_token),
+          async (): Promise<OwnerProjectResources> => {
+            const [spacesResult, membersResult] = await Promise.allSettled([
+              apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", session.access_token),
+              apiGet<{ members: ProjectViewerMember[] }>(projectMembersPath(idOrSlug), session.access_token),
+            ]);
+            return {
+              spaces: spacesResult.status === "fulfilled" ? spacesResult.value.spaces ?? [] : [],
+              members: membersResult.status === "fulfilled" ? membersResult.value.members ?? [] : [],
+              spacesError: spacesResult.status === "rejected"
+                ? spacesResult.reason instanceof Error ? spacesResult.reason.message : "Could not load owner Developer Spaces."
+                : null,
+              membersError: membersResult.status === "rejected"
+                ? membersResult.reason instanceof Error ? membersResult.reason.message : "Could not load collaborators."
+                : null,
+            };
+          }
+        );
         if (!cancelled) {
-          setDetail(projectData);
-          setOwnerSpaces(spacesData.spaces ?? []);
+          setDetail(loaded.detail);
+          if (loaded.ownerResources) {
+            setOwnerSpaces(loaded.ownerResources.spaces);
+            setMembers(loaded.ownerResources.members);
+            setOwnerSpacesError(loaded.ownerResources.spacesError);
+            setMembersError(loaded.ownerResources.membersError);
+          }
         }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : "Could not load Project.");
@@ -143,16 +307,80 @@ export default function ProjectDetailPage() {
   }, [idOrSlug]);
 
   async function refreshProjectState(sessionToken: string) {
-    const [projectData, spacesData] = await Promise.all([
-      apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, sessionToken),
-      apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", sessionToken),
-    ]);
+    const projectData = await apiGet<ProjectDetailResponse>(
+      `/projects/${encodeURIComponent(idOrSlug)}`,
+      sessionToken
+    );
     setDetail(projectData);
-    setOwnerSpaces(spacesData.spaces ?? []);
+    if (isOwnerProjectDetail(projectData)) {
+      const spacesData = await apiGet<{ spaces: OwnerDeveloperSpace[] }>("/developer-spaces", sessionToken);
+      setOwnerSpaces(spacesData.spaces ?? []);
+      setOwnerSpacesError(null);
+    }
+  }
+
+  async function refreshMembers(sessionToken: string) {
+    const memberData = await apiGet<{ members: ProjectViewerMember[] }>(
+      projectMembersPath(idOrSlug),
+      sessionToken
+    );
+    setMembers(memberData.members ?? []);
+    setMembersError(null);
+  }
+
+  async function handleInvite(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!token || !isValidProjectUsername(inviteUsername)) return;
+    setPendingMemberAction("invite");
+    setActionError(null);
+    setActionMessage(null);
+    let invitationCreated = false;
+    try {
+      await apiPost(
+        projectInvitationPath(idOrSlug),
+        { username: normaliseProjectUsername(inviteUsername) },
+        token
+      );
+      invitationCreated = true;
+      setInviteUsername("");
+      await refreshMembers(token);
+      setActionMessage("Viewer invitation created.");
+    } catch (e) {
+      setActionError(
+        invitationCreated
+          ? "The invitation was created, but the collaborator list could not be refreshed."
+          : e instanceof Error ? e.message : "Could not invite this viewer."
+      );
+    } finally {
+      setPendingMemberAction(null);
+    }
+  }
+
+  async function handleRevoke(member: ProjectViewerMember) {
+    if (!token) return;
+    const actionKey = `revoke:${member.username}`;
+    setPendingMemberAction(actionKey);
+    setActionError(null);
+    setActionMessage(null);
+    let memberUpdated = false;
+    try {
+      await apiPost(projectMemberRevokePath(idOrSlug), { username: member.username }, token);
+      memberUpdated = true;
+      await refreshMembers(token);
+      setActionMessage(member.status === "invited" ? "Invitation cancelled." : "Viewer access revoked.");
+    } catch (e) {
+      setActionError(
+        memberUpdated
+          ? "Viewer access changed, but the collaborator list could not be refreshed."
+          : e instanceof Error ? e.message : "Could not update this viewer."
+      );
+    } finally {
+      setPendingMemberAction(null);
+    }
   }
 
   async function handleAttach(spaceId: string) {
-    if (!token || !detail) return;
+    if (!token || !detail || !isOwnerProjectDetail(detail)) return;
     setPendingAction(`attach:${spaceId}`);
     setActionError(null);
     try {
@@ -166,7 +394,7 @@ export default function ProjectDetailPage() {
   }
 
   async function handleDetach(spaceId: string) {
-    if (!token) return;
+    if (!token || !detail || !isOwnerProjectDetail(detail)) return;
     setPendingAction(`detach:${spaceId}`);
     setActionError(null);
     try {
@@ -223,6 +451,10 @@ export default function ProjectDetailPage() {
         </div>
       </main>
     );
+  }
+
+  if (isViewerProjectDetail(detail)) {
+    return <SharedProjectView detail={detail} />;
   }
 
   const { project, developerSpaces } = detail;
@@ -290,6 +522,81 @@ export default function ProjectDetailPage() {
         </section>
 
         {actionError && <div className="station-notice" data-tone="error">{actionError}</div>}
+        {actionMessage && <div className="station-notice" data-tone="success">{actionMessage}</div>}
+        {ownerSpacesError && <div className="station-notice" data-tone="error">{ownerSpacesError}</div>}
+
+        <section className="station-panel project-collaboration-summary" aria-labelledby="project-collaborators-heading">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2 id="project-collaborators-heading">Collaborators</h2>
+              <p>Invite one existing Station username for read-only Project access.</p>
+            </div>
+            <span className="station-status-pill">{members.length}</span>
+          </div>
+
+          <form className="project-collaboration-invite" onSubmit={handleInvite}>
+            <label htmlFor="project-viewer-username">Exact Station username</label>
+            <div className="project-collaboration-invite-row">
+              <input
+                id="project-viewer-username"
+                className="input"
+                value={inviteUsername}
+                onChange={(event) => setInviteUsername(event.target.value)}
+                minLength={3}
+                maxLength={30}
+                pattern="[A-Za-z0-9_-]+"
+                autoComplete="off"
+                aria-describedby="project-viewer-disclosure"
+                disabled={Boolean(pendingMemberAction)}
+                required
+              />
+              <button
+                className="station-link-button"
+                type="submit"
+                disabled={Boolean(pendingMemberAction) || !isValidProjectUsername(inviteUsername)}
+              >
+                {pendingMemberAction === "invite" ? "Inviting..." : "Invite viewer"}
+              </button>
+            </div>
+            <small id="project-viewer-disclosure">
+              Viewers receive bounded read-only Project metadata. Private owner tools, usage, keys, and exports stay unavailable.
+            </small>
+          </form>
+
+          {membersError ? (
+            <div className="station-notice" data-tone="error">{membersError}</div>
+          ) : members.length === 0 ? (
+            <div className="project-collaboration-empty">No current viewers or pending invitations.</div>
+          ) : (
+            <div className="project-collaboration-member-list">
+              {members.map((member) => (
+                <div key={`${member.username}:${member.status}`} className="project-collaboration-member">
+                  <div>
+                    <strong className="project-collaboration-wrap">@{member.username}</strong>
+                    <span>{member.displayName || "Station member"}</span>
+                    <small>
+                      {member.status === "invited" && member.expiresAt
+                        ? `Pending until ${projectCollaborationDate(member.expiresAt)}`
+                        : member.respondedAt
+                          ? `Active since ${projectCollaborationDate(member.respondedAt)}`
+                          : "Active viewer"}
+                    </small>
+                  </div>
+                  <button
+                    className="station-muted-button"
+                    type="button"
+                    disabled={Boolean(pendingMemberAction)}
+                    onClick={() => handleRevoke(member)}
+                  >
+                    {pendingMemberAction === `revoke:${member.username}`
+                      ? "Updating..."
+                      : projectViewerMemberAction(member)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <section className="station-panel" style={{ display: "grid", gap: "0.85rem" }} aria-label="Observed Project activity">
           <div>

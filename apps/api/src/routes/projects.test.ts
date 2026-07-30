@@ -1,9 +1,13 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
+import { resolve } from "node:path";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
+import { developerSpacesRouter } from "./developer-spaces";
+import { exportsRouter } from "./exports";
 import {
   PROJECT_EVIDENCE_LIMIT,
   PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT,
@@ -18,8 +22,9 @@ type Row = Record<string, any>;
 class InMemorySupabase {
   tables: Record<string, Row[]> = {
     profiles: [
-      { id: "owner-user", tier: "canon", is_admin: false },
-      { id: "other-user", tier: "canon", is_admin: false },
+      { id: "owner-user", username: "Owner_One", display_name: "Owner One", tier: "canon", is_admin: false },
+      { id: "other-user", username: "Other_One", display_name: "Other One", tier: "canon", is_admin: false },
+      { id: "viewer-user", username: "Exact_Viewer", display_name: "Exact Viewer", tier: "private", is_admin: false },
     ],
     projects: [],
     project_members: [],
@@ -30,12 +35,16 @@ class InMemorySupabase {
   };
 
   private idCounters: Record<string, number> = {};
-  private clock = Date.parse("2026-06-19T09:00:00.000Z");
+  private clock = Date.parse("2026-07-30T09:00:00.000Z");
   insertErrors = new Map<string, { code?: string; message: string; details?: string }>();
   operationErrors = new Map<string, { code?: string; message: string; details?: string }>();
+  rpcErrors = new Map<string, { code?: string; message: string; details?: string }>();
+  rpcCalls: Array<{ name: string; args: Row }> = [];
+  failAtomicOwnerMembership = false;
   private usersByToken = new Map([
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
     ["other-token", { id: "other-user", email: "other@example.test" }],
+    ["viewer-token", { id: "viewer-user", email: "viewer@example.test" }],
   ]);
 
   client = {
@@ -48,6 +57,7 @@ class InMemorySupabase {
       },
     },
     from: (table: string) => new QueryBuilder(this, table),
+    rpc: (name: string, args: Row) => this.rpc(name, args),
   };
 
   rows(table: string) {
@@ -88,6 +98,9 @@ class InMemorySupabase {
     if (table === "project_members") {
       row.role ??= "owner";
       row.status ??= "active";
+      row.invite_expires_at ??= null;
+      row.responded_at ??= null;
+      row.removed_at ??= null;
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -146,6 +159,146 @@ class InMemorySupabase {
     }
 
     return row;
+  }
+
+  private async rpc(name: string, args: Row) {
+    this.rpcCalls.push({ name, args: clone(args) });
+    const forcedError = this.rpcErrors.get(name);
+    if (forcedError) {
+      this.rpcErrors.delete(name);
+      return { data: null, error: forcedError };
+    }
+
+    if (name === "create_project_with_owner_v1") {
+      if (this.rows("projects").some((project) => project.slug === args.p_slug)) {
+        return { data: null, error: { code: "23505", message: "duplicate project slug" } };
+      }
+      if (this.failAtomicOwnerMembership) {
+        this.failAtomicOwnerMembership = false;
+        return { data: null, error: { message: "atomic owner membership failed" } };
+      }
+
+      const project = this.prepareRow("projects", {
+        owner_user_id: args.p_actor_user_id,
+        name: args.p_name,
+        slug: args.p_slug,
+        description: args.p_description,
+        visibility: args.p_visibility,
+        connection_tier: args.p_connection_tier,
+      });
+      const membership = this.prepareRow("project_members", {
+        project_id: project.id,
+        user_id: args.p_actor_user_id,
+        role: "owner",
+        status: "active",
+      });
+      this.rows("projects").push(project);
+      this.rows("project_members").push(membership);
+      return { data: clone(project), error: null };
+    }
+
+    if (name === "invite_project_viewer_v1") {
+      const project = this.rows("projects").find((row) => row.id === args.p_project_id);
+      const ownerMembership = this.rows("project_members").find((row) => (
+        row.project_id === args.p_project_id
+        && row.user_id === args.p_actor_user_id
+        && row.role === "owner"
+        && row.status === "active"
+      ));
+      const target = this.rows("profiles").find((row) => row.id === args.p_target_user_id);
+      if (!project || project.owner_user_id !== args.p_actor_user_id || !ownerMembership || !target
+        || args.p_target_user_id === args.p_actor_user_id) {
+        return { data: [{ outcome: "unavailable", invited_at: null, expires_at: null }], error: null };
+      }
+
+      const now = this.timestamp();
+      const current = this.rows("project_members").find((row) => (
+        row.project_id === project.id && row.user_id === target.id && row.status !== "removed"
+      ));
+      if (current?.role === "viewer" && current.status === "invited") {
+        if (Date.parse(current.invite_expires_at) > Date.parse(now)) {
+          return { data: [{ outcome: "already_invited", invited_at: null, expires_at: null }], error: null };
+        }
+        current.status = "removed";
+        current.removed_at = now;
+        current.updated_at = now;
+      } else if (current?.role === "viewer" && current.status === "active") {
+        return { data: [{ outcome: "already_active", invited_at: null, expires_at: null }], error: null };
+      } else if (current) {
+        return { data: [{ outcome: "unavailable", invited_at: null, expires_at: null }], error: null };
+      }
+
+      const expiresAt = new Date(Date.parse(now) + 14 * 24 * 60 * 60 * 1000).toISOString();
+      const membership = this.prepareRow("project_members", {
+        project_id: project.id,
+        user_id: target.id,
+        role: "viewer",
+        status: "invited",
+        invite_expires_at: expiresAt,
+        created_at: now,
+        updated_at: now,
+      });
+      this.rows("project_members").push(membership);
+      return { data: [{ outcome: "invited", invited_at: now, expires_at: expiresAt }], error: null };
+    }
+
+    if (name === "respond_project_viewer_invitation_v1") {
+      const membership = this.rows("project_members").find((row) => (
+        row.project_id === args.p_project_id
+        && row.user_id === args.p_actor_user_id
+        && row.role === "viewer"
+        && row.status === "invited"
+      ));
+      if (!membership) {
+        return { data: [{ outcome: "unavailable", responded_at: null }], error: null };
+      }
+
+      const now = this.timestamp();
+      if (Date.parse(membership.invite_expires_at) <= Date.parse(now)) {
+        membership.status = "removed";
+        membership.removed_at = now;
+        membership.updated_at = now;
+        return { data: [{ outcome: "stale", responded_at: null }], error: null };
+      }
+      if (args.p_action === "accept") {
+        membership.status = "active";
+        membership.responded_at = now;
+        membership.updated_at = now;
+        return { data: [{ outcome: "accepted", responded_at: now }], error: null };
+      }
+
+      membership.status = "removed";
+      membership.removed_at = now;
+      membership.updated_at = now;
+      return { data: [{ outcome: "declined", responded_at: now }], error: null };
+    }
+
+    if (name === "revoke_project_viewer_v1") {
+      const project = this.rows("projects").find((row) => row.id === args.p_project_id);
+      const ownerMembership = this.rows("project_members").find((row) => (
+        row.project_id === args.p_project_id
+        && row.user_id === args.p_actor_user_id
+        && row.role === "owner"
+        && row.status === "active"
+      ));
+      const membership = this.rows("project_members").find((row) => (
+        row.project_id === args.p_project_id
+        && row.user_id === args.p_target_user_id
+        && row.role === "viewer"
+        && ["invited", "active"].includes(row.status)
+      ));
+      if (!project || project.owner_user_id !== args.p_actor_user_id || !ownerMembership || !membership) {
+        return { data: [{ outcome: "unavailable", removed_at: null }], error: null };
+      }
+
+      const now = this.timestamp();
+      membership.status = "removed";
+      membership.removed_at = now;
+      membership.updated_at = now;
+      return { data: [{ outcome: "revoked", removed_at: now }], error: null };
+    }
+
+    return { data: null, error: { message: `Unexpected RPC: ${name}` } };
   }
 }
 
@@ -255,6 +408,13 @@ function createProjectsApp() {
   return app;
 }
 
+function createProjectBoundaryApp() {
+  const app = createProjectsApp();
+  app.use("/developer-spaces", developerSpacesRouter);
+  app.use("/exports", exportsRouter);
+  return app;
+}
+
 async function requestJson<TBody = any>(
   app: Express,
   method: string,
@@ -277,6 +437,7 @@ async function requestJson<TBody = any>(
     return {
       status: response.status,
       body: text ? JSON.parse(text) as TBody : null,
+      cacheControl: response.headers.get("cache-control"),
     };
   } finally {
     await new Promise<void>((resolve, reject) => {
@@ -294,7 +455,17 @@ function listen(app: Express) {
 function assertNoProjectOwnerIds(value: unknown) {
   const json = JSON.stringify(value);
   assert.doesNotMatch(json, /"ownerUserId"|"owner_user_id"|"authorUserId"|"author_user_id"/);
-  assert.doesNotMatch(json, /owner-user|other-user/);
+  assert.doesNotMatch(json, /owner-user|other-user|viewer-user/);
+}
+
+function assertNoSharedProjectInternals(value: unknown) {
+  const json = JSON.stringify(value);
+  assertNoProjectOwnerIds(value);
+  assert.doesNotMatch(json, /"id"|"projectId"|"project_id"|"userId"|"user_id"|"memberId"|"member_id"/);
+  assert.doesNotMatch(json, /connectionTier|connection_tier|activity|storageBytes|publicReads|exports|billing/i);
+  assert.doesNotMatch(json, /apiKey|api_key|secret|provider|runtime|visualisationConfig|visualisation_config/i);
+  assert.doesNotMatch(json, /documentId|document_id|sourceLabel|source_label|sourceType|source_type|provenance|"body"/i);
+  assert.doesNotMatch(json, /email|isAdmin|is_admin|"tier"|auth_metadata|avatar/i);
 }
 
 function assertNoPublicProjectInternals(value: unknown) {
@@ -1008,10 +1179,6 @@ test("Project route errors return stable public copy", async () => {
       error: "Could not create Project.",
       code: "project_create_failed",
     },
-    ownerMembership: {
-      error: "Could not create Project owner membership.",
-      code: "project_owner_membership_create_failed",
-    },
     ownerRead: {
       error: "Could not load Project.",
       code: "project_owner_load_failed",
@@ -1056,7 +1223,7 @@ test("Project route errors return stable public copy", async () => {
     assert.equal(ownerList.status, 500);
     assertStableProjectError(ownerList.body, expected.ownerList);
 
-    db.insertErrors.set("projects", hostileProjectError("project create"));
+    db.rpcErrors.set("create_project_with_owner_v1", hostileProjectError("project create"));
     const create = await requestJson(app, "POST", "/projects", {
       token: "owner-token",
       body: {
@@ -1066,17 +1233,6 @@ test("Project route errors return stable public copy", async () => {
     });
     assert.equal(create.status, 500);
     assertStableProjectError(create.body, expected.create);
-
-    db.insertErrors.set("project_members", hostileProjectError("project owner membership"));
-    const ownerMembership = await requestJson(app, "POST", "/projects", {
-      token: "owner-token",
-      body: {
-        name: "Membership Failure",
-        slug: "membership-failure",
-      },
-    });
-    assert.equal(ownerMembership.status, 500);
-    assertStableProjectError(ownerMembership.body, expected.ownerMembership);
 
     db.operationErrors.set("select:projects", hostileProjectError("owner read"));
     const ownerRead = await requestJson(app, "GET", "/projects/owner-error-surface", { token: "owner-token" });
@@ -1163,6 +1319,31 @@ test("project create writes owner project and deterministic owner member row", a
   );
 
   setSupabaseAdminForTests(null);
+});
+
+test("project create RPC is atomic when owner membership creation fails", async () => {
+  const db = new InMemorySupabase();
+  db.failAtomicOwnerMembership = true;
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const response = await requestJson(app, "POST", "/projects", {
+      token: "owner-token",
+      body: { name: "Atomic Project", slug: "atomic-project" },
+    });
+
+    assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not create Project.",
+      code: "project_create_failed",
+    });
+    assert.equal(db.tables.projects.length, 0);
+    assert.equal(db.tables.project_members.length, 0);
+    assert.deepEqual(db.rpcCalls.map((call) => call.name), ["create_project_with_owner_v1"]);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
 });
 
 test("project list and read are scoped to the authenticated owner", async () => {
@@ -1584,5 +1765,601 @@ test("project read returns zero-state and owner-scoped activity aggregation", as
     });
   } finally {
     setSupabaseAdminForTests(null);
+  }
+});
+
+test("owner invitation uses exact case-sensitive usernames and sanitized current-member readback", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000700",
+    owner_user_id: "owner-user",
+    name: "Shared Field Lab",
+    slug: "shared-field-lab",
+    visibility: "private",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    for (const body of [
+      { username: "bad handle" },
+      { username: "ab" },
+      { username: "Exact_Viewer", actorUserId: "viewer-user" },
+    ]) {
+      const invalid = await requestJson(app, "POST", "/projects/shared-field-lab/invitations", {
+        token: "owner-token",
+        body,
+      });
+      assert.equal(invalid.status, 400);
+      assert.equal(JSON.stringify(invalid.body).includes(JSON.stringify(body.username)), false);
+    }
+
+    const wrongCase = await requestJson(app, "POST", "/projects/shared-field-lab/invitations", {
+      token: "owner-token",
+      body: { username: "exact_Viewer" },
+    });
+    assert.equal(wrongCase.status, 404);
+    assert.equal(JSON.stringify(wrongCase.body).includes("exact_Viewer"), false);
+
+    const self = await requestJson(app, "POST", "/projects/shared-field-lab/invitations", {
+      token: "owner-token",
+      body: { username: "Owner_One" },
+    });
+    assert.equal(self.status, 404);
+    assert.equal(JSON.stringify(self.body).includes("Owner_One"), false);
+
+    const invited = await requestJson<{ member: Row }>(app, "POST", "/projects/shared-field-lab/invitations", {
+      token: "owner-token",
+      body: { username: "  Exact_Viewer  " },
+    });
+    assert.equal(invited.status, 201);
+    assert.equal(invited.cacheControl, "private, no-store");
+    assert.deepEqual(Object.keys(invited.body.member).sort(), [
+      "displayName",
+      "expiresAt",
+      "invitedAt",
+      "role",
+      "status",
+      "username",
+    ]);
+    assert.equal(invited.body.member.username, "Exact_Viewer");
+    assert.equal(invited.body.member.status, "invited");
+    assertNoSharedProjectInternals(invited.body);
+
+    const duplicate = await requestJson(app, "POST", "/projects/shared-field-lab/invitations", {
+      token: "owner-token",
+      body: { username: "Exact_Viewer" },
+    });
+    assert.equal(duplicate.status, 409);
+    assert.equal(db.tables.project_members.filter((row) => row.user_id === "viewer-user").length, 1);
+
+    const ownerMembers = await requestJson<{ members: Row[] }>(app, "GET", "/projects/shared-field-lab/members", {
+      token: "owner-token",
+    });
+    assert.equal(ownerMembers.status, 200);
+    assert.deepEqual(ownerMembers.body.members, [invited.body.member]);
+    assertNoSharedProjectInternals(ownerMembers.body);
+
+    const crossOwner = await requestJson(app, "GET", "/projects/shared-field-lab/members", {
+      token: "other-token",
+    });
+    assert.equal(crossOwner.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("only the target sees an unexpired invitation and invited viewers cannot open Project detail", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000710",
+    owner_user_id: "owner-user",
+    name: "Invitation Project",
+    slug: "invitation-project",
+    description: "Bounded invitation metadata.",
+    visibility: "unlisted",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "invited",
+    invite_expires_at: "2026-08-13T09:00:00.000Z",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "other-user",
+    role: "viewer",
+    status: "removed",
+    invite_expires_at: "2026-07-01T09:00:00.000Z",
+    removed_at: "2026-07-02T09:00:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const target = await requestJson<{ invitations: Row[] }>(app, "GET", "/projects/invitations", {
+      token: "viewer-token",
+    });
+    assert.equal(target.status, 200);
+    assert.equal(target.cacheControl, "private, no-store");
+    assert.equal(target.body.invitations.length, 1);
+    assert.deepEqual(Object.keys(target.body.invitations[0]).sort(), [
+      "expiresAt",
+      "invitedAt",
+      "owner",
+      "project",
+      "role",
+      "status",
+    ]);
+    assert.deepEqual(Object.keys(target.body.invitations[0].project).sort(), [
+      "description",
+      "name",
+      "slug",
+      "visibility",
+    ]);
+    assert.deepEqual(Object.keys(target.body.invitations[0].owner).sort(), ["displayName", "username"]);
+    assertNoSharedProjectInternals(target.body);
+
+    const unrelated = await requestJson<{ invitations: Row[] }>(app, "GET", "/projects/invitations", {
+      token: "other-token",
+    });
+    assert.deepEqual(unrelated.body.invitations, []);
+
+    const invitedDetail = await requestJson(app, "GET", "/projects/invitation-project", {
+      token: "viewer-token",
+    });
+    assert.equal(invitedDetail.status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("active viewer receives only the shared Project allowlist and eligible public hrefs", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000720",
+    owner_user_id: "owner-user",
+    name: "Collaborative Project",
+    slug: "collaborative-project",
+    description: "A bounded viewer Project.",
+    visibility: "public",
+    connection_tier: "tier_3_lab",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "active",
+    invite_expires_at: "2026-08-13T09:00:00.000Z",
+    responded_at: "2026-07-30T10:00:00.000Z",
+  });
+  const publicSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000720",
+    owner_user_id: "owner-user",
+    project_id: project.id,
+    project_name: "Public Viewer Space",
+    slug: "public-viewer-space",
+    description: "Public metadata.",
+    visibility: "public",
+    visualisation_type: "timeline",
+  });
+  const privateSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000721",
+    owner_user_id: "owner-user",
+    project_id: project.id,
+    project_name: "Private Viewer Space",
+    slug: "private-viewer-space",
+    description: "Private bounded metadata.",
+    visibility: "private",
+    visualisation_type: "node_field",
+    api_key_hash: "must-not-leak",
+    provider_policy: "must-not-leak",
+  });
+  db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000722",
+    owner_user_id: "other-user",
+    project_id: project.id,
+    project_name: "Foreign Space",
+    slug: "foreign-space",
+    visibility: "public",
+  });
+  const publicDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000720",
+    author_user_id: "owner-user",
+    title: "Public finding",
+    slug: "private-document-slug",
+    document_type: "research",
+    status: "published",
+    visibility: "public",
+    published_at: "2026-07-29T12:00:00.000Z",
+    body: "must-not-leak",
+    source_label: "must-not-leak",
+  });
+  const privateDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000721",
+    author_user_id: "owner-user",
+    title: "Private method",
+    slug: "private-method-slug",
+    document_type: "field_log",
+    status: "draft",
+    visibility: "private",
+    body: "must-not-leak",
+  });
+  const foreignDocument = db.insertRow("documents", {
+    id: "30000000-0000-4000-8000-000000000722",
+    author_user_id: "other-user",
+    title: "Foreign evidence",
+    status: "published",
+    visibility: "public",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: publicSpace.id,
+    document_id: publicDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "finding",
+    link_visibility: "public",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: privateSpace.id,
+    document_id: privateDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "methodology",
+    link_visibility: "owner",
+  });
+  db.insertRow("developer_space_documents", {
+    developer_space_id: publicSpace.id,
+    document_id: foreignDocument.id,
+    owner_user_id: "owner-user",
+    document_role: "note",
+    link_visibility: "public",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const list = await requestJson<{ projects: Row[]; sharedProjects: Row[] }>(app, "GET", "/projects", {
+      token: "viewer-token",
+    });
+    assert.equal(list.status, 200);
+    assert.deepEqual(list.body.projects, []);
+    assert.equal(list.body.sharedProjects.length, 1);
+    assert.deepEqual(Object.keys(list.body.sharedProjects[0]).sort(), [
+      "access",
+      "createdAt",
+      "description",
+      "name",
+      "owner",
+      "publicHref",
+      "slug",
+      "updatedAt",
+      "visibility",
+    ]);
+    assert.equal(list.body.sharedProjects[0].publicHref, "/projects/public/collaborative-project");
+    assertNoSharedProjectInternals(list.body);
+
+    const detail = await requestJson<Row>(app, "GET", "/projects/collaborative-project", {
+      token: "viewer-token",
+    });
+    assert.equal(detail.status, 200);
+    assert.equal(detail.cacheControl, "private, no-store");
+    assert.deepEqual(Object.keys(detail.body).sort(), ["access", "developerSpaces", "evidence", "owner", "project"]);
+    assert.deepEqual(detail.body.access, { role: "viewer", readOnly: true });
+    assert.deepEqual(detail.body.developerSpaces.map((space: Row) => ({
+      name: space.projectName,
+      publicHref: space.publicHref,
+    })), [
+      { name: "Private Viewer Space", publicHref: null },
+      { name: "Public Viewer Space", publicHref: "/developer-spaces/public-viewer-space" },
+    ]);
+    assert.equal(detail.body.evidence.length, 2);
+    const evidenceByTitle = new Map<string, Row>(
+      detail.body.evidence.map((item: Row) => [item.document.title, item])
+    );
+    assert.equal(evidenceByTitle.get("Public finding").publicHref, "/developer-spaces/public-viewer-space");
+    assert.equal(evidenceByTitle.get("Private method").publicHref, null);
+    assert.equal(evidenceByTitle.has("Foreign evidence"), false);
+    assertNoSharedProjectInternals(detail.body);
+    assert.equal(JSON.stringify(detail.body).includes("must-not-leak"), false);
+    assert.equal(JSON.stringify(detail.body).includes("private-document-slug"), false);
+
+    const ownerDetail = await requestJson<Row>(app, "GET", "/projects/collaborative-project", {
+      token: "owner-token",
+    });
+    assert.equal(ownerDetail.status, 200);
+    assert.deepEqual(ownerDetail.body.access, { role: "owner", readOnly: false });
+    assert.equal(ownerDetail.body.project.connectionTier, "tier_3_lab");
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("active Project viewer gains no Developer Space owner, usage, key, document, or export route", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000725",
+    owner_user_id: "owner-user",
+    name: "Boundary Project",
+    slug: "boundary-project",
+    visibility: "private",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "active",
+    invite_expires_at: "2026-08-13T09:00:00.000Z",
+    responded_at: "2026-07-30T10:00:00.000Z",
+  });
+  const privateSpace = db.insertRow("developer_spaces", {
+    id: "20000000-0000-4000-8000-000000000725",
+    owner_user_id: "owner-user",
+    project_id: project.id,
+    project_name: "Boundary Space",
+    slug: "boundary-space",
+    visibility: "private",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectBoundaryApp();
+
+  try {
+    const sharedDetail = await requestJson(app, "GET", "/projects/boundary-project", { token: "viewer-token" });
+    assert.equal(sharedDetail.status, 200);
+
+    const probes: Array<[string, string, unknown?]> = [
+      ["GET", "/developer-spaces/boundary-space"],
+      ["GET", `/developer-spaces/${privateSpace.id}/usage`],
+      ["GET", `/developer-spaces/${privateSpace.id}/agent/actions`],
+      ["POST", `/developer-spaces/${privateSpace.id}/api-key`, {}],
+      ["POST", `/developer-spaces/${privateSpace.id}/documents`, { documentId: "30000000-0000-4000-8000-000000000725" }],
+      ["GET", "/exports/projects/boundary-project"],
+      ["POST", "/exports/projects/boundary-project", {}],
+      ["GET", `/exports/developer-spaces/${privateSpace.id}`],
+      ["POST", `/exports/developer-spaces/${privateSpace.id}`, {}],
+    ];
+
+    for (const [method, path, body] of probes) {
+      const response = await requestJson(app, method, path, {
+        token: "viewer-token",
+        ...(body === undefined ? {} : { body }),
+      });
+      assert.equal([403, 404].includes(response.status), true, `${method} ${path} must stay owner-only`);
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("revoke removes fresh shared reads and stale invitations can only start a fresh lifecycle", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000730",
+    owner_user_id: "owner-user",
+    name: "Lifecycle Project",
+    slug: "lifecycle-project",
+    visibility: "private",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "active",
+    invite_expires_at: "2026-08-13T09:00:00.000Z",
+    responded_at: "2026-07-30T09:30:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const membersBefore = await requestJson<{ members: Row[] }>(app, "GET", "/projects/lifecycle-project/members", {
+      token: "owner-token",
+    });
+    assert.equal(membersBefore.body.members[0].status, "active");
+    assert.equal(Object.prototype.hasOwnProperty.call(membersBefore.body.members[0], "expiresAt"), false);
+    assert.equal(Object.prototype.hasOwnProperty.call(membersBefore.body.members[0], "respondedAt"), true);
+
+    const revoked = await requestJson(app, "POST", "/projects/lifecycle-project/members/revoke", {
+      token: "owner-token",
+      body: { username: "Exact_Viewer" },
+    });
+    assert.equal(revoked.status, 200);
+    assert.deepEqual(revoked.body, { status: "removed" });
+
+    const freshDetail = await requestJson(app, "GET", "/projects/lifecycle-project", { token: "viewer-token" });
+    assert.equal(freshDetail.status, 404);
+    const freshList = await requestJson<{ sharedProjects: Row[] }>(app, "GET", "/projects", {
+      token: "viewer-token",
+    });
+    assert.deepEqual(freshList.body.sharedProjects, []);
+
+    const reinvited = await requestJson(app, "POST", "/projects/lifecycle-project/invitations", {
+      token: "owner-token",
+      body: { username: "Exact_Viewer" },
+    });
+    assert.equal(reinvited.status, 201);
+    assert.equal(db.tables.project_members.filter((row) => row.user_id === "viewer-user").length, 2);
+
+    const currentInvitation = db.tables.project_members.find((row) => (
+      row.user_id === "viewer-user" && row.status === "invited"
+    ));
+    currentInvitation.invite_expires_at = "2026-07-01T00:00:00.000Z";
+    const stale = await requestJson(app, "POST", "/projects/lifecycle-project/invitation/accept", {
+      token: "viewer-token",
+      body: {},
+    });
+    assert.equal(stale.status, 410);
+    assert.equal(currentInvitation.status, "removed");
+
+    const freshInvitation = await requestJson(app, "POST", "/projects/lifecycle-project/invitations", {
+      token: "owner-token",
+      body: { username: "Exact_Viewer" },
+    });
+    assert.equal(freshInvitation.status, 201);
+    const declined = await requestJson(app, "POST", "/projects/lifecycle-project/invitation/decline", {
+      token: "viewer-token",
+      body: {},
+    });
+    assert.equal(declined.status, 200);
+    assert.deepEqual(declined.body, { status: "removed" });
+    assert.equal((await requestJson(app, "GET", "/projects/lifecycle-project", { token: "viewer-token" })).status, 404);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("accept grants only exact active viewer status while dormant and stray roles stay denied", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000740",
+    owner_user_id: "owner-user",
+    name: "Role Project",
+    slug: "role-project",
+    visibility: "private",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  const invitation = db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "viewer-user",
+    role: "viewer",
+    status: "invited",
+    invite_expires_at: "2026-08-13T09:00:00.000Z",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const accepted = await requestJson(app, "POST", "/projects/role-project/invitation/accept", {
+      token: "viewer-token",
+      body: {},
+    });
+    assert.equal(accepted.status, 200);
+    assert.deepEqual(accepted.body, { status: "active" });
+    assert.equal((await requestJson(app, "GET", "/projects/role-project", { token: "viewer-token" })).status, 200);
+
+    invitation.status = "removed";
+    invitation.removed_at = "2026-07-30T11:00:00.000Z";
+    for (const role of ["admin", "editor", "billing", "owner"]) {
+      const dormant = db.insertRow("project_members", {
+        project_id: project.id,
+        user_id: "viewer-user",
+        role,
+        status: "active",
+      });
+      const denied = await requestJson(app, "GET", "/projects/role-project", { token: "viewer-token" });
+      assert.equal(denied.status, 404, `${role} must not grant shared Project access`);
+      dormant.status = "removed";
+    }
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("collaboration failures return stable copy without submitted usernames or service details", async () => {
+  const db = new InMemorySupabase();
+  const project = db.insertRow("projects", {
+    id: "10000000-0000-4000-8000-000000000750",
+    owner_user_id: "owner-user",
+    name: "Error Project",
+    slug: "collaboration-error-project",
+  });
+  db.insertRow("project_members", {
+    project_id: project.id,
+    user_id: "owner-user",
+    role: "owner",
+    status: "active",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    db.rpcErrors.set("invite_project_viewer_v1", hostileProjectError("viewer invite"));
+    const response = await requestJson(app, "POST", "/projects/collaboration-error-project/invitations", {
+      token: "owner-token",
+      body: { username: "Exact_Viewer" },
+    });
+    assert.equal(response.status, 500);
+    assert.deepEqual(response.body, {
+      error: "Could not update Project collaboration.",
+      code: "project_collaboration_update_failed",
+    });
+    assertStableProjectError(response.body, response.body);
+    assert.equal(JSON.stringify(response.body).includes("Exact_Viewer"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("migration 090 locks viewer lifecycle, owner invariants, raw access, and service-only RPCs", () => {
+  const migration = readFileSync(
+    resolve("infra/supabase/migrations/090_project_collaboration_viewer_membership.sql"),
+    "utf8"
+  );
+  const lifecycleCheck = migration.match(/add constraint project_members_viewer_lifecycle_check[\s\S]*?not valid;/i)?.[0] ?? "";
+
+  assert.match(migration, /add column if not exists invite_expires_at timestamptz/i);
+  assert.match(migration, /add column if not exists responded_at timestamptz/i);
+  assert.match(migration, /add column if not exists removed_at timestamptz/i);
+  assert.match(lifecycleCheck, /status = 'invited'[\s\S]*invite_expires_at is not null/i);
+  assert.match(lifecycleCheck, /status = 'active'[\s\S]*responded_at is not null/i);
+  assert.match(lifecycleCheck, /status = 'removed'[\s\S]*removed_at is not null/i);
+  assert.doesNotMatch(lifecycleCheck, /now\s*\(/i);
+  assert.match(migration, /validate constraint project_members_viewer_lifecycle_check/i);
+  assert.match(migration, /project_members_active_owner_project_idx[\s\S]*where role = 'owner' and status = 'active'/i);
+  assert.match(migration, /project_members_pending_viewer_user_idx[\s\S]*user_id, role, status, invite_expires_at/i);
+  assert.match(migration, /create constraint trigger trg_projects_owner_membership_invariant[\s\S]*deferrable initially deferred/i);
+  assert.match(migration, /create constraint trigger trg_project_members_owner_membership_invariant[\s\S]*deferrable initially deferred/i);
+  assert.match(migration, /drop policy if exists "project_members_all_project_owner"/i);
+  assert.match(migration, /revoke all on table public\.project_members from public, anon, authenticated/i);
+
+  for (const functionName of [
+    "create_project_with_owner_v1",
+    "invite_project_viewer_v1",
+    "respond_project_viewer_invitation_v1",
+    "revoke_project_viewer_v1",
+  ]) {
+    const functionBlock = migration.match(new RegExp(
+      `create or replace function public\\.${functionName}\\([\\s\\S]*?\\$\\$;`,
+      "i"
+    ))?.[0] ?? "";
+    assert.match(functionBlock, /security definer/i, `${functionName} must be SECURITY DEFINER`);
+    assert.match(functionBlock, /set search_path = pg_catalog, public/i, `${functionName} needs a fixed search path`);
+    assert.match(migration, new RegExp(`alter function public\\.${functionName}\\([\\s\\S]*?owner to postgres`, "i"));
+    assert.match(migration, new RegExp(`revoke all on function public\\.${functionName}\\([\\s\\S]*?from public, anon, authenticated`, "i"));
+    assert.match(migration, new RegExp(`grant execute on function public\\.${functionName}\\([\\s\\S]*?to service_role`, "i"));
   }
 });

@@ -2,8 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import type { ProjectInvitation, SharedProjectSummary } from "@station/types";
 import { apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
+import {
+  projectCollaborationDate,
+  projectInvitationActionPath,
+} from "@/lib/project-collaboration";
 
 type ProjectVisibility = "private" | "unlisted" | "community" | "public";
 type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
@@ -47,11 +52,15 @@ function connectionLabel(value: ProjectConnectionTier) {
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [sharedProjects, setSharedProjects] = useState<SharedProjectSummary[]>([]);
+  const [invitations, setInvitations] = useState<ProjectInvitation[]>([]);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [pendingInvitationAction, setPendingInvitationAction] = useState<string | null>(null);
   const [slugEdited, setSlugEdited] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [invitationError, setInvitationError] = useState<string | null>(null);
   const [createdMessage, setCreatedMessage] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -66,16 +75,63 @@ export default function ProjectsPage() {
       }
 
       setToken(session.access_token);
-      try {
-        const data = await apiGet<{ projects: ProjectSummary[] }>("/projects", session.access_token);
-        setProjects(data.projects ?? []);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "Could not load Projects.");
-      } finally {
-        setLoading(false);
+      const [projectsResult, invitationsResult] = await Promise.allSettled([
+        apiGet<{ projects: ProjectSummary[]; sharedProjects: SharedProjectSummary[] }>("/projects", session.access_token),
+        apiGet<{ invitations: ProjectInvitation[] }>("/projects/invitations", session.access_token),
+      ]);
+
+      if (projectsResult.status === "fulfilled") {
+        setProjects(projectsResult.value.projects ?? []);
+        setSharedProjects(projectsResult.value.sharedProjects ?? []);
+      } else {
+        setError(projectsResult.reason instanceof Error ? projectsResult.reason.message : "Could not load Projects.");
       }
+
+      if (invitationsResult.status === "fulfilled") {
+        setInvitations(invitationsResult.value.invitations ?? []);
+      } else {
+        setInvitationError(
+          invitationsResult.reason instanceof Error
+            ? invitationsResult.reason.message
+            : "Could not load Project invitations."
+        );
+      }
+      setLoading(false);
     });
   }, []);
+
+  async function refreshCollaboration(sessionToken: string) {
+    const [projectData, invitationData] = await Promise.all([
+      apiGet<{ projects: ProjectSummary[]; sharedProjects: SharedProjectSummary[] }>("/projects", sessionToken),
+      apiGet<{ invitations: ProjectInvitation[] }>("/projects/invitations", sessionToken),
+    ]);
+    setProjects(projectData.projects ?? []);
+    setSharedProjects(projectData.sharedProjects ?? []);
+    setInvitations(invitationData.invitations ?? []);
+  }
+
+  async function handleInvitationAction(invitation: ProjectInvitation, action: "accept" | "decline") {
+    if (!token) return;
+    const actionKey = `${invitation.project.slug}:${action}`;
+    setPendingInvitationAction(actionKey);
+    setInvitationError(null);
+    setCreatedMessage(null);
+    let actionCompleted = false;
+    try {
+      await apiPost(projectInvitationActionPath(invitation.project.slug, action), {}, token);
+      actionCompleted = true;
+      await refreshCollaboration(token);
+      setCreatedMessage(action === "accept" ? "Project invitation accepted." : "Project invitation declined.");
+    } catch (e) {
+      setInvitationError(
+        actionCompleted
+          ? "The invitation changed, but the latest Project lists could not be loaded. Refresh to see current access."
+          : e instanceof Error ? e.message : "Could not update this Project invitation."
+      );
+    } finally {
+      setPendingInvitationAction(null);
+    }
+  }
 
   function handleNameChange(value: string) {
     setName(value);
@@ -153,23 +209,105 @@ export default function ProjectsPage() {
       <div className="station-page-inner station-grid">
         <header className="station-page-header">
           <div>
-            <div className="station-eyebrow">Private Projects</div>
+            <div className="station-eyebrow">Project workspaces</div>
             <h1 className="station-page-title">Projects</h1>
             <p className="station-page-lede">
-              Owner-only anchors for active work. Create a Project, then use attached Developer Spaces to see what already belongs to it.
+              Manage Projects you own, respond to invitations, and open Projects shared with you read-only.
             </p>
           </div>
         </header>
 
         {error && <div className="station-notice" data-tone="error">{error}</div>}
+        {invitationError && <div className="station-notice" data-tone="error">{invitationError}</div>}
         {createdMessage && <div className="station-notice" data-tone="success">{createdMessage}</div>}
+
+        <section className="project-collaboration-section" aria-labelledby="project-invitations-heading">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2 id="project-invitations-heading">Pending invitations</h2>
+              <p>Invitations to view a Project read-only.</p>
+            </div>
+            <span className="station-status-pill">{invitations.length}</span>
+          </div>
+          {invitations.length === 0 ? (
+            <div className="project-collaboration-empty">No pending Project invitations.</div>
+          ) : (
+            <div className="project-collaboration-list">
+              {invitations.map((invitation) => (
+                <article
+                  key={`${invitation.project.slug}:${invitation.invitedAt}`}
+                  className="station-card project-collaboration-card"
+                >
+                  <div className="project-collaboration-card-copy">
+                    <div className="kicker">From @{invitation.owner.username}</div>
+                    <h3>{invitation.project.name}</h3>
+                    <p>{invitation.project.description || "No description yet."}</p>
+                    <small>Expires {projectCollaborationDate(invitation.expiresAt)}</small>
+                  </div>
+                  <div className="station-action-row">
+                    <button
+                      className="station-link-button"
+                      type="button"
+                      disabled={Boolean(pendingInvitationAction)}
+                      onClick={() => handleInvitationAction(invitation, "accept")}
+                    >
+                      {pendingInvitationAction === `${invitation.project.slug}:accept` ? "Accepting..." : "Accept"}
+                    </button>
+                    <button
+                      className="station-muted-button"
+                      type="button"
+                      disabled={Boolean(pendingInvitationAction)}
+                      onClick={() => handleInvitationAction(invitation, "decline")}
+                    >
+                      {pendingInvitationAction === `${invitation.project.slug}:decline` ? "Declining..." : "Decline"}
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="project-collaboration-section" aria-labelledby="shared-projects-heading">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2 id="shared-projects-heading">Shared with you</h2>
+              <p>Projects where you have active read-only viewer access.</p>
+            </div>
+            <span className="station-status-pill">{sharedProjects.length}</span>
+          </div>
+          {sharedProjects.length === 0 ? (
+            <div className="project-collaboration-empty">No Projects are currently shared with you.</div>
+          ) : (
+            <div className="project-collaboration-list">
+              {sharedProjects.map((project) => (
+                <article key={project.slug} className="station-card project-collaboration-card">
+                  <div className="project-collaboration-card-copy">
+                    <div className="kicker">Read-only / @{project.owner.username}</div>
+                    <h3>{project.name}</h3>
+                    <p>{project.description || "No description yet."}</p>
+                    <small>Updated {projectCollaborationDate(project.updatedAt)}</small>
+                  </div>
+                  <div className="station-action-row">
+                    <Link className="station-muted-button" href={`/projects/${encodeURIComponent(project.slug)}`}>
+                      Open shared Project
+                    </Link>
+                    {project.publicHref ? (
+                      <Link className="station-muted-button" href={project.publicHref}>Public page</Link>
+                    ) : null}
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
 
         <section className="station-grid station-grid-2">
           <form className="station-panel" onSubmit={handleCreate} style={{ display: "grid", gap: "0.9rem" }}>
             <div>
               <h2 style={{ margin: 0, fontSize: "1.1rem" }}>Create Project</h2>
               <p style={{ margin: "0.3rem 0 0", color: "#687078", fontSize: "0.9rem", lineHeight: 1.5 }}>
-                This creates a private Showcase Project record only. Attachment and member workflows stay separate.
+                This creates a Showcase Project. Viewer invitations remain read-only and use exact Station usernames.
               </p>
             </div>
 

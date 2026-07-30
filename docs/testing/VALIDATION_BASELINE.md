@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR534 Project Collaboration Membership Ready For ARGUS
+
+DAEDALUS completed the bounded source implementation on 2026-07-30:
+
+- `docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_DAEDALUS_RESULT.md`
+
+```text
+READY_PR534_PROJECT_COLLABORATION_MEMBERSHIP_FOR_ARGUS
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `31/31` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| `npx --yes pnpm@10.32.1 --filter @station/db build` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/types build` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/api typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web typecheck` | Pass |
+| `npx --yes pnpm@10.32.1 --filter @station/web lint` | Pass; zero warnings/errors |
+| Mocked desktop/mobile browser proof | Pass; owner/invited/active-viewer surfaces, long labels, focus, mobile fit, zero overflow, zero console errors, and exact viewer owner-resource request count `0` |
+| Atomic/role/visibility/adjacent-route proof | Pass; create rollback, stale/re-invite/decline, immediate post-revoke denial, dormant-role denial, DTO/public-href predicates, and Developer Space/export owner-only routes covered |
+| Changed-path/dependency/leakage review | Pass; accepted file boundary only, no lockfile/dependency drift, no browser raw-id/private-data/service-error exposure |
+| `git diff --check` | Pass; line-ending notices only |
+
+Migration `090` has not been applied to hosted Supabase. Local source readiness
+does not supersede ARGUS review or the later separately authorized exact-SHA
+disposable hosted proof.
+
 ## PR534 Project Collaboration Preflight Accepted
 
 ARGUS completed the hostile membership preflight on 2026-07-30:

@@ -4,6 +4,93 @@ import type {
 } from "./developer-space";
 import type { DocumentRecord } from "./document";
 
+export type ProjectVisibility = "private" | "unlisted" | "community" | "public";
+export type ProjectConnectionTier = "tier_1_showcase" | "tier_2_hosted" | "tier_3_lab";
+
+export interface ProjectOwnerAccess {
+  role: "owner";
+  readOnly: false;
+}
+
+export interface ProjectViewerAccess {
+  role: "viewer";
+  readOnly: true;
+}
+
+export type ProjectAccess = ProjectOwnerAccess | ProjectViewerAccess;
+
+export interface ProjectCollaboratorIdentity {
+  username: string;
+  displayName: string | null;
+}
+
+export interface ProjectInvitation {
+  project: {
+    name: string;
+    slug: string;
+    description: string | null;
+    visibility: ProjectVisibility;
+  };
+  owner: ProjectCollaboratorIdentity;
+  role: "viewer";
+  status: "invited";
+  invitedAt: string;
+  expiresAt: string;
+}
+
+export interface ProjectViewerMember extends ProjectCollaboratorIdentity {
+  role: "viewer";
+  status: "invited" | "active";
+  invitedAt: string;
+  expiresAt?: string;
+  respondedAt?: string;
+}
+
+export interface SharedProjectSummary {
+  name: string;
+  slug: string;
+  description: string | null;
+  visibility: ProjectVisibility;
+  createdAt: string;
+  updatedAt: string;
+  owner: ProjectCollaboratorIdentity;
+  access: ProjectViewerAccess;
+  publicHref: string | null;
+}
+
+export interface SharedProjectDeveloperSpaceSummary {
+  projectName: string;
+  slug: string;
+  description: string | null;
+  visibility: ProjectVisibility;
+  visualisationType: "node_field" | "timeline" | "world_map" | "constellation";
+  updatedAt: string;
+  publicHref: string | null;
+}
+
+export interface SharedProjectEvidenceItem {
+  developerSpace: {
+    projectName: string;
+    slug: string;
+  };
+  document: {
+    title: string;
+    documentType: DocumentRecord["documentType"];
+    updatedAt: string;
+    publishedAt?: string;
+  };
+  role: DeveloperSpaceDocumentRole;
+  publicHref: string | null;
+}
+
+export interface SharedProjectDetailResponse {
+  access: ProjectViewerAccess;
+  owner: ProjectCollaboratorIdentity;
+  project: Omit<SharedProjectSummary, "owner" | "access">;
+  developerSpaces: SharedProjectDeveloperSpaceSummary[];
+  evidence: SharedProjectEvidenceItem[];
+}
+
 export interface ProjectEvidenceItem {
   developerSpace: {
     id: string;
