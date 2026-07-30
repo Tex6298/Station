@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535B Institution Source Accepted
+
+ARGUS accepted the corrected source-only lane on 2026-07-30:
+
+- `docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_SOURCE_ONLY_WITH_ARGUS_PATCH
+```
+
+| Command / proof | ARGUS result |
+| --- | --- |
+| Corrected migration SHA-256 | `B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3` |
+| Disposable exact-migration PostgreSQL hostile audit | Pass; `3` tables, `0` browser policies/grants, `11` denials, `9` events, residue `0` |
+| Inherited full-profile reader regression | Pass; migration rejected before `public.institutions` exists |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass, `14/14` |
+| Profile/auth | Pass, `5/5` and `24/24` |
+| Projects/Spaces/Developer Spaces | Pass, `31/31`, `11/11`, and `61/61` |
+| Writing/community/exports | Pass, `35/35`, `57/57`, and `15/15` |
+| API/web typecheck; web lint | Pass |
+| Sensitive-value scan; `git diff --check` | Pass, `0` hits / clean |
+| Hosted migrations / writes / fixtures / deployments | `0 / 0 / 0 / 0` |
+
+Migration `092` remains unapplied. MIMIR owns a truthful source-only terminal
+closeout under Marty's stop instruction; no hosted proof, deployment,
+hardening, cleanup, successor feature, or roadmap lane may be opened.
+
 ## PR535B Exact Profile ACL Guard Corrected For ARGUS
 
 DAEDALUS completed the bounded migration-`092` correction on 2026-07-30:
@@ -39,7 +66,7 @@ The correction changes only migration `092`, its focused regression, and
 source/status evidence. It does not alter profile policy semantics, apply the
 migration hosted, or expand the PR535B product surface.
 
-## PR535B Exact Profile ACL Guard Required
+## PR535B Exact Profile ACL Guard Required - Resolved
 
 ARGUS completed independent source review on 2026-07-30:
 
@@ -68,10 +95,10 @@ from its own RLS-authorized row. Hosted writes were `0`.
 | API/web typecheck; web lint | Pass |
 | Hosted migrations / writes / fixtures | `0 / 0 / 0` |
 
-DAEDALUS must enforce the exact direct migration-`091` ACL and exact effective
-anon/authenticated profile privileges before and after migration `092`, prove
-inherited drift aborts before institution object creation, and return the
-source to ARGUS. No hosted application is authorized.
+DAEDALUS subsequently enforced the exact direct migration-`091` ACL and exact
+effective anon/authenticated profile privileges before and after migration
+`092`. The accepted result above proves inherited drift now aborts before
+institution object creation. No hosted application is authorized.
 
 ## PR535B Institution Principal, Team, And Public Identity Ready For ARGUS
 

@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535B corrected profile ACL guard review
+## Current gate - PR535B source accepted for terminal MIMIR closeout
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -88,7 +88,8 @@ READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
 BLOCK_PR535B_MIGRATION_092_PROFILE_PREFLIGHT_ACCEPTS_EFFECTIVE_PRIVILEGE_DRIFT
 READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_DAEDALUS
 READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS
+ACCEPT_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_SOURCE_ONLY_WITH_ARGUS_PATCH
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -188,8 +189,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should review the exact migration-092 direct/effective profile ACL correction and its accepted/inherited disposable execution proof. Migration `092` remains unapplied hosted.
+Next: MIMIR should close PR535B truthfully as source-only accepted with migration `092` unapplied, record Marty's terminal lane state, open no follow-on, and return all agents to foreground wait.
 ```
+
+ARGUS accepts corrected PR535B source-only. The exact accepted profile ACL
+applies in disposable PostgreSQL and an inherited full-profile reader now
+aborts before `public.institutions` exists. The three-table/six-RPC lifecycle,
+typed audit, owner/admin/member authority, bounded serializers, four web
+surfaces, member zero-fanout, and existing-resource non-inheritance pass.
+Focused `14/14`, profile `5/5`, auth `24/24`, Projects `31/31`, Spaces `11/11`,
+Developer Spaces `61/61`, writing `35/35`, community `57/57`, exports `15/15`,
+both typechecks, lint, sensitive-value scan, and diff checks pass. Migration
+`092` remains unapplied and hosted writes/fixtures/deployments are `0/0/0`.
+MIMIR owns a source-only terminal closeout and must not open a hosted follow-on.
 
 DAEDALUS corrected the sole ARGUS blocker. Migration `092` now requires the
 exact direct migration-`091` profile grant matrix and independently proves
@@ -202,17 +214,17 @@ focused `14/14`, required neighbors, SQL parse/execution, typecheck, and lint
 pass. Hosted migrations, writes, and fixtures remain `0/0/0`. ARGUS owns the
 bounded correction review.
 
-ARGUS blocks PR535B source acceptance on one executable privacy-precondition
-failure. Migration `092` commits when full profile SELECT is granted through a
+ARGUS's first review blocked PR535B on one executable privacy-precondition
+failure. The submitted migration committed when full profile SELECT was granted through a
 parent role inherited by `authenticated`; the own-row policy then permits
 private Stripe/provider-key projection even though `092` claims to require the
 exact accepted migration-`091` boundary. Normal exact-migration PostgreSQL
 execution otherwise passes the three-table, six-RPC, lifecycle, audit,
 browser-denial, and zero-residue contract. ARGUS also replaced the private
 index's inaccurate `Verified organisations` eyebrow with `Institution
-identities` and added a focused regression. DAEDALUS owns only the exact
-direct/effective ACL pre/post guard and proof. No hosted apply or expansion is
-authorized.
+identities` and added a focused regression. The exact direct/effective ACL
+pre/post correction above resolves that finding. No hosted apply or expansion
+is authorized.
 
 DAEDALUS implemented the frozen PR535B source-only institution loop. Migration
 `092` adds only immutable institution principal, member lifecycle, and typed
@@ -225,7 +237,7 @@ as `67` PostgreSQL statements, and all four routes pass desktop and `390x844`
 render proof. Web production compile/typecheck/page generation passes before
 the known Windows standalone symlink `EPERM`. Migration `092` was not applied
 hosted. ARGUS's independent review found the exact ACL-precondition blocker;
-the bounded correction above is ready for independent re-review.
+the bounded correction and complete source are independently accepted above.
 
 ARGUS accepts PR535A1 hosted migration and proof. Exact migration `091` is
 applied and ledgered once; one own-authority policy, browser table grants `0`,
@@ -235,8 +247,8 @@ hostile evidence proves own-row-only authority read and three denied writes
 without value drift. Fresh operator and independent ARGUS audits prove zero
 Auth/profile/persona/session/refresh residue, exact profile/unrelated row and
 catalog fingerprints, safe public serializers, and stable ready Railway
-deployments with zero executable drift. The profile blocker is repaired, but
-PR535 and migration `092` remain unauthorized until MIMIR's next decision.
+deployments with zero executable drift. The profile blocker is repaired;
+PR535B is now accepted source-only while migration `092` remains unapplied.
 
 DAEDALUS completed the authorized PR535A1 hosted repair. Exact migration `091`
 at SHA-256 `BEF7172884D8EF768091A8C65DC51166ADA3A82506492BDEA7F60607A8F967B8`
