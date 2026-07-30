@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR535B Institution principal/team/public identity
+## Current gate - PR535B exact profile ACL guard correction
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -85,7 +85,9 @@ ACCEPT_PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_AND_PROOF
 CLOSE_PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_HOSTED_ACCEPTED
 OPEN_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY
 READY_PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS
+BLOCK_PR535B_MIGRATION_092_PROFILE_PREFLIGHT_ACCEPTS_EFFECTIVE_PRIVILEGE_DRIFT
+READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_DAEDALUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -151,6 +153,7 @@ PR535A1 hosted review: docs/roadmap/PR535A1_PROFILE_BOUNDARY_HOSTED_MIGRATION_PR
 PR535A closeout: docs/roadmap/PR535A_PROFILE_BOUNDARY_CLOSEOUT_MIMIR.md
 PR535B Institution implementation: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS.md
 PR535B Institution result: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_DAEDALUS_RESULT.md
+PR535B Institution review: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_ARGUS_RESULT.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -184,8 +187,20 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should hostile-review the source-only PR535B implementation. Migration `092` remains unapplied and no hosted institution fixture exists.
+Next: DAEDALUS should make the exact migration-092 direct/effective profile ACL guard correction, prove inherited grant drift aborts before object creation, and wake ARGUS. Migration `092` remains unapplied hosted.
 ```
+
+ARGUS blocks PR535B source acceptance on one executable privacy-precondition
+failure. Migration `092` commits when full profile SELECT is granted through a
+parent role inherited by `authenticated`; the own-row policy then permits
+private Stripe/provider-key projection even though `092` claims to require the
+exact accepted migration-`091` boundary. Normal exact-migration PostgreSQL
+execution otherwise passes the three-table, six-RPC, lifecycle, audit,
+browser-denial, and zero-residue contract. ARGUS also replaced the private
+index's inaccurate `Verified organisations` eyebrow with `Institution
+identities` and added a focused regression. DAEDALUS owns only the exact
+direct/effective ACL pre/post guard and proof. No hosted apply or expansion is
+authorized.
 
 DAEDALUS implemented the frozen PR535B source-only institution loop. Migration
 `092` adds only immutable institution principal, member lifecycle, and typed
@@ -197,7 +212,8 @@ focused suite passes `12/12`, all required neighboring suites pass, SQL parses
 as `67` PostgreSQL statements, and all four routes pass desktop and `390x844`
 render proof. Web production compile/typecheck/page generation passes before
 the known Windows standalone symlink `EPERM`. Migration `092` was not applied
-hosted. ARGUS owns independent hostile source review.
+hosted. ARGUS's independent review found the exact ACL-precondition blocker
+above; the remaining submitted surface substantially passes.
 
 ARGUS accepts PR535A1 hosted migration and proof. Exact migration `091` is
 applied and ledgered once; one own-authority policy, browser table grants `0`,

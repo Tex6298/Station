@@ -78,3 +78,13 @@ test("member team rendering stays separated from owner controls", () => {
     assert.equal(memberBranch.includes(forbidden), false, `${forbidden} must not appear in member controls`);
   }
 });
+
+test("private institution index does not overclaim verification", () => {
+  const source = readFileSync(
+    resolve("apps/web/app/institutions/page.tsx"),
+    "utf8"
+  );
+
+  assert.match(source, /Institution identities/);
+  assert.doesNotMatch(source, /Verified organisations/);
+});

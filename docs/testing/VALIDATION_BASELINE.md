@@ -4,6 +4,40 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR535B Exact Profile ACL Guard Required
+
+ARGUS completed independent source review on 2026-07-30:
+
+- `docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_ARGUS_RESULT.md`
+
+```text
+BLOCK_PR535B_MIGRATION_092_PROFILE_PREFLIGHT_ACCEPTS_EFFECTIVE_PRIVILEGE_DRIFT
+READY_PR535B_EXACT_PROFILE_ACL_GUARD_FOR_DAEDALUS
+```
+
+The exact migration executes successfully under the accepted migration-`091`
+profile boundary, but its pre/post checks do not inspect effective privileges
+inherited through another role. Disposable PostgreSQL reproduced migration
+`092` committing while `authenticated` retained effective SELECT on private
+Stripe/provider-key profile columns and projected two dummy private markers
+from its own RLS-authorized row. Hosted writes were `0`.
+
+| Command / proof | ARGUS result |
+| --- | --- |
+| Exact migration execution on accepted profile ACL | Pass; `3` tables, `0` browser policies/grants, `6` service-only transitions |
+| Local PostgreSQL lifecycle/hostile audit | Pass; `8` denials, `9` typed events, cleanup residue `0` |
+| Inherited full-profile reader role repro | Block confirmed; migration commits and effective private projection remains |
+| `npm exec --yes pnpm@10.32.1 -- run test:institutions` | Pass after ARGUS wording patch, `13/13` |
+| `npm exec --yes pnpm@10.32.1 -- run test:profile-boundary` | Pass, `5/5` |
+| `npm exec --yes pnpm@10.32.1 -- run test:auth` | Pass, `24/24` |
+| API/web typecheck; web lint | Pass |
+| Hosted migrations / writes / fixtures | `0 / 0 / 0` |
+
+DAEDALUS must enforce the exact direct migration-`091` ACL and exact effective
+anon/authenticated profile privileges before and after migration `092`, prove
+inherited drift aborts before institution object creation, and return the
+source to ARGUS. No hosted application is authorized.
+
 ## PR535B Institution Principal, Team, And Public Identity Ready For ARGUS
 
 DAEDALUS completed the authorized source-only implementation on 2026-07-30:

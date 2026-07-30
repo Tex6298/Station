@@ -149,7 +149,7 @@ export default function InstitutionsPage() {
       <div className="station-page-inner station-grid">
         <header className="station-page-header">
           <div>
-            <div className="station-eyebrow">Verified organisations</div>
+            <div className="station-eyebrow">Institution identities</div>
             <h1 className="station-page-title">Institutions</h1>
             <p className="station-page-lede">Your institution identities and current team access.</p>
           </div>
