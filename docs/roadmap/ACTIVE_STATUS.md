@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR534 Project collaboration membership preflight open
+## Current gate - PR534 Project collaboration preflight accepted
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -59,7 +59,8 @@ ACCEPT_PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN_WITH_LIGHT_RECEIPT_CORRECTION
 READY_PR533_PRODUCT_OWNER_UI_RECONCILIATION_FOR_MIMIR_CLOSEOUT
 CLOSE_PR533_PRODUCT_OWNER_UI_RECONCILIATION_ACCEPTED
 OPEN_PR534_PROJECT_COLLABORATION_MEMBERSHIP_PREFLIGHT
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS
+ACCEPT_PR534_FOR_DAEDALUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -106,6 +107,7 @@ PR533 affected hosted rerun: docs/roadmap/PR533_HOSTED_STUDIO_RAIL_AND_SETTINGS_
 PR533 affected hosted rerun review: docs/roadmap/PR533_AFFECTED_HOSTED_STUDIO_SETTINGS_RERUN_ARGUS_RESULT.md
 PR533 closeout: docs/roadmap/PR533_PRODUCT_OWNER_UI_RECONCILIATION_CLOSEOUT_MIMIR.md
 PR534 Project collaboration preflight: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_PREFLIGHT_ARGUS.md
+PR534 Project collaboration preflight result: docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_PREFLIGHT_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
 PR527F closeout: docs/roadmap/PR527F_SETTINGS_PERSISTENCE_TRUTH_CLOSEOUT_MIMIR.md
 Partner pass: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_MIMIR.md
@@ -137,7 +139,7 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS should return the smallest safe Project collaboration implementation contract or one concrete blocker and its smallest direct unblock.
+Next: MIMIR should route DAEDALUS the accepted bounded viewer-collaboration implementation contract without widening roles or dependent-resource access.
 ```
 
 PR533 is accepted and closed. Adam's public-front-door and companion-first
@@ -146,12 +148,15 @@ loading, request fanout, quick-card interactions, relocated capability
 reachability, route/privacy boundaries, rail containment, and semantic Settings
 themes pass source review and exact-SHA hosted rehearsal.
 
-PR534 opens the next named Phase 3 capability independently: shared Project
-membership for research/developer collaboration. Existing `project_members`
-schema is not yet product truth because API and RLS authorization remain
-owner-only and invitation/acceptance behavior is absent. ARGUS owns the bounded
-authorization preflight before DAEDALUS implementation. No new external config
-is required for this preflight.
+ARGUS accepts PR534 for one bounded DAEDALUS implementation slice: exact
+case-sensitive Station-username invitation, invitee list/accept/decline,
+sanitized active-viewer Project list/detail, and owner cancel/revoke. The
+contract keeps `projects.owner_user_id` authoritative, uses service-only atomic
+membership RPCs, denies viewers raw table rows and every dependent-resource
+route, omits activity/export/private bodies and ids, and requires migration
+`090`, hostile source tests, then separate exact-SHA disposable hosted proof.
+This is preflight acceptance only; collaboration is not yet implemented or
+hosted-proven, and no external config is required.
 
 ARGUS accepts ARIADNE's affected exact-SHA hosted rerun with one narrow receipt
 correction. Web and API remained on reviewed `8e6cea04` before and after proof.

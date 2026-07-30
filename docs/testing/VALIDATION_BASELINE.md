@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR534 Project Collaboration Preflight Accepted
+
+ARGUS completed the hostile membership preflight on 2026-07-30:
+
+- `docs/roadmap/PR534_PROJECT_COLLABORATION_MEMBERSHIP_PREFLIGHT_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR534_FOR_DAEDALUS
+```
+
+Validation:
+
+| Command / proof | Result |
+| --- | --- |
+| Project schema/RLS/types audit | Pass as contract evidence; the existing skeleton remains owner-only product truth and dormant roles gain no inferred power |
+| Project API/UI/public/evidence audit | Pass as defect evidence; current owner detail and owner-side request fanout are explicitly unsafe to reuse for viewers |
+| Developer Space/document/export boundary audit | Pass; underlying private routes/tables remain owner-only and viewers receive only a separate Project DTO |
+| `npx --yes pnpm@10.32.1 test:projects` | Pass, `17/17` |
+| `npx --yes pnpm@10.32.1 test:developer-spaces` | Pass, `61/61` |
+| `npx --yes pnpm@10.32.1 test:exports` | Pass, `15/15` |
+| `npx --yes pnpm@10.32.1 test:auth` | Pass, `24/24` |
+| Opening handoff `git diff --check` and sensitive-literal scan | Pass; no whitespace error or secret-shaped value found |
+
+The accepted contract is one source slice: exact case-sensitive Station handle
+invitation, invitee list/accept/decline, sanitized active-viewer Project
+list/detail, and owner cancel/revoke. Migration `090`, service-only transaction
+RPCs, strict API DTOs, direct raw-table denial, role/lifecycle tests, and later
+disposable exact-SHA hosted proof are mandatory. This is not implementation or
+hosted acceptance. The inherited broad raw `profiles` SELECT policy remains a
+known separate boundary; PR534 forbids browser profile reads and uses an exact
+safe-column service query rather than claiming that relation is safe.
+
 ## PR533 Hosted Rail And Settings Theme Repair Ready For ARGUS
 
 DAEDALUS completed the bounded repair on 2026-07-30:
