@@ -4,6 +4,27 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR538 Public Boundary Correction Ready For Review
+
+DAEDALUS corrected MIMIR's three PR538 findings at executable source
+`a2b8c8597e82adbf06b3552906b36748fc734a29`:
+
+- Discover filters Institution Projects to verified/public principals;
+- Institution Project list/detail DTOs omit the stray personal `id`; and
+- visibility changes render bounded success/error feedback.
+
+Focused Project, Institution, Community, auth, and writing suites pass at
+`33/33`, `16/16`, `57/57`, `24/24`, and `35/35`; lint/typecheck pass. The root
+build reaches the known local Windows standalone symlink `EPERM` only after
+compile, checks, `42/42` pages, optimization, and traces.
+
+Both Railway services accept exact source `a2b8c859`. Hosted search includes
+the retained Project only while its Institution is verified/public, excludes it
+during revocation while private owner access remains, and restores it after
+verification/publication. Fresh schema/ledger/principal/residue checks pass.
+
+- `docs/roadmap/PR538_PUBLIC_BOUNDARY_CORRECTION_DAEDALUS_RESULT.md`
+
 ## PR538 Institution-Owned Project Ready For Review
 
 DAEDALUS completed source and hosted proof on 2026-07-31:
