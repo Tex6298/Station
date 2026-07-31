@@ -4,6 +4,30 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR539 Collaborative Institution Publishing Ready For Review
+
+DAEDALUS completed source, hosted lifecycle, and browser proof on 2026-07-31:
+
+- `docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_DAEDALUS_RESULT.md`
+
+```text
+READY_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_FOR_ARGUS
+```
+
+Migration `094` is ledgered exactly once at SHA-256
+`BC2402C5474707ADCC4270DF7830A571270C0D225D3233D8D3DB3AFDBD408C6D`.
+Both Railway services serve exact source `2d35c166`. The retained collaborative
+publication is published at version `7` with seven paired successful audit
+events, service-only raw authority, and no disposable Auth/member residue.
+
+Focused validation passes `4/4` Institution publication tests, `16/16`
+Institution tests, and `33/33` Project tests. Auth/profile, Writing, Community,
+Space, document-discussion, export, and Developer Space neighbour suites pass.
+Lint/typecheck and frozen install pass. The root build compiles, checks, and
+generates `42/42` pages before the known Windows standalone-symlink `EPERM`.
+Hosted owner desktop, member mobile, and signed-out mobile checks have zero
+horizontal overflow and truthful edit/transition controls.
+
 ## PR538 Public Boundary Correction Ready For Review
 
 DAEDALUS corrected MIMIR's three PR538 findings at executable source
