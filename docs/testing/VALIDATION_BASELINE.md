@@ -4,6 +4,38 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR537 Hosted Institution Activation Ready For Review
+
+DAEDALUS completed hosted activation on 2026-07-31:
+
+- `docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_DAEDALUS_RESULT.md`
+
+```text
+READY_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_FOR_ARGUS
+```
+
+| Command or proof | Result |
+| --- | --- |
+| Exact migration `092` SHA-256 | `B923C9EAB0AEADADBA8D16D9250FE1AC42307CE5A51191F48119B0101042A7C3` |
+| Hosted schema and ledger | Pass; exact takeover ledger row `1`, relations `3`, service RPCs `6`, browser policies/grants `0/0` |
+| Fresh PostgREST catalog | Pass; anonymous raw relation `401`, service `200` |
+| Accepted Railway source | Pass; API/web ready on `main` at `6f33f9d2` |
+| Hosted lifecycle | Pass; provision, verify, invite, accept, publish, revoke/restore, owner/member/public readback |
+| Hostile matrix | Pass; invited, removed, unrelated, anonymous-private, unverified, revoked, malformed, stale, cross-owner |
+| Retained fixture | Pass; one verified/public Institution and one active existing member |
+| Cleanup and no-drift | Pass; disposable residue `0`, non-target row-count/catalog hashes exact, profile authority restored |
+| Fresh restarted verifier | Pass; ledger `1`, owner/member/public HTTP `200` |
+| `npm exec --yes pnpm@10.32.1 -- install --frozen-lockfile` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `test:institutions` / `test:profile-boundary` / `test:auth` | Pass, `14/14`, `5/5`, `24/24` |
+| `test:projects` / `test:spaces` / `test:developer-spaces` | Pass, `31/31`, `11/11`, `61/61` |
+| `test:writing` / `test:community` / `test:exports` | Pass, `35/35`, `57/57`, `15/15` |
+| Root build | Compile/checks, `42/42` page generation, optimization, and trace collection pass; known local Windows standalone symlink copy ends with `EPERM` |
+
+ARGUS owns independent PR537 review. No PR538 implementation is authorized by
+this result.
+
 ## PR535B Institution Source Accepted
 
 ARGUS accepted the corrected source-only lane on 2026-07-30:

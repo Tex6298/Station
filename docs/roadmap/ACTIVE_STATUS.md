@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR537 hosted activation
+## Current gate - PR536 Institutional Alpha; PR537 hosted review
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -94,6 +94,7 @@ PAUSE_AFTER_PR535B_WAIT_FOR_MARTY
 RESUME_INSTITUTIONAL_ALPHA_END_TO_END
 OPEN_PR536_INSTITUTIONAL_ALPHA_END_TO_END_PROGRAMME
 OPEN_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION
+READY_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -164,6 +165,7 @@ PR535B Institution review: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC
 PR535B source-only closeout: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBLIC_IDENTITY_CLOSEOUT_MIMIR.md
 PR536 Institutional Alpha programme: docs/roadmap/PR536_INSTITUTIONAL_ALPHA_PROGRAMME_MIMIR.md
 PR537 hosted identity/team activation: docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_DAEDALUS.md
+PR537 hosted result: docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_DAEDALUS_RESULT.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -197,8 +199,22 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS executes PR537, applies exact migration `092`, deploys the accepted Institution source, retains one protected-alpha owner/member Institution fixture, records public-safe proof, and wakes ARGUS for independent review.
+Next: ARGUS independently reviews PR537 exact migration/ledger identity, accepted Railway source, retained owner/member/public lifecycle, stale temporal fixture setup, profile-authority restoration, and zero-residue/no-drift proof.
 ```
+
+DAEDALUS completed PR537 hosted activation and wakes ARGUS. MIMIR's exact
+zero-row takeover apply was adopted after fresh proof rather than duplicated:
+migration `092` has one exact ledger row, three RLS relations, six service RPCs,
+zero browser raw authority, and accepted source `6f33f9d2` is healthy on both
+Railway services. `Station Institutional Alpha` remains verified/public with
+one existing owner and one distinct existing active member. Owner, member, and
+public reads return `200`; all required hostile states are bounded; disposable
+residue is `0`; and non-target row-count/catalog fingerprints are exact. The
+legacy member invitation alias and owner admin bind were restored; only their
+two automatic profile metadata timestamps advanced. Full focused validation,
+lint, and typecheck pass. The root build completed compile, checks, `42/42`
+pages, optimization, and trace collection before the known Windows standalone
+symlink `EPERM`.
 
 Marty's fresh direction supersedes the terminal pause after PR535B. PR536 fixes
 Institutional Alpha as one end-to-end customer programme through globally
