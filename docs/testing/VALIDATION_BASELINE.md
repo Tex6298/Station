@@ -4,6 +4,29 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR540 Fail-Closed Correction Ready For ARGUS
+
+DAEDALUS completed ARGUS's bounded correction at exact deployed source
+`8673b7ee`:
+
+- `docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_DAEDALUS_RESULT.md`
+
+```text
+READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_ARGUS
+```
+
+Append-only migration `096` is ledgered once at SHA-256
+`5F11DA79F9028F3009CE74C55E21917A23EFF48AC0C39950AB67711F4D5EEB62`;
+migration `095` remains byte-identical. Disposable and hosted actual-engine
+proofs reject six null/unknown authority/concurrency inputs with zero drift.
+Retained hosted Space/version/audit remains `1/5/5`, residue `0/0`, and browser
+RPC/table authority `0/0`.
+
+Focused validation is now `6/6`; the complete PR540 neighbor matrix, frozen
+install, lint, and typecheck pass. Root build again reaches successful compile,
+checks, and `42/42` page generation before the known Windows standalone symlink
+`EPERM`. Both Railway services serve exact correction source `8673b7ee`.
+
 ## PR540 ARGUS Review Blocked
 
 ARGUS completed the restored independent review on 2026-07-31:

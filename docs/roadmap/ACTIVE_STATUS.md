@@ -118,7 +118,8 @@ READY_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
 BLOCK_PR540_NULL_AUTHORITY_AND_CONCURRENCY_GUARDS_FAIL_OPEN
 READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_DAEDALUS
 PAUSE_PR540_ARIADNE_REHEARSAL_AT_VERSION_AUDIT_5_5
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS
+READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_ARGUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -205,6 +206,7 @@ PR540 branded public Institutional Space: docs/roadmap/PR540_BRANDED_PUBLIC_INST
 PR540 implementation result: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_DAEDALUS_RESULT.md
 PR540 MIMIR review: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_MIMIR_REVIEW.md
 PR540 ARGUS review: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ARGUS_REVIEW.md
+PR540 correction result: docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_DAEDALUS_RESULT.md
 PR540 hosted rehearsal: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_REHEARSAL_ARIADNE.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
@@ -239,10 +241,10 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS adds an append-only correction for PR540's null actor/version/
-action fail-open guards and principal-truthful `canPublish`, deploys it without
-changing retained version/audit `5/5`, and wakes ARGUS. ARIADNE must not begin
-the `5/5 -> 8/8` rehearsal before corrected acceptance.
+Next: ARGUS independently reviews append-only migration `096`, source
+`8673b7ee`, actual-engine null/unknown-input zero-drift proof, principal-truthful
+`canPublish`, and retained hosted version/audit `5/5`. ARIADNE remains paused
+before corrected acceptance.
 ```
 
 ARGUS blocks PR540 rehearsal after Marty explicitly returned the independent
