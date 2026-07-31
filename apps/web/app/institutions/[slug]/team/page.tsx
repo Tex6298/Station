@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { InstitutionTeamMember, InstitutionTeamResponse } from "@station/types";
+import type { InstitutionPublicationSummary, InstitutionTeamMember, InstitutionTeamResponse } from "@station/types";
 import { ApiRequestError, apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
@@ -12,10 +12,13 @@ import {
   institutionMemberRevokePath,
   institutionPublicationPath,
   institutionProjectsPath,
+  institutionPublicationsPath,
+  institutionPublicationWorkPath,
   institutionTeamPath,
   isValidInstitutionUsername,
   normaliseInstitutionUsername,
   suggestInstitutionProjectSlug,
+  suggestInstitutionPublicationSlug,
 } from "@/lib/institutions";
 
 function MemberInstitutionSummary({ team }: { team: InstitutionTeamResponse }) {
@@ -163,6 +166,11 @@ export default function InstitutionTeamPage() {
   const [projectName, setProjectName] = useState("");
   const [projectSlug, setProjectSlug] = useState("");
   const [projectVisibility, setProjectVisibility] = useState<"private" | "unlisted" | "community" | "public">("private");
+  const [publications, setPublications] = useState<InstitutionPublicationSummary[]>([]);
+  const [publicationTitle, setPublicationTitle] = useState("");
+  const [publicationSlug, setPublicationSlug] = useState("");
+  const [publicationSummary, setPublicationSummary] = useState("");
+  const [publicationBody, setPublicationBody] = useState("");
 
   useEffect(() => {
     let cancelled = false;
@@ -178,7 +186,14 @@ export default function InstitutionTeamPage() {
           institutionTeamPath(slug),
           session.access_token
         );
-        if (!cancelled) setTeam(data);
+        const publicationData = await apiGet<{ publications: InstitutionPublicationSummary[] }>(
+          institutionPublicationsPath(slug),
+          session.access_token
+        );
+        if (!cancelled) {
+          setTeam(data);
+          setPublications(publicationData.publications);
+        }
       } catch (loadError) {
         if (!cancelled) {
           setError(loadError instanceof Error ? loadError.message : "Institution not found.");
@@ -194,8 +209,12 @@ export default function InstitutionTeamPage() {
   }, [slug]);
 
   async function refresh(sessionToken: string) {
-    const data = await apiGet<InstitutionTeamResponse>(institutionTeamPath(slug), sessionToken);
+    const [data, publicationData] = await Promise.all([
+      apiGet<InstitutionTeamResponse>(institutionTeamPath(slug), sessionToken),
+      apiGet<{ publications: InstitutionPublicationSummary[] }>(institutionPublicationsPath(slug), sessionToken),
+    ]);
     setTeam(data);
+    setPublications(publicationData.publications);
   }
 
   async function handleInvite(event: FormEvent<HTMLFormElement>) {
@@ -299,6 +318,35 @@ export default function InstitutionTeamPage() {
       setMessage("Institution Project created.");
     } catch (actionError) {
       setError(actionError instanceof Error ? actionError.message : "Could not create this Project.");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  async function handlePublicationCreate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const retainedProject = team?.projects[0];
+    if (!token || !retainedProject || publicationSlug.length < 3) return;
+    setPendingAction("create-publication");
+    setError(null);
+    setMessage(null);
+    try {
+      await apiPost(institutionPublicationsPath(slug), {
+        title: publicationTitle,
+        slug: publicationSlug,
+        summary: publicationSummary,
+        body: publicationBody,
+        documentType: "article",
+        projectSlug: retainedProject.slug,
+      }, token);
+      setPublicationTitle("");
+      setPublicationSlug("");
+      setPublicationSummary("");
+      setPublicationBody("");
+      await refresh(token);
+      setMessage("Institution publication draft created.");
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Could not create this draft.");
     } finally {
       setPendingAction(null);
     }
@@ -434,6 +482,75 @@ export default function InstitutionTeamPage() {
                   <span>{project.visibility} / {project.access.readOnly ? "Institution member / read-only" : "Institution owner"}</span>
                 </div>
                 <Link className="station-muted-button" href={`/projects/${encodeURIComponent(project.slug)}`}>Open Project</Link>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="station-panel institution-stack" aria-labelledby="institution-publications-heading">
+          <div className="institution-section-heading">
+            <div>
+              <h2 id="institution-publications-heading">Publications</h2>
+              <p>Collaborative Institution work attached to {team.projects[0]?.name ?? "an Institution Project"}.</p>
+            </div>
+            <span className="station-status-pill">{publications.length}</span>
+          </div>
+          {team.projects.length > 0 ? (
+            <form className="institution-stack" onSubmit={handlePublicationCreate}>
+              <div className="institution-invite-row">
+                <label className="institution-field">
+                  <span>Title</span>
+                  <input
+                    className="input"
+                    value={publicationTitle}
+                    onChange={(event) => {
+                      setPublicationTitle(event.target.value);
+                      setPublicationSlug(suggestInstitutionPublicationSlug(event.target.value));
+                    }}
+                    maxLength={200}
+                    required
+                  />
+                </label>
+                <label className="institution-field">
+                  <span>Slug</span>
+                  <input
+                    className="input"
+                    value={publicationSlug}
+                    onChange={(event) => setPublicationSlug(suggestInstitutionPublicationSlug(event.target.value))}
+                    minLength={3}
+                    maxLength={80}
+                    pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                    required
+                  />
+                </label>
+              </div>
+              <label className="institution-field">
+                <span>Summary</span>
+                <input className="input" value={publicationSummary} onChange={(event) => setPublicationSummary(event.target.value)} maxLength={1000} required />
+              </label>
+              <label className="institution-field">
+                <span>Draft</span>
+                <textarea className="input" value={publicationBody} onChange={(event) => setPublicationBody(event.target.value)} rows={7} maxLength={100000} required />
+              </label>
+              <div className="station-action-row">
+                <button className="station-link-button" type="submit" disabled={pendingAction !== null || publicationSlug.length < 3}>
+                  {pendingAction === "create-publication" ? "Creating..." : "Create draft"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="station-notice">Create an Institution Project before starting a publication.</div>
+          )}
+          <div className="institution-member-list">
+            {publications.length === 0 ? (
+              <div className="institution-empty">No Institution publications yet.</div>
+            ) : publications.map((publication) => (
+              <div key={publication.slug} className="institution-member-row">
+                <div>
+                  <strong>{publication.title}</strong>
+                  <span>{publication.status} / version {publication.version} / created by {publication.creatorLabel} / last edited by {publication.lastEditorLabel}</span>
+                </div>
+                <Link className="station-muted-button" href={institutionPublicationWorkPath(slug, publication.slug)}>Open draft</Link>
               </div>
             ))}
           </div>

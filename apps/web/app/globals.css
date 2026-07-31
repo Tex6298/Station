@@ -6807,6 +6807,13 @@ main[style*="rgb(11, 14, 20)"] {
   overflow-wrap: anywhere;
 }
 
+.institution-publication-body {
+  max-width: 72ch;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+
 .institution-wrap {
   overflow-wrap: anywhere;
 }

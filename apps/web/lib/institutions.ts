@@ -42,6 +42,18 @@ export function institutionProjectsPath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/projects`;
 }
 
+export function institutionPublicationsPath(slug: string) {
+  return `/institutions/${encodeURIComponent(slug)}/publications`;
+}
+
+export function institutionPublicationWorkPath(slug: string, publicationSlug: string) {
+  return `${institutionPublicationsPath(slug)}/${encodeURIComponent(publicationSlug)}`;
+}
+
+export function publicInstitutionPublicationPath(slug: string, publicationSlug: string) {
+  return `${institutionPublicationsPath(slug)}/public/${encodeURIComponent(publicationSlug)}`;
+}
+
 export function suggestInstitutionProjectSlug(value: string) {
   return value
     .toLowerCase()
@@ -50,6 +62,8 @@ export function suggestInstitutionProjectSlug(value: string) {
     .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
+
+export const suggestInstitutionPublicationSlug = suggestInstitutionProjectSlug;
 
 export function institutionTeamRequestPlan(slug: string, _access: InstitutionAccess) {
   return [institutionTeamPath(slug)] as const;

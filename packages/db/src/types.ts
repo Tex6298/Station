@@ -225,7 +225,13 @@ export type InstitutionAuditAction =
   | "invitation_accepted"
   | "invitation_declined"
   | "invitation_expired"
-  | "member_revoked";
+  | "member_revoked"
+  | "publication_created"
+  | "publication_edited"
+  | "publication_published"
+  | "publication_retracted";
+export type InstitutionPublicationStatus = "draft" | "published";
+export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
 export type InstitutionProvisionOutcome = "created" | "conflict" | "unavailable";
 export type InstitutionVerificationOutcome = "verified" | "revoked" | "unchanged" | "unavailable";
 export type InstitutionPublicationOutcome = "published" | "unpublished" | "unchanged" | "not_verified" | "unavailable";
@@ -530,9 +536,11 @@ export interface Database {
         Row: {
           id: string;
           institution_id: string;
-          actor_user_id: string;
-          subject_user_id: string;
+          actor_user_id: string | null;
+          subject_user_id: string | null;
           action: InstitutionAuditAction;
+          resource_kind: "institution_publication" | null;
+          resource_id: string | null;
           created_at: string;
         };
         Insert: Omit<Database["public"]["Tables"]["institution_audit_events"]["Row"], "id" | "created_at"> & {
@@ -540,6 +548,22 @@ export interface Database {
           created_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["institution_audit_events"]["Insert"]>;
+      };
+      institution_publications: {
+        Row: {
+          id: string; institution_id: string; project_id: string; creator_user_id: string | null;
+          creator_label: string; last_editor_user_id: string | null; last_editor_label: string;
+          slug: string; title: string; summary: string; body: string;
+          document_type: InstitutionPublicationDocumentType; status: InstitutionPublicationStatus;
+          version: number; published_at: string | null; published_by_user_id: string | null;
+          retracted_at: string | null; retracted_by_user_id: string | null; created_at: string; updated_at: string;
+        };
+        Insert: Omit<Database["public"]["Tables"]["institution_publications"]["Row"], "id" | "status" | "version" | "published_at" | "published_by_user_id" | "retracted_at" | "retracted_by_user_id" | "created_at" | "updated_at"> & {
+          id?: string; status?: InstitutionPublicationStatus; version?: number; published_at?: string | null;
+          published_by_user_id?: string | null; retracted_at?: string | null; retracted_by_user_id?: string | null;
+          created_at?: string; updated_at?: string;
+        };
+        Update: Partial<Database["public"]["Tables"]["institution_publications"]["Insert"]>;
       };
       storage_usage: {
         Row: {
@@ -2396,6 +2420,18 @@ export interface Database {
           p_connection_tier: ProjectConnectionTier;
         };
         Returns: Database["public"]["Tables"]["projects"]["Row"];
+      };
+      create_institution_publication_v1: {
+        Args: { p_institution_id: string; p_project_id: string; p_actor_user_id: string; p_actor_label: string; p_slug: string; p_title: string; p_summary: string; p_body: string; p_document_type: InstitutionPublicationDocumentType };
+        Returns: Database["public"]["Tables"]["institution_publications"]["Row"];
+      };
+      edit_institution_publication_v1: {
+        Args: { p_publication_id: string; p_actor_user_id: string; p_actor_label: string; p_expected_version: number; p_title: string; p_summary: string; p_body: string; p_document_type: InstitutionPublicationDocumentType };
+        Returns: Array<{ outcome: "edited" | "conflict" | "unavailable"; publication_id: string | null; new_version: number | null }>;
+      };
+      transition_institution_publication_work_v1: {
+        Args: { p_publication_id: string; p_actor_user_id: string; p_expected_version: number; p_action: "publish" | "retract" };
+        Returns: Array<{ outcome: "published" | "retracted" | "conflict" | "unavailable"; publication_id: string | null; new_version: number | null }>;
       };
       invite_project_viewer_v1: {
         Args: {

@@ -88,3 +88,39 @@ export interface PublicInstitutionResponse {
     verified: true;
   };
 }
+
+export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
+export type InstitutionPublicationStatus = "draft" | "published";
+
+export interface InstitutionPublicationSummary {
+  title: string;
+  slug: string;
+  summary: string;
+  documentType: InstitutionPublicationDocumentType;
+  status: InstitutionPublicationStatus;
+  visibility: "private" | "public";
+  version: number;
+  creatorLabel: string;
+  lastEditorLabel: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string | null;
+  publicHref: string | null;
+  institution: { name: string; slug: string; href: string | null };
+  project: { name: string; slug: string; href: string };
+  access: { role: "institution_owner" | "institution_member"; readOnly: boolean; canPublish: boolean; canRetract: boolean };
+}
+
+export interface InstitutionPublicationDetail extends InstitutionPublicationSummary {
+  body: string;
+}
+
+export interface PublicInstitutionPublicationResponse {
+  publication: {
+    title: string; slug: string; summary: string; body: string;
+    documentType: InstitutionPublicationDocumentType; publishedAt: string;
+    creatorLabel: string; lastEditorLabel: string;
+    institution: { name: string; slug: string; href: string };
+    project: { name: string; slug: string; href: string };
+  };
+}
