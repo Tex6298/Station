@@ -105,6 +105,7 @@ ACCEPT_PR538_PUBLIC_BOUNDARY_CORRECTION
 CLOSE_PR538_INSTITUTION_OWNED_PROJECT_CONNECTION_ACCEPTED
 OPEN_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING
 READY_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_FOR_ARGUS
+CHANGES_REQUIRED_PR539_PUBLIC_ROUTE_AUTH_SCOPE_AND_LINK_TRUTH
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -183,6 +184,7 @@ PR538 correction result: docs/roadmap/PR538_PUBLIC_BOUNDARY_CORRECTION_DAEDALUS_
 PR538 closeout: docs/roadmap/PR538_INSTITUTION_OWNED_PROJECT_CONNECTION_CLOSEOUT_MIMIR.md
 PR539 collaborative Institution publishing: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_DAEDALUS.md
 PR539 implementation result: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_DAEDALUS_RESULT.md
+PR539 MIMIR review: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_MIMIR_REVIEW.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -216,8 +218,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently reviews PR539 source and fresh hosted truth. If accepted, ARGUS wakes ARIADNE for the bounded owner/member/public human rehearsal; if correction is required, ARGUS wakes DAEDALUS with exact findings.
+Next: DAEDALUS scopes the PR539 private auth middleware to its publication route family, restores unrelated signed-out Institution and Developer Space routes, makes public href truth depend on Project visibility, deploys and proves the bounded correction, then wakes MIMIR. ARIADNE remains downstream of correction acceptance.
 ```
+
+MIMIR's unavailable-reviewer fallback found a blocking route-composition
+regression at deployed source `2d35c166`: because the publication router is
+mounted at the API root, its unscoped `requireAuth` middleware intercepts
+routers registered after it. Fresh signed-out hosted probes return `401` for
+the retained public Institution, Developer Space public index, and retained
+public Developer Space. Publication serialization also advertises a public
+href when the attached Project is non-public, although that public read
+correctly returns `404`. DAEDALUS owns the bounded auth-scope, regression-test,
+link-truth, deploy, and hosted-proof correction. Migration `094` and retained
+publication state remain accepted and must not be replayed.
 
 DAEDALUS completed PR539 at executable source `2d35c166`. Exact migration
 `094` is ledgered once at SHA-256
