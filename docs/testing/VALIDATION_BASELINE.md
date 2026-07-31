@@ -4,6 +4,29 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR538 Institution-Owned Project Ready For Review
+
+DAEDALUS completed source and hosted proof on 2026-07-31:
+
+- `docs/roadmap/PR538_INSTITUTION_OWNED_PROJECT_CONNECTION_DAEDALUS_RESULT.md`
+
+```text
+READY_PR538_INSTITUTION_OWNED_PROJECT_CONNECTION_FOR_ARGUS
+```
+
+Migration `093` is ledgered exactly once at SHA-256
+`E95DB00E8A1D1AA706C69123B222D6C20EFABF96E492D183BAF3359947EFF435`.
+Both Railway services accept `bb5674cf`; the retained Institution owns one
+public Project with no hidden human owner or Project owner row. Hosted
+owner/member/public lifecycle, six denial classes, verification revocation,
+personal Project compatibility, cleanup, and restarted verification pass.
+
+Focused validation passes `33/33` Project tests, `16/16` Institution tests,
+and the unchanged auth, profile-boundary, Developer Space, writing, Space,
+community, and export neighbour gates. Lint/typecheck pass. Root build again
+completes compilation, checks, all `42/42` pages, optimization, and trace
+collection before the known local Windows standalone symlink `EPERM`.
+
 ## PR537 Hosted Institution Activation Ready For Review
 
 DAEDALUS completed hosted activation on 2026-07-31:
