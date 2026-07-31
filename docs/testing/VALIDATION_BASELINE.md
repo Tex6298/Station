@@ -4,6 +4,29 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR539 Public Route Correction Ready For MIMIR
+
+DAEDALUS corrected the bounded review findings at deployed executable source
+`34c91e078faccc93b36316e03e382a3cfb74d14e`:
+
+- `docs/roadmap/PR539_PUBLIC_ROUTE_CORRECTION_DAEDALUS_RESULT.md`
+
+```text
+READY_PR539_PUBLIC_ROUTE_CORRECTION_FOR_MIMIR
+```
+
+The private publication auth/cache gate is path-scoped and cannot intercept
+later public routers. Publication `publicHref` now requires a public attached
+Project as well as published work and a verified/public Institution.
+
+Focused `4/4`, Institution `16/16`, Project `33/33`, lint, and typecheck pass.
+On exact corrected Railway source, the public Institution route, Developer
+Space index/detail, and retained publication each return `200`; anonymous
+private publication returns `401`. Temporarily private Project state returns
+href `null` and public `404`, and restoration returns href plus `200`. Fresh
+schema/ledger/retained verification passes with version `7`, seven paired
+events, and zero fixture residue.
+
 ## PR539 Collaborative Institution Publishing Ready For Review
 
 DAEDALUS completed source, hosted lifecycle, and browser proof on 2026-07-31:
