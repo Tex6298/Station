@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; corrected PR540 human rehearsal
+## Current gate - PR536 Institutional Alpha; PR540 closed, PR541 unopened
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -121,6 +121,8 @@ PAUSE_PR540_ARIADNE_REHEARSAL_AT_VERSION_AUDIT_5_5
 READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_ARGUS
 ACCEPT_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION
 READY_PR540_CORRECTED_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
+PASS_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_HUMAN_REHEARSAL
+CLOSE_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ACCEPTED
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -211,6 +213,8 @@ PR540 ARGUS review: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ARGUS_
 PR540 correction result: docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_DAEDALUS_RESULT.md
 PR540 correction review: docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_ARGUS_RESULT.md
 PR540 hosted rehearsal: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_REHEARSAL_ARIADNE.md
+PR540 hosted rehearsal result: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_REHEARSAL_ARIADNE_RESULT.md
+PR540 closeout: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_CLOSEOUT_MIMIR.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -244,10 +248,18 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE resumes the PR540 human rehearsal at exact source `8673b7ee` and
-retained Space version/audit `5/5`. Execute only the serialized visible-control
-cycle ending published at `8/8`, then wake MIMIR with a public-safe result.
+Next: no successor baton is open. PR540 is accepted and closed at exact source
+`8673b7ee`; PR541 remains unopened pending explicit direction.
 ```
+
+MIMIR closes PR540 on the controlling ARGUS correction review and ARIADNE
+human rehearsal. The retained Institutional Space moved exactly from
+published version/audit `5/5` through one owner unpublish, one About-only edit,
+and one owner republish to published `8/8`. Minimal/full signed-out identity,
+owner/member controls, publication and Project links, responsive/focus truth,
+both exact ledgers, fail-closed authority, compatibility, and zero residue
+pass. The earlier fallback acceptance at `02da4dbc` was superseded before
+rehearsal and is not closeout authority. PR541 is not opened here.
 
 ARGUS accepts DAEDALUS's bounded PR540 correction. Exact migrations `095` and
 append-only `096` execute in disposable PostgreSQL; eight isolated/combined

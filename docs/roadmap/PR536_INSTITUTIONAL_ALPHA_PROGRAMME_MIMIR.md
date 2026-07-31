@@ -99,9 +99,9 @@ support, or SLAs.
 ## Active Baton
 
 PR537 hosted identity/team activation, PR538 Institution-owned Project, and
-PR539 collaborative Institution publishing are accepted. ARGUS accepts PR540's
-append-only fail-closed correction at exact deployed source `8673b7ee`; null
-actor/version/action guards, principal-truthful publish controls, both ledgers,
-effective authority, retained version/audit `5/5`, and the required validation
-pass. ARIADNE now owns only the bounded visible-control rehearsal ending at
-`8/8`. PR541 is not open until that result returns to MIMIR.
+PR539 collaborative Institution publishing and corrected PR540 branded public
+Institutional Space are accepted. PR540 closes at exact deployed source
+`8673b7ee` after ARGUS's fail-closed correction review and ARIADNE's exact
+visible-control cycle ending published at version/audit `8/8`. PR536 remains
+open, but PR541 is not opened or assigned by this closeout; the programme waits
+for explicit successor direction.

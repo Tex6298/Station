@@ -4,6 +4,32 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR540 Branded Public Institutional Space Accepted
+
+MIMIR closed corrected PR540 on 2026-07-31:
+
+- `docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_CLOSEOUT_MIMIR.md`
+
+```text
+CLOSE_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ACCEPTED
+```
+
+ARGUS independently accepted exact deployed source `8673b7ee`, byte-identical
+migration `095`, and append-only migration `096`. Null actor, expected-version,
+and action inputs now fail closed at the database boundary; effective browser
+table/RPC authority is `0/0`; valid lifecycle, stale conflict, both exact
+ledgers, strict public aggregation, personal compatibility, and the full
+neighbor validation matrix pass.
+
+ARIADNE's hosted owner/member/signed-out rehearsal completed the exact retained
+Space cycle from published version/audit `5/5` to published `8/8`. Minimal
+draft identity, restored authored public identity, one public Institution
+publication, one public Institution Project, truthful role controls,
+responsive/focus behavior, final read-only verification, and fixture residue
+`0/0` pass. Disclosed canceled Next.js prefetch/navigation requests and two
+successful browser fallbacks produced no HTTP, page, mutation, stale-state, or
+session failure.
+
 ## PR540 Fail-Closed Correction Accepted
 
 ARGUS accepted the bounded correction on 2026-07-31:
