@@ -6814,6 +6814,41 @@ main[style*="rgb(11, 14, 20)"] {
   line-height: 1.7;
 }
 
+.institution-space-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--station-page-border);
+  border-bottom: 1px solid var(--station-page-border);
+}
+.institution-space-entry h2 { margin: .25rem 0; }
+.institution-space-preview { display:grid;grid-template-columns:72px minmax(0,1fr);gap:1.25rem;align-items:start;padding:1.5rem 0;border-top:4px solid var(--institution-accent,#315eaf); }
+.institution-space-preview h2 { margin:.45rem 0;font-size:2rem; }
+.institution-space-preview p { max-width:65ch;white-space:pre-wrap; }
+.institution-space-mark { display:grid;place-items:center;width:64px;aspect-ratio:1;border:2px solid var(--institution-accent,#315eaf);color:var(--institution-accent,#315eaf);font-weight:800;font-size:1.25rem; }
+.institution-accent-cobalt { --institution-accent:#315eaf; }
+.institution-accent-coral { --institution-accent:#c54f4a; }
+.institution-accent-forest { --institution-accent:#26705a; }
+.institution-accent-gold { --institution-accent:#956b05; }
+.institution-accent-field { border:0;padding:0;margin:0; }
+.institution-accent-options { display:flex;flex-wrap:wrap;gap:.75rem 1.25rem;margin-top:.6rem; }
+.institution-accent-option { display:flex;align-items:center;gap:.45rem; }
+.institution-accent-swatch { width:18px;height:18px;background:var(--institution-accent);border:1px solid currentColor; }
+.public-institution-hero { border-top:6px solid var(--institution-accent,#315eaf);min-height:min(72vh,680px);display:flex;align-items:center; }
+.public-institution-hero .institution-space-mark { margin-bottom:1.5rem; }
+.public-institution-headline { font-size:1.25rem;max-width:42ch; }
+.public-institution-about { max-width:68ch;white-space:pre-wrap;line-height:1.7; }
+.public-institution-content-band { width:100%;padding:3rem 1.25rem;border-top:1px solid var(--station-page-border); }
+.public-institution-content-band[data-tone="muted"] { background:var(--station-page-soft); }
+.public-institution-band-inner { max-width:1050px;margin:0 auto; }
+.public-institution-list { display:grid;margin-top:1.5rem;border-top:1px solid var(--station-page-border); }
+.public-institution-list-item { display:flex;justify-content:space-between;gap:1rem;padding:1.25rem 0;border-bottom:1px solid var(--station-page-border); }
+.public-institution-list-item h3 { margin:.3rem 0;font-size:1.15rem; }
+.public-institution-list-item p { max-width:68ch;margin:.35rem 0; }
+@media (max-width:600px) { .institution-space-entry,.public-institution-list-item { align-items:stretch;flex-direction:column; }.institution-space-preview { grid-template-columns:1fr; }.institution-space-preview h2 { font-size:1.5rem; }.public-institution-hero { min-height:68vh;align-items:flex-start;padding-top:3rem; } }
+
 .institution-wrap {
   overflow-wrap: anywhere;
 }

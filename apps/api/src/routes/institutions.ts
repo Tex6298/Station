@@ -18,6 +18,8 @@ import { requireAuth } from "../middleware/require-auth";
 type InstitutionRow = Database["public"]["Tables"]["institutions"]["Row"];
 type InstitutionMemberRow = Database["public"]["Tables"]["institution_members"]["Row"];
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
+type InstitutionSpaceRow = Database["public"]["Tables"]["institution_spaces"]["Row"];
+type InstitutionPublicationRow = Database["public"]["Tables"]["institution_publications"]["Row"];
 type ProfileIdentityRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
   "id" | "username" | "display_name"
@@ -235,7 +237,7 @@ institutionsRouter.get("/public/:slug", async (req, res) => {
 
   const { data, error } = await getSupabaseAdmin()
     .from("institutions")
-    .select("name, slug, summary, verification_status, public_status")
+    .select("id, name, slug, summary, verification_status, public_status")
     .eq("slug", parsed.data)
     .eq("verification_status", "verified")
     .eq("public_status", "public")
@@ -252,6 +254,19 @@ institutionsRouter.get("/public/:slug", async (req, res) => {
       verified: true,
     },
   };
+  const { data: spaceData, error: spaceError } = await getSupabaseAdmin().from("institution_spaces").select("*").eq("institution_id", data.id).maybeSingle();
+  if (spaceError) return res.status(500).json(INSTITUTION_READ_FAILED);
+  const space = spaceData as InstitutionSpaceRow | null;
+  if (space?.status === "published" && space.published_at) {
+    const { data: projectData, error: projectError } = await getSupabaseAdmin().from("projects").select("*").eq("institution_id", data.id).eq("visibility", "public").order("updated_at", { ascending: false });
+    const { data: publicationData, error: publicationError } = await getSupabaseAdmin().from("institution_publications").select("*").eq("institution_id", data.id).eq("status", "published").order("published_at", { ascending: false });
+    if (projectError || publicationError) return res.status(500).json(INSTITUTION_READ_FAILED);
+    const projects = (projectData ?? []) as ProjectRow[];
+    const projectMap = new Map(projects.map((project) => [project.id, project]));
+    response.space = { markText:space.mark_text,headline:space.headline,about:space.about,accentKey:space.accent_key,publishedAt:space.published_at,creatorLabel:space.creator_label,lastEditorLabel:space.last_editor_label };
+    response.projects = projects.map((project)=>({name:project.name,slug:project.slug,description:project.description,connectionTier:project.connection_tier,href:`/projects/public/${encodeURIComponent(project.slug)}`}));
+    response.publications = ((publicationData ?? []) as InstitutionPublicationRow[]).map((publication)=>{const project=projectMap.get(publication.project_id);if(!project||!publication.published_at)return null;return{title:publication.title,slug:publication.slug,summary:publication.summary,documentType:publication.document_type,publishedAt:publication.published_at,creatorLabel:publication.creator_label,lastEditorLabel:publication.last_editor_label,href:`/institutions/${encodeURIComponent(data.slug)}/publications/public/${encodeURIComponent(publication.slug)}`,project:{name:project.name,slug:project.slug,href:`/projects/public/${encodeURIComponent(project.slug)}`}}}).filter((item):item is NonNullable<typeof item>=>Boolean(item));
+  }
   return res.json(response);
 });
 

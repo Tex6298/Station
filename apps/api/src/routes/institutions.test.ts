@@ -23,6 +23,8 @@ class InstitutionSupabase {
     institutions: [],
     institution_members: [],
     institution_audit_events: [],
+    institution_spaces: [],
+    institution_publications: [],
     projects: [],
   };
 
@@ -693,6 +695,17 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
       verified: true,
     });
 
+    const institutionRow = db.tables.institutions[0];
+    const projectRow = db.tables.projects[0];
+    db.tables.institution_spaces.push({ id:"space-id",institution_id:institutionRow.id,creator_user_id:"owner-user",creator_label:"Owner Exact",last_editor_user_id:"owner-user",last_editor_label:"Owner Exact",mark_text:"SL",headline:"Research with a public record.",about:"A bounded authored Institution home.",accent_key:"forest",status:"published",version:3,published_at:db.now(),published_by_user_id:"owner-user",unpublished_at:null,unpublished_by_user_id:null,created_at:db.now(),updated_at:db.now() });
+    db.tables.institution_publications.push({ id:"publication-id",institution_id:institutionRow.id,project_id:projectRow.id,creator_user_id:"member-user",creator_label:"Member Exact",last_editor_user_id:"owner-user",last_editor_label:"Owner Exact",slug:"field-note",title:"Institution Field Note",summary:"Published work.",body:"Public body.",document_type:"article",status:"published",version:4,published_at:db.now(),published_by_user_id:"owner-user",retracted_at:null,retracted_by_user_id:null,created_at:db.now(),updated_at:db.now() });
+    const aggregate = await requestJson(app,"GET","/institutions/public/station-labs");
+    assertKeys(aggregate.body,["institution","projects","publications","space"]);
+    assert.deepEqual(aggregate.body.space,{markText:"SL",headline:"Research with a public record.",about:"A bounded authored Institution home.",accentKey:"forest",publishedAt:db.now(),creatorLabel:"Owner Exact",lastEditorLabel:"Owner Exact"});
+    assert.equal(aggregate.body.projects.length,1);assert.equal(aggregate.body.publications.length,1);assert.equal(JSON.stringify(aggregate.body).includes("owner-user"),false);
+    projectRow.visibility="private";const hiddenAggregate=await requestJson(app,"GET","/institutions/public/station-labs");assert.equal(hiddenAggregate.body.projects.length,0);assert.equal(hiddenAggregate.body.publications.length,0);projectRow.visibility="public";
+    db.tables.institution_spaces[0].status="draft";db.tables.institution_spaces[0].published_at=null;const minimalAgain=await requestJson(app,"GET","/institutions/public/station-labs");assertKeys(minimalAgain.body,["institution"]);db.tables.institution_spaces[0].status="published";db.tables.institution_spaces[0].published_at=db.now();
+
     const revoked = await requestJson(app, "POST", "/institutions/station-labs/members/revoke", {
       token: "owner-token",
       body: { username: "Member_Exact" },
@@ -716,7 +729,7 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
 
     assert.deepEqual(
       [...new Set(db.queriedTables)].sort(),
-      ["institution_members", "institutions", "profiles", "projects"]
+      ["institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
     );
     assert.deepEqual(
       db.tables.institution_audit_events.map((row) => row.action),
@@ -842,7 +855,7 @@ test("migration 092 freezes raw access, authority, lifecycle, audit, and zero in
   const queriedTables = [...route.matchAll(/\.from\("([^"]+)"\)/g)].map((match) => match[1]);
   assert.deepEqual(
     [...new Set(queriedTables)].sort(),
-    ["institution_members", "institutions", "profiles", "projects"]
+    ["institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
   );
   for (const forbidden of [
     "project_members",

@@ -12,6 +12,7 @@ import {
   institutionMemberRevokePath,
   institutionPublicationPath,
   institutionProjectsPath,
+  institutionSpacePath,
   institutionPublicationsPath,
   institutionPublicationWorkPath,
   institutionTeamPath,
@@ -403,6 +404,17 @@ export default function InstitutionTeamPage() {
 
         {error ? <div className="station-notice" data-tone="error">{error}</div> : null}
         {message ? <div className="station-notice" data-tone="success">{message}</div> : null}
+
+        <section className="institution-space-entry" aria-labelledby="institution-space-entry-heading">
+          <div>
+            <div className="station-eyebrow">Institutional Space</div>
+            <h2 id="institution-space-entry-heading">Public institution home</h2>
+            <p>Configure the bounded mark, authored introduction, and public Institution work.</p>
+          </div>
+          <Link className="station-link-button" href={institutionSpacePath(slug)}>
+            {team.institution.access.role === "owner" ? "Open workspace" : "View configuration"}
+          </Link>
+        </section>
 
         {team.institution.access.role === "owner" ? (
           <OwnerInstitutionControls

@@ -229,9 +229,15 @@ export type InstitutionAuditAction =
   | "publication_created"
   | "publication_edited"
   | "publication_published"
-  | "publication_retracted";
+  | "publication_retracted"
+  | "space_created"
+  | "space_edited"
+  | "space_published"
+  | "space_unpublished";
 export type InstitutionPublicationStatus = "draft" | "published";
 export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
+export type InstitutionSpaceStatus = "draft" | "published";
+export type InstitutionSpaceAccentKey = "cobalt" | "coral" | "forest" | "gold";
 export type InstitutionProvisionOutcome = "created" | "conflict" | "unavailable";
 export type InstitutionVerificationOutcome = "verified" | "revoked" | "unchanged" | "unavailable";
 export type InstitutionPublicationOutcome = "published" | "unpublished" | "unchanged" | "not_verified" | "unavailable";
@@ -539,7 +545,7 @@ export interface Database {
           actor_user_id: string | null;
           subject_user_id: string | null;
           action: InstitutionAuditAction;
-          resource_kind: "institution_publication" | null;
+          resource_kind: "institution_publication" | "institution_space" | null;
           resource_id: string | null;
           created_at: string;
         };
@@ -564,6 +570,11 @@ export interface Database {
           created_at?: string; updated_at?: string;
         };
         Update: Partial<Database["public"]["Tables"]["institution_publications"]["Insert"]>;
+      };
+      institution_spaces: {
+        Row: { id:string;institution_id:string;creator_user_id:string|null;creator_label:string;last_editor_user_id:string|null;last_editor_label:string;mark_text:string;headline:string;about:string;accent_key:InstitutionSpaceAccentKey;status:InstitutionSpaceStatus;version:number;published_at:string|null;published_by_user_id:string|null;unpublished_at:string|null;unpublished_by_user_id:string|null;created_at:string;updated_at:string };
+        Insert: Omit<Database["public"]["Tables"]["institution_spaces"]["Row"],"id"|"status"|"version"|"published_at"|"published_by_user_id"|"unpublished_at"|"unpublished_by_user_id"|"created_at"|"updated_at"> & {id?:string;status?:InstitutionSpaceStatus;version?:number;published_at?:string|null;published_by_user_id?:string|null;unpublished_at?:string|null;unpublished_by_user_id?:string|null;created_at?:string;updated_at?:string};
+        Update: Partial<Database["public"]["Tables"]["institution_spaces"]["Insert"]>;
       };
       storage_usage: {
         Row: {
@@ -2433,6 +2444,9 @@ export interface Database {
         Args: { p_publication_id: string; p_actor_user_id: string; p_expected_version: number; p_action: "publish" | "retract" };
         Returns: Array<{ outcome: "published" | "retracted" | "conflict" | "unavailable"; publication_id: string | null; new_version: number | null }>;
       };
+      create_institution_space_v1: { Args:{p_institution_id:string;p_actor_user_id:string;p_actor_label:string;p_mark_text:string;p_headline:string;p_about:string;p_accent_key:InstitutionSpaceAccentKey};Returns:Database["public"]["Tables"]["institution_spaces"]["Row"] };
+      edit_institution_space_v1: { Args:{p_space_id:string;p_actor_user_id:string;p_actor_label:string;p_expected_version:number;p_mark_text:string;p_headline:string;p_about:string;p_accent_key:InstitutionSpaceAccentKey};Returns:Array<{outcome:"edited"|"conflict"|"unavailable";space_id:string|null;new_version:number|null}> };
+      transition_institution_space_v1: { Args:{p_space_id:string;p_actor_user_id:string;p_expected_version:number;p_action:"publish"|"unpublish"};Returns:Array<{outcome:"published"|"unpublished"|"conflict"|"unavailable";space_id:string|null;new_version:number|null}> };
       invite_project_viewer_v1: {
         Args: {
           p_project_id: string;

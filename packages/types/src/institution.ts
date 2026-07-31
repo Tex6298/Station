@@ -87,7 +87,17 @@ export interface PublicInstitutionResponse {
     summary: string | null;
     verified: true;
   };
+  space?: PublicInstitutionSpace;
+  projects?: PublicInstitutionProject[];
+  publications?: PublicInstitutionPublicationSummary[];
 }
+
+export type InstitutionSpaceAccentKey = "cobalt" | "coral" | "forest" | "gold";
+export type InstitutionSpaceStatus = "draft" | "published";
+export interface InstitutionSpaceDetail { markText:string;headline:string;about:string;accentKey:InstitutionSpaceAccentKey;status:InstitutionSpaceStatus;version:number;creatorLabel:string;lastEditorLabel:string;createdAt:string;updatedAt:string;publishedAt:string|null;publicHref:string|null;institution:{name:string;slug:string;href:string|null};access:{role:"institution_owner"|"institution_member";readOnly:boolean;canPublish:boolean;canUnpublish:boolean} }
+export interface PublicInstitutionSpace { markText:string;headline:string;about:string;accentKey:InstitutionSpaceAccentKey;publishedAt:string;creatorLabel:string;lastEditorLabel:string }
+export interface PublicInstitutionProject { name:string;slug:string;description:string|null;connectionTier:"tier_1_showcase"|"tier_2_hosted"|"tier_3_lab";href:string }
+export interface PublicInstitutionPublicationSummary { title:string;slug:string;summary:string;documentType:InstitutionPublicationDocumentType;publishedAt:string;creatorLabel:string;lastEditorLabel:string;href:string;project:{name:string;slug:string;href:string} }
 
 export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
 export type InstitutionPublicationStatus = "draft" | "published";
