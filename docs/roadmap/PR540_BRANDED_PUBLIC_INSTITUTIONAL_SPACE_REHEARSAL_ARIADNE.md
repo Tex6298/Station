@@ -7,7 +7,7 @@ Date opened: 2026-07-31
 Status:
 
 ```text
-READY_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
+READY_PR540_CORRECTED_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
 ```
 
 ## Human Result
@@ -18,7 +18,9 @@ visitor receives a coherent verified Institution home containing only public
 Institution work and Projects.
 
 Use exact deployed source
-`02da4dbcec4b6f55b0cdcecafd4dd3d68038b6f1`. Use the retained owner and active
+`8673b7eeb7ee2d7b1cdd7434b929be9047bbce88`. Applied migration `095` must remain
+byte-identical and append-only fail-closed migration `096` must be ledgered
+exactly once. Use the retained owner and active
 member credentials already available in ignored local evidence/env state. Do
 not ask Marty for credentials and do not record secrets.
 
@@ -34,8 +36,8 @@ not ask Marty for credentials and do not record secrets.
 
 Start only from the fresh verified retained state: one published Institution
 Space at version/audit `5/5`, one published Institution publication, one public
-Institution Project, exact API/web source `02da4dbc`, and zero fixture Auth or
-membership residue.
+Institution Project, exact API/web source `8673b7ee`, exact migration `095/096`
+ledger identity, and zero fixture Auth or membership residue.
 
 ## Controlled Human Cycle
 

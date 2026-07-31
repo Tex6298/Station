@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR540 Fail-Closed Correction Accepted
+
+ARGUS accepted the bounded correction on 2026-07-31:
+
+- `docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION
+READY_PR540_CORRECTED_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
+```
+
+Independent disposable PostgreSQL execution of exact migrations `095 + 096`
+rejects eight isolated/combined null/unknown authority and concurrency calls
+with zero drift;
+valid edit, stale conflict, publish, and unpublish pass. Read-only hosted proof
+confirms exact source `8673b7ee`, exact original/correction ledgers `1/1`,
+compiled null-safe actor/version/action RPC counts `3/2/1`, effective browser/
+trusted table privileges `0/7`, effective browser/trusted RPC execution `0/3`,
+RLS/policies `1/0`, retained Space/version/audit `1/5/5`, strict public DTO,
+personal counts `3/29`, and fixture residue `0/0`.
+
+Focused Institution Space `6/6`, Institution `16/16`, publication `4/4`,
+Project `33/33`, Spaces `11/11`, writing `35/35`, community `57/57`, auth
+`24/24`, profile `5/5`, Developer Spaces `61/61`, exports `15/15`, API/web
+typecheck, web lint, and diff checks pass. ARIADNE resumes only the retained
+`5/5 -> 8/8` visible-control cycle at exact source `8673b7ee`.
+
 ## PR540 Fail-Closed Correction Ready For ARGUS
 
 DAEDALUS completed ARGUS's bounded correction at exact deployed source

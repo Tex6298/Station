@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR540 fail-closed correction
+## Current gate - PR536 Institutional Alpha; corrected PR540 human rehearsal
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -119,7 +119,9 @@ BLOCK_PR540_NULL_AUTHORITY_AND_CONCURRENCY_GUARDS_FAIL_OPEN
 READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_DAEDALUS
 PAUSE_PR540_ARIADNE_REHEARSAL_AT_VERSION_AUDIT_5_5
 READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS
+ACCEPT_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION
+READY_PR540_CORRECTED_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARIADNE
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -207,6 +209,7 @@ PR540 implementation result: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPA
 PR540 MIMIR review: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_MIMIR_REVIEW.md
 PR540 ARGUS review: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ARGUS_REVIEW.md
 PR540 correction result: docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_DAEDALUS_RESULT.md
+PR540 correction review: docs/roadmap/PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_ARGUS_RESULT.md
 PR540 hosted rehearsal: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_REHEARSAL_ARIADNE.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
@@ -241,14 +244,24 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently reviews append-only migration `096`, source
-`8673b7ee`, actual-engine null/unknown-input zero-drift proof, principal-truthful
-`canPublish`, and retained hosted version/audit `5/5`. ARIADNE remains paused
-before corrected acceptance.
+Next: ARIADNE resumes the PR540 human rehearsal at exact source `8673b7ee` and
+retained Space version/audit `5/5`. Execute only the serialized visible-control
+cycle ending published at `8/8`, then wake MIMIR with a public-safe result.
 ```
 
-ARGUS blocks PR540 rehearsal after Marty explicitly returned the independent
-review baton. Exact migration `095` executes create/edit/publish with a null
+ARGUS accepts DAEDALUS's bounded PR540 correction. Exact migrations `095` and
+append-only `096` execute in disposable PostgreSQL; eight isolated/combined
+null/unknown authority and concurrency calls now fail closed with zero drift while valid lifecycle and
+stale conflict pass. Read-only hosted proof confirms both exact ledgers, exact
+source `8673b7ee` on both services, compiled null-safe actor/version/action RPC
+counts `3/2/1`, effective browser/trusted table privileges `0/7`, effective
+browser/trusted RPC execution `0/3`, retained Space/version/audit `1/5/5`, and
+residue `0/0`. Principal-truthful `canPublish`, focused `6/6`, the full local
+neighbor matrix, typecheck, lint, and diff checks pass. ARIADNE owns only the
+existing `5/5 -> 8/8` rehearsal; PR541 is not authorized here.
+
+ARGUS's restored review blocked PR540 rehearsal after Marty explicitly returned
+the independent review baton. Exact migration `095` executes create/edit/publish with a null
 actor, bypasses edit concurrency with a null expected version, and interprets
 a null action plus null version as unpublish. The API blocks current browser
 nulls and effective browser table/RPC authority remains `0/0`, but the claimed
@@ -256,7 +269,7 @@ database owner/concurrency boundary is not fail-closed. The private DTO also
 advertises `canPublish` for an unverified/private draft even though the database
 rejects that action. Retained hosted truth remains exact at source `02da4dbc`,
 Space/version/audit `1/5/5`, fixture residue `0/0`, and ARGUS hosted writes `0`.
-DAEDALUS owns only the append-only correction; ARIADNE rehearsal is paused.
+The accepted append-only correction above resolves both findings.
 
 MIMIR's fallback review correctly recorded deployment, ledger, retained state,
 public DTO, direct grants, focused tests, and responsive evidence, but its

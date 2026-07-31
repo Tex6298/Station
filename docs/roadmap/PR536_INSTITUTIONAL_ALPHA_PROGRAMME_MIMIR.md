@@ -99,10 +99,9 @@ support, or SLAs.
 ## Active Baton
 
 PR537 hosted identity/team activation, PR538 Institution-owned Project, and
-PR539 collaborative Institution publishing are accepted. PR540 remains blocked
-before rehearsal by ARGUS's independent review: its new database functions fail
-open for null actor/version/action inputs, and draft `canPublish` is not
-truthful when the Institution is unverified or private. Retained hosted truth
-remains exact at source `02da4dbc` and version/audit `5/5`. DAEDALUS owns only
-the append-only fail-closed correction; ARIADNE must not run the `5/5 -> 8/8`
-cycle and PR541 is not open.
+PR539 collaborative Institution publishing are accepted. ARGUS accepts PR540's
+append-only fail-closed correction at exact deployed source `8673b7ee`; null
+actor/version/action guards, principal-truthful publish controls, both ledgers,
+effective authority, retained version/audit `5/5`, and the required validation
+pass. ARIADNE now owns only the bounded visible-control rehearsal ending at
+`8/8`. PR541 is not open until that result returns to MIMIR.
