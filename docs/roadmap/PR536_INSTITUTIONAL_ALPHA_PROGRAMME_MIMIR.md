@@ -98,6 +98,8 @@ support, or SLAs.
 
 ## Active Baton
 
-PR537 begins immediately with DAEDALUS. After its exact hosted implementation,
-DAEDALUS wakes ARGUS for independent review. Accepted review returns to MIMIR,
-who advances to PR538 without treating PR537 as a programme stop point.
+PR537 hosted identity/team activation and PR538 Institution-owned Project are
+accepted. PR539 is active with DAEDALUS for collaborative Institution
+publishing. After exact source and hosted proof, DAEDALUS wakes ARGUS, then
+ARIADNE rehearses the changed owner/member/visitor workflow. Acceptance returns
+to MIMIR, who advances to PR540 without treating PR539 as a programme stop.
