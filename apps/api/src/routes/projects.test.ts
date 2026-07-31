@@ -32,6 +32,8 @@ class InMemorySupabase {
     developer_space_usage: [],
     developer_space_documents: [],
     documents: [],
+    institutions: [],
+    institution_members: [],
   };
 
   private idCounters: Record<string, number> = {};
@@ -92,9 +94,25 @@ class InMemorySupabase {
     row.id ??= this.nextId(table);
 
     if (table === "projects") {
+      row.institution_id ??= null;
       row.description ??= null;
       row.visibility ??= "private";
       row.connection_tier ??= "tier_1_showcase";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "institutions") {
+      row.summary ??= null;
+      row.verification_status ??= "unverified";
+      row.public_status ??= "private";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
+    if (table === "institution_members") {
+      row.role ??= "member";
+      row.status ??= "active";
       row.created_at ??= now;
       row.updated_at ??= now;
     }
@@ -312,7 +330,7 @@ class QueryBuilder {
   private greaterThanFilters: Array<[string, unknown]> = [];
   private orFilters: Array<Array<[string, "eq" | "gt", string]>> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
-  private operation: "select" | "insert" = "select";
+  private operation: "select" | "insert" | "update" = "select";
   private payload: Row | Row[] | null = null;
 
   constructor(private db: InMemorySupabase, private table: string) {}
@@ -355,6 +373,12 @@ class QueryBuilder {
 
   insert(payload: Row | Row[]) {
     this.operation = "insert";
+    this.payload = payload;
+    return this;
+  }
+
+  update(payload: Row) {
+    this.operation = "update";
     this.payload = payload;
     return this;
   }
@@ -421,9 +445,16 @@ class QueryBuilder {
       }
     }
 
-    const rows = this.operation === "insert"
-      ? (Array.isArray(this.payload) ? this.payload : [this.payload as Row]).map((payload) => this.db.insertRow(this.table, payload))
-      : this.matchingRows();
+    let rows: Row[];
+    if (this.operation === "insert") {
+      rows = (Array.isArray(this.payload) ? this.payload : [this.payload as Row])
+        .map((payload) => this.db.insertRow(this.table, payload));
+    } else if (this.operation === "update") {
+      rows = this.matchingRows();
+      for (const row of rows) Object.assign(row, this.payload, { updated_at: this.db.timestamp() });
+    } else {
+      rows = this.matchingRows();
+    }
 
     const data = clone(rows);
     if (mode === "single") {
@@ -1423,6 +1454,89 @@ test("project list and read are scoped to the authenticated owner", async () => 
   assert.equal(blocked.status, 404);
 
   setSupabaseAdminForTests(null);
+});
+
+test("Institution Project list, detail, visibility, and public attribution follow Institution authority", async () => {
+  const db = new InMemorySupabase();
+  const institution = db.insertRow("institutions", {
+    owner_user_id: "owner-user",
+    name: "Station Institutional Alpha",
+    slug: "station-institutional-alpha",
+    verification_status: "verified",
+    public_status: "public",
+  });
+  db.insertRow("institution_members", {
+    institution_id: institution.id,
+    user_id: "viewer-user",
+    role: "member",
+    status: "active",
+  });
+  const project = db.insertRow("projects", {
+    owner_user_id: null,
+    institution_id: institution.id,
+    name: "Institution Project",
+    slug: "institution-project",
+    visibility: "private",
+  });
+  setSupabaseAdminForTests(db.client as any);
+  const app = createProjectsApp();
+
+  try {
+    const ownerList = await requestJson(app, "GET", "/projects", { token: "owner-token" });
+    assert.equal(ownerList.status, 200);
+    assert.equal(ownerList.body.institutionProjects.length, 1);
+    assert.deepEqual(ownerList.body.institutionProjects[0].access, { role: "institution_owner", readOnly: false });
+
+    const memberList = await requestJson(app, "GET", "/projects", { token: "viewer-token" });
+    assert.equal(memberList.body.institutionProjects.length, 1);
+    assert.deepEqual(memberList.body.institutionProjects[0].access, { role: "institution_member", readOnly: true });
+
+    const ownerDetail = await requestJson(app, "GET", `/projects/${project.id}`, { token: "owner-token" });
+    assert.equal(ownerDetail.status, 200);
+    assert.deepEqual(ownerDetail.body.access, { role: "institution_owner", readOnly: false });
+    assert.deepEqual(Object.keys(ownerDetail.body).sort(), ["access", "developerSpaces", "evidence", "institution", "project"]);
+    assert.equal(JSON.stringify(ownerDetail.body).includes(institution.id), false);
+
+    const memberDetail = await requestJson(app, "GET", "/projects/institution-project", { token: "viewer-token" });
+    assert.equal(memberDetail.status, 200);
+    assert.deepEqual(memberDetail.body.access, { role: "institution_member", readOnly: true });
+    assert.equal((await requestJson(app, "GET", "/projects/institution-project", { token: "other-token" })).status, 404);
+
+    const memberPatch = await requestJson(app, "PATCH", "/projects/institution-project", {
+      token: "viewer-token",
+      body: { visibility: "public" },
+    });
+    assert.equal(memberPatch.status, 404);
+    assert.equal(db.tables.projects[0].visibility, "private");
+
+    const anonymousPrivate = await requestJson(app, "GET", "/projects/public/institution-project");
+    assert.equal(anonymousPrivate.status, 404);
+
+    const ownerPatch = await requestJson(app, "PATCH", "/projects/institution-project", {
+      token: "owner-token",
+      body: { visibility: "public" },
+    });
+    assert.equal(ownerPatch.status, 200);
+    assert.deepEqual(ownerPatch.body.project.access, { role: "institution_owner", readOnly: false });
+
+    const publicRead = await requestJson(app, "GET", "/projects/public/institution-project");
+    assert.equal(publicRead.status, 200);
+    assert.deepEqual(publicRead.body.project.institution, {
+      name: "Station Institutional Alpha",
+      slug: "station-institutional-alpha",
+      href: "/institutions/station-institutional-alpha",
+    });
+    assert.equal(JSON.stringify(publicRead.body).includes(institution.id), false);
+
+    institution.verification_status = "revoked";
+    institution.public_status = "private";
+    assert.equal((await requestJson(app, "GET", "/projects/public/institution-project")).status, 404);
+    const revokedPrivateDetail = await requestJson(app, "GET", "/projects/institution-project", { token: "viewer-token" });
+    assert.equal(revokedPrivateDetail.status, 200);
+    assert.equal(revokedPrivateDetail.body.project.publicHref, null);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
 });
 
 test("project read includes only owner attached Developer Space summaries", async () => {

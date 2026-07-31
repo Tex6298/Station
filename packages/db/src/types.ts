@@ -422,7 +422,8 @@ export interface Database {
       projects: {
         Row: {
           id: string;
-          owner_user_id: string;
+          owner_user_id: string | null;
+          institution_id: string | null;
           name: string;
           slug: string;
           description: string | null;
@@ -431,8 +432,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "description" | "visibility" | "connection_tier" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["projects"]["Row"], "id" | "institution_id" | "description" | "visibility" | "connection_tier" | "created_at" | "updated_at"> & {
           id?: string;
+          institution_id?: string | null;
           description?: string | null;
           visibility?: ProjectVisibility;
           connection_tier?: ProjectConnectionTier;
@@ -2374,6 +2376,18 @@ export interface Database {
       };
       create_project_with_owner_v1: {
         Args: {
+          p_actor_user_id: string;
+          p_name: string;
+          p_slug: string;
+          p_description: string | null;
+          p_visibility: ProjectVisibility;
+          p_connection_tier: ProjectConnectionTier;
+        };
+        Returns: Database["public"]["Tables"]["projects"]["Row"];
+      };
+      create_institution_project_v1: {
+        Args: {
+          p_institution_id: string;
           p_actor_user_id: string;
           p_name: string;
           p_slug: string;

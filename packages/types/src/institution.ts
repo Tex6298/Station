@@ -1,3 +1,5 @@
+import type { InstitutionProjectSummary } from "./project";
+
 export type InstitutionVerificationStatus = "unverified" | "verified" | "revoked";
 export type InstitutionPublicStatus = "private" | "public";
 export type InstitutionMemberStatus = "invited" | "active" | "removed";
@@ -59,6 +61,7 @@ export interface InstitutionTeamResponse {
   institution: InstitutionSummary;
   owner: InstitutionTeamPrincipal;
   members: InstitutionTeamMember[];
+  projects: InstitutionProjectSummary[];
 }
 
 export interface InstitutionAdminSummary {

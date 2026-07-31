@@ -17,7 +17,44 @@ export interface ProjectViewerAccess {
   readOnly: true;
 }
 
-export type ProjectAccess = ProjectOwnerAccess | ProjectViewerAccess;
+export interface InstitutionProjectOwnerAccess {
+  role: "institution_owner";
+  readOnly: false;
+}
+
+export interface InstitutionProjectMemberAccess {
+  role: "institution_member";
+  readOnly: true;
+}
+
+export type ProjectAccess = ProjectOwnerAccess | ProjectViewerAccess | InstitutionProjectOwnerAccess | InstitutionProjectMemberAccess;
+
+export interface ProjectInstitutionIdentity {
+  name: string;
+  slug: string;
+  href: string | null;
+}
+
+export interface InstitutionProjectSummary {
+  name: string;
+  slug: string;
+  description: string | null;
+  visibility: ProjectVisibility;
+  connectionTier: ProjectConnectionTier;
+  createdAt: string;
+  updatedAt: string;
+  publicHref: string | null;
+  institution: ProjectInstitutionIdentity;
+  access: InstitutionProjectOwnerAccess | InstitutionProjectMemberAccess;
+}
+
+export interface InstitutionProjectDetailResponse {
+  access: InstitutionProjectOwnerAccess | InstitutionProjectMemberAccess;
+  institution: ProjectInstitutionIdentity;
+  project: Omit<InstitutionProjectSummary, "institution" | "access">;
+  developerSpaces: [];
+  evidence: [];
+}
 
 export interface ProjectCollaboratorIdentity {
   username: string;
@@ -137,6 +174,7 @@ export interface PublicProjectProfile {
   createdAt: string;
   updatedAt: string;
   publicDeveloperSpaceCount: number;
+  institution?: ProjectInstitutionIdentity;
 }
 
 export interface PublicProjectEvidenceItem {

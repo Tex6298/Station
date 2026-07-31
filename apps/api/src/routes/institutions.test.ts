@@ -23,6 +23,7 @@ class InstitutionSupabase {
     institutions: [],
     institution_members: [],
     institution_audit_events: [],
+    projects: [],
   };
 
   queriedTables: string[] = [];
@@ -118,6 +119,15 @@ class InstitutionSupabase {
       row.created_at ??= now;
     }
 
+    if (table === "projects") {
+      row.owner_user_id ??= null;
+      row.description ??= null;
+      row.visibility ??= "private";
+      row.connection_tier ??= "tier_1_showcase";
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 
@@ -159,6 +169,28 @@ class InstitutionSupabase {
       });
       this.audit(institution.id, actor.id, owner.id, "provisioned", institution.created_at);
       return { data: [{ outcome: "created", institution_id: institution.id }], error: null };
+    }
+
+    if (name === "create_institution_project_v1") {
+      const institution = this.institution(args.p_institution_id);
+      if (!institution || institution.owner_user_id !== args.p_actor_user_id) {
+        return { data: null, error: null };
+      }
+      if (this.rows("projects").some((row) => row.slug === args.p_slug)) {
+        return { data: null, error: { code: "23505" } };
+      }
+      return {
+        data: this.insertRow("projects", {
+          owner_user_id: null,
+          institution_id: institution.id,
+          name: args.p_name.trim(),
+          slug: args.p_slug,
+          description: args.p_description,
+          visibility: args.p_visibility,
+          connection_tier: args.p_connection_tier,
+        }),
+        error: null,
+      };
     }
 
     if (name === "transition_institution_verification_v1") {
@@ -581,7 +613,7 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
     });
     assert.equal(memberTeam.status, 200);
     assert.equal(memberTeam.cacheControl, "private, no-store");
-    assertKeys(memberTeam.body, ["institution", "owner", "members"]);
+    assertKeys(memberTeam.body, ["institution", "owner", "members", "projects"]);
     assertKeys(memberTeam.body.institution, [
       "name", "slug", "summary", "verificationStatus", "publicStatus", "publicHref", "access",
     ]);
@@ -595,6 +627,32 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
     assert.equal(memberTeam.body.members[0].status, "active");
     assert.equal("expiresAt" in memberTeam.body.members[0], false);
     assert.equal(JSON.stringify(memberTeam.body).includes("admin-user"), false);
+
+    const memberProjectCreate = await requestJson(app, "POST", "/institutions/station-labs/projects", {
+      token: "member-token",
+      body: { name: "Denied Project", slug: "denied-project", visibility: "private" },
+    });
+    assert.equal(memberProjectCreate.status, 404);
+
+    const ownerProjectCreate = await requestJson(app, "POST", "/institutions/station-labs/projects", {
+      token: "owner-token",
+      body: { name: "Institution Alpha", slug: "institution-alpha", visibility: "public" },
+    });
+    assert.equal(ownerProjectCreate.status, 201);
+    assertKeys(ownerProjectCreate.body.project, [
+      "name", "slug", "description", "visibility", "connectionTier", "createdAt", "updatedAt",
+      "publicHref", "institution", "access",
+    ]);
+    assert.deepEqual(ownerProjectCreate.body.project.access, { role: "institution_owner", readOnly: false });
+    assert.equal(ownerProjectCreate.body.project.institution.name, "Station Labs");
+    assert.equal(JSON.stringify(ownerProjectCreate.body).includes("owner-user"), false);
+    assert.equal(db.tables.projects[0].owner_user_id, null);
+
+    const memberProjects = await requestJson(app, "GET", "/institutions/station-labs/team", {
+      token: "member-token",
+    });
+    assert.equal(memberProjects.body.projects.length, 1);
+    assert.deepEqual(memberProjects.body.projects[0].access, { role: "institution_member", readOnly: true });
 
     for (const path of [
       "/institutions/station-labs/invitations",
@@ -658,7 +716,7 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
 
     assert.deepEqual(
       [...new Set(db.queriedTables)].sort(),
-      ["institution_members", "institutions", "profiles"]
+      ["institution_members", "institutions", "profiles", "projects"]
     );
     assert.deepEqual(
       db.tables.institution_audit_events.map((row) => row.action),
@@ -784,11 +842,10 @@ test("migration 092 freezes raw access, authority, lifecycle, audit, and zero in
   const queriedTables = [...route.matchAll(/\.from\("([^"]+)"\)/g)].map((match) => match[1]);
   assert.deepEqual(
     [...new Set(queriedTables)].sort(),
-    ["institution_members", "institutions", "profiles"]
+    ["institution_members", "institutions", "profiles", "projects"]
   );
   for (const forbidden of [
     "project_members",
-    "projects",
     "spaces",
     "developer_spaces",
     "documents",
@@ -825,4 +882,22 @@ test("migration 092 places inherited profile-grant refusal before institution cr
   assert.match(postassert, /postassert direct profile ACL differs from migration 091/i);
   assert.match(postassert, /postassert effective browser profile ACL differs from migration 091/i);
   assert.match(postassert, /postassert trusted service profile ACL differs from migration 091/i);
+});
+
+test("migration 093 enforces exact-one Project principal and split owner invariant", () => {
+  const migration = readFileSync(
+    resolve("infra/supabase/migrations/093_institution_owned_projects.sql"),
+    "utf8"
+  );
+
+  assert.match(migration, /pg_advisory_xact_lock[\s\S]*station\.pr538\.institution_owned_projects\.093/i);
+  assert.match(migration, /alter table public\.projects alter column owner_user_id drop not null/i);
+  assert.match(migration, /add column institution_id uuid references public\.institutions\(id\) on delete restrict/i);
+  assert.match(migration, /projects_exactly_one_principal_check[\s\S]*owner_user_id is not null[\s\S]*institution_id is not null[\s\S]*= 1/i);
+  assert.match(migration, /personal Project must have one matching active owner membership/i);
+  assert.match(migration, /Institution Project cannot have a Project owner membership/i);
+  assert.match(migration, /new\.owner_user_id is distinct from old\.owner_user_id[\s\S]*new\.institution_id is distinct from old\.institution_id/i);
+  assert.match(migration, /create or replace function public\.create_institution_project_v1[\s\S]*security definer[\s\S]*institution_row\.owner_user_id<>p_actor_user_id/i);
+  assert.match(migration, /revoke all on function public\.create_institution_project_v1[\s\S]*from public,anon,authenticated/i);
+  assert.match(migration, /grant execute on function public\.create_institution_project_v1[\s\S]*to service_role/i);
 });

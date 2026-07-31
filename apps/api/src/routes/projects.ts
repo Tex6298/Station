@@ -5,6 +5,9 @@ import type {
   ProjectCollaboratorIdentity,
   ProjectEvidenceItem,
   ProjectInvitation,
+  InstitutionProjectDetailResponse,
+  InstitutionProjectSummary,
+  ProjectInstitutionIdentity,
   ProjectViewerMember,
   PublicProjectEvidenceItem,
   PublicProjectDeveloperSpaceSummary,
@@ -35,8 +38,10 @@ const createProjectSchema = z.object({
 }).strict();
 const projectUsernameSchema = z.object({ username: usernameSchema }).strict();
 const emptyBodySchema = z.object({}).strict();
+const updateProjectSchema = z.object({ visibility: visibilitySchema }).strict();
 
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
+type InstitutionRow = Database["public"]["Tables"]["institutions"]["Row"];
 type ProjectMemberRow = Database["public"]["Tables"]["project_members"]["Row"];
 type ProfileRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
@@ -72,7 +77,7 @@ type ProjectEvidenceDocumentRow = Pick<
 >;
 type PublicProjectRow = Pick<
   ProjectRow,
-  "id" | "owner_user_id" | "name" | "slug" | "description" | "visibility" | "created_at" | "updated_at"
+  "id" | "owner_user_id" | "institution_id" | "name" | "slug" | "description" | "visibility" | "created_at" | "updated_at"
 >;
 type PublicProjectDeveloperSpaceRow = Pick<
   DeveloperSpaceRow,
@@ -142,6 +147,8 @@ const PROJECT_ERROR_RESPONSES = {
 
 const OWNER_ACCESS = { role: "owner", readOnly: false } as const;
 const VIEWER_ACCESS = { role: "viewer", readOnly: true } as const;
+const INSTITUTION_OWNER_ACCESS = { role: "institution_owner", readOnly: false } as const;
+const INSTITUTION_MEMBER_ACCESS = { role: "institution_member", readOnly: true } as const;
 
 function setPrivateNoStore(res: Response) {
   res.set("Cache-Control", "private, no-store");
@@ -180,6 +187,31 @@ function serializeProject(row: ProjectRow) {
     connectionTier: row.connection_tier,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+  };
+}
+
+function serializeInstitutionIdentity(row: InstitutionRow): ProjectInstitutionIdentity {
+  return {
+    name: row.name,
+    slug: row.slug,
+    href: row.verification_status === "verified" && row.public_status === "public"
+      ? `/institutions/${encodeURIComponent(row.slug)}`
+      : null,
+  };
+}
+
+function serializeInstitutionProject(
+  project: ProjectRow,
+  institution: InstitutionRow,
+  access: typeof INSTITUTION_OWNER_ACCESS | typeof INSTITUTION_MEMBER_ACCESS
+): InstitutionProjectSummary {
+  return {
+    ...serializeProject(project),
+    publicHref: institution.verification_status === "verified" && institution.public_status === "public"
+      ? publicProjectHref(project)
+      : null,
+    institution: serializeInstitutionIdentity(institution),
+    access,
   };
 }
 
@@ -571,20 +603,69 @@ async function loadSharedProjects(actorUserId: string): Promise<{ projects: Shar
     .in("id", projectIds);
 
   if (projectError) return { projects: [], error: true };
-  const projectRows = (projects ?? []) as ProjectRow[];
-  const profilesResult = await loadProfiles(projectRows.map((project) => project.owner_user_id));
+  const projectRows = ((projects ?? []) as ProjectRow[]).filter((project) => Boolean(project.owner_user_id));
+  const personalRows = projectRows.filter((project) => Boolean(project.owner_user_id));
+  const profilesResult = await loadProfiles(personalRows.map((project) => project.owner_user_id!));
   if (profilesResult.error) return { projects: [], error: true };
 
   return {
-    projects: projectRows
+    projects: personalRows
       .map((project) => {
-        const owner = profilesResult.profiles.get(project.owner_user_id);
+        const owner = profilesResult.profiles.get(project.owner_user_id!);
         return owner ? serializeSharedProject(project, owner) : null;
       })
       .filter((project): project is SharedProjectSummary => Boolean(project))
       .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || a.name.localeCompare(b.name)),
     error: false,
   };
+}
+
+async function loadInstitutionProjects(actorUserId: string): Promise<{ projects: InstitutionProjectSummary[]; error: boolean }> {
+  const sb = getSupabaseAdmin();
+  const [owned, memberships] = await Promise.all([
+    sb.from("institutions").select("*").eq("owner_user_id", actorUserId),
+    sb.from("institution_members").select("institution_id").eq("user_id", actorUserId).eq("role", "member").eq("status", "active"),
+  ]);
+  if (owned.error || memberships.error) return { projects: [], error: true };
+  const ownedRows = (owned.data ?? []) as InstitutionRow[];
+  const memberIds = (memberships.data ?? []).map((row) => row.institution_id);
+  let memberRows: InstitutionRow[] = [];
+  if (memberIds.length) {
+    const result = await sb.from("institutions").select("*").in("id", memberIds);
+    if (result.error) return { projects: [], error: true };
+    memberRows = (result.data ?? []) as InstitutionRow[];
+  }
+  const institutions = [...ownedRows, ...memberRows];
+  if (!institutions.length) return { projects: [], error: false };
+  const result = await sb.from("projects").select("*").in("institution_id", institutions.map((row) => row.id)).order("created_at", { ascending: false });
+  if (result.error) return { projects: [], error: true };
+  const byId = new Map(institutions.map((row) => [row.id, row]));
+  const ownedIds = new Set(ownedRows.map((row) => row.id));
+  return {
+    projects: ((result.data ?? []) as ProjectRow[]).map((project) => {
+      const institution = byId.get(project.institution_id!);
+      return institution ? serializeInstitutionProject(project, institution, ownedIds.has(institution.id) ? INSTITUTION_OWNER_ACCESS : INSTITUTION_MEMBER_ACCESS) : null;
+    }).filter((row): row is InstitutionProjectSummary => Boolean(row)),
+    error: false,
+  };
+}
+
+async function resolveInstitutionProjectAccess(project: ProjectRow, actorUserId: string): Promise<{ detail: InstitutionProjectDetailResponse | null; error: boolean }> {
+  if (!project.institution_id) return { detail: null, error: false };
+  const sb = getSupabaseAdmin();
+  const { data, error } = await sb.from("institutions").select("*").eq("id", project.institution_id).maybeSingle();
+  if (error) return { detail: null, error: true };
+  const institution = data as InstitutionRow | null;
+  if (!institution) return { detail: null, error: false };
+  let access: typeof INSTITUTION_OWNER_ACCESS | typeof INSTITUTION_MEMBER_ACCESS | null = institution.owner_user_id === actorUserId ? INSTITUTION_OWNER_ACCESS : null;
+  if (!access) {
+    const membership = await sb.from("institution_members").select("id").eq("institution_id", institution.id).eq("user_id", actorUserId).eq("role", "member").eq("status", "active").maybeSingle();
+    if (membership.error) return { detail: null, error: true };
+    if (membership.data) access = INSTITUTION_MEMBER_ACCESS;
+  }
+  if (!access) return { detail: null, error: false };
+  const summary = serializeInstitutionProject(project, institution, access);
+  return { detail: { access, institution: summary.institution, project: { name: summary.name, slug: summary.slug, description: summary.description, visibility: summary.visibility, connectionTier: summary.connectionTier, createdAt: summary.createdAt, updatedAt: summary.updatedAt, publicHref: summary.publicHref }, developerSpaces: [], evidence: [] }, error: false };
 }
 
 async function loadInvitations(actorUserId: string): Promise<{ invitations: ProjectInvitation[]; error: boolean }> {
@@ -613,14 +694,14 @@ async function loadInvitations(actorUserId: string): Promise<{ invitations: Proj
   if (projectError) return { invitations: [], error: true };
   const projectRows = (projects ?? []) as ProjectRow[];
   const projectsById = new Map(projectRows.map((project) => [project.id, project]));
-  const profilesResult = await loadProfiles(projectRows.map((project) => project.owner_user_id));
+  const profilesResult = await loadProfiles(projectRows.map((project) => project.owner_user_id!));
   if (profilesResult.error) return { invitations: [], error: true };
 
   return {
     invitations: currentMemberships
       .map((membership) => {
         const project = projectsById.get(membership.project_id);
-        const owner = project ? profilesResult.profiles.get(project.owner_user_id) : null;
+        const owner = project?.owner_user_id ? profilesResult.profiles.get(project.owner_user_id) : null;
         if (!project || !owner || !membership.invite_expires_at) return null;
         return {
           project: {
@@ -657,6 +738,7 @@ async function loadSharedProjectDetail(
 
   if (membershipError) return { detail: null, error: true };
   if (!membership) return { detail: null, error: false };
+  if (!project.owner_user_id) return { detail: null, error: false };
 
   const profilesResult = await loadProfiles([project.owner_user_id]);
   if (profilesResult.error) return { detail: null, error: true };
@@ -747,7 +829,7 @@ projectsRouter.get("/public/:slug", async (req, res) => {
   const sb = getSupabaseAdmin();
   const { data: project, error } = await sb
     .from("projects")
-    .select("id, owner_user_id, name, slug, description, visibility, created_at, updated_at")
+    .select("id, owner_user_id, institution_id, name, slug, description, visibility, created_at, updated_at")
     .eq("slug", parsedSlug.data)
     .eq("visibility", "public")
     .maybeSingle();
@@ -755,13 +837,21 @@ projectsRouter.get("/public/:slug", async (req, res) => {
   if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicRead);
   if (!project) return res.status(404).json({ error: "Public Project not found." });
 
-  const { data: developerSpaces, error: developerSpacesError } = await sb
+  let institution: InstitutionRow | null = null;
+  if (project.institution_id) {
+    const institutionResult = await sb.from("institutions").select("*").eq("id", project.institution_id).eq("verification_status", "verified").eq("public_status", "public").maybeSingle();
+    if (institutionResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicRead);
+    if (!institutionResult.data) return res.status(404).json({ error: "Public Project not found." });
+    institution = institutionResult.data as InstitutionRow;
+  }
+
+  const { data: developerSpaces, error: developerSpacesError } = project.owner_user_id ? await sb
     .from("developer_spaces")
     .select("id, owner_user_id, project_name, slug, description, visibility, visualisation_type, updated_at")
     .eq("project_id", project.id)
     .eq("owner_user_id", project.owner_user_id)
     .eq("visibility", "public")
-    .order("updated_at", { ascending: false });
+    .order("updated_at", { ascending: false }) : { data: [], error: null };
 
   if (developerSpacesError) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicDeveloperSpaces);
 
@@ -771,11 +861,11 @@ projectsRouter.get("/public/:slug", async (req, res) => {
     return a.project_name.localeCompare(b.project_name);
   });
 
-  const publicEvidenceResult = await loadPublicProjectEvidence(sortedDeveloperSpaces, project.owner_user_id);
+  const publicEvidenceResult = project.owner_user_id ? await loadPublicProjectEvidence(sortedDeveloperSpaces, project.owner_user_id) : { publicEvidence: [], error: false };
   if (publicEvidenceResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.publicEvidence);
 
   return res.json({
-    project: serializePublicProject(project, sortedDeveloperSpaces.length),
+    project: { ...serializePublicProject(project, sortedDeveloperSpaces.length), ...(institution ? { institution: serializeInstitutionIdentity(institution) } : {}) },
     developerSpaces: sortedDeveloperSpaces
       .slice(0, PUBLIC_PROJECT_DEVELOPER_SPACE_LIMIT)
       .map(serializePublicDeveloperSpace),
@@ -797,9 +887,12 @@ projectsRouter.get("/", async (req, res) => {
   if (error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerList);
   const sharedResult = await loadSharedProjects(req.user!.id);
   if (sharedResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.collaborationRead);
+  const institutionResult = await loadInstitutionProjects(req.user!.id);
+  if (institutionResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.collaborationRead);
   return res.json({
     projects: (data ?? []).map(serializeProject),
     sharedProjects: sharedResult.projects,
+    institutionProjects: institutionResult.projects,
   });
 });
 
@@ -832,6 +925,52 @@ projectsRouter.post("/", async (req, res) => {
   }
 
   return res.status(201).json({ project: serializeProject(project) });
+});
+
+projectsRouter.patch("/:idOrSlug", async (req, res) => {
+  setPrivateNoStore(res);
+  const parsed = updateProjectSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: "Choose a valid Project visibility.",
+      code: "project_visibility_invalid",
+    });
+  }
+
+  const resolved = await resolveProject(req.params.idOrSlug);
+  if (resolved.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerRead);
+  const project = resolved.project;
+  if (!project) return res.status(404).json({ error: "Project not found." });
+
+  const sb = getSupabaseAdmin();
+  let institution: InstitutionRow | null = null;
+  if (project.institution_id) {
+    const result = await sb
+      .from("institutions")
+      .select("*")
+      .eq("id", project.institution_id)
+      .eq("owner_user_id", req.user!.id)
+      .maybeSingle();
+    if (result.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.ownerRead);
+    if (!result.data) return res.status(404).json({ error: "Project not found." });
+    institution = result.data as InstitutionRow;
+  } else if (project.owner_user_id !== req.user!.id) {
+    return res.status(404).json({ error: "Project not found." });
+  }
+
+  const { data, error } = await sb
+    .from("projects")
+    .update({ visibility: parsed.data.visibility as ProjectVisibility })
+    .eq("id", project.id)
+    .select("*")
+    .maybeSingle();
+  if (error || !data) return res.status(500).json(PROJECT_ERROR_RESPONSES.create);
+
+  return res.json({
+    project: institution
+      ? serializeInstitutionProject(data as ProjectRow, institution, INSTITUTION_OWNER_ACCESS)
+      : serializeProject(data as ProjectRow),
+  });
 });
 
 projectsRouter.post("/:idOrSlug/invitations", async (req, res) => {
@@ -1056,6 +1195,12 @@ projectsRouter.get("/:idOrSlug", async (req, res) => {
   if (!resolved.project) return res.status(404).json({ error: "Project not found." });
 
   const data = resolved.project;
+  if (data.institution_id) {
+    const institutionResult = await resolveInstitutionProjectAccess(data, req.user!.id);
+    if (institutionResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.sharedRead);
+    if (!institutionResult.detail) return res.status(404).json({ error: "Project not found." });
+    return res.json(institutionResult.detail);
+  }
   if (data.owner_user_id !== req.user!.id) {
     const sharedResult = await loadSharedProjectDetail(data, req.user!.id);
     if (sharedResult.error) return res.status(500).json(PROJECT_ERROR_RESPONSES.sharedRead);

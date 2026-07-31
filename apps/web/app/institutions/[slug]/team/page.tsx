@@ -11,9 +11,11 @@ import {
   institutionInvitationPath,
   institutionMemberRevokePath,
   institutionPublicationPath,
+  institutionProjectsPath,
   institutionTeamPath,
   isValidInstitutionUsername,
   normaliseInstitutionUsername,
+  suggestInstitutionProjectSlug,
 } from "@/lib/institutions";
 
 function MemberInstitutionSummary({ team }: { team: InstitutionTeamResponse }) {
@@ -158,6 +160,9 @@ export default function InstitutionTeamPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [inviteUsername, setInviteUsername] = useState("");
   const [pendingAction, setPendingAction] = useState<string | null>(null);
+  const [projectName, setProjectName] = useState("");
+  const [projectSlug, setProjectSlug] = useState("");
+  const [projectVisibility, setProjectVisibility] = useState<"private" | "unlisted" | "community" | "public">("private");
 
   useEffect(() => {
     let cancelled = false;
@@ -275,6 +280,30 @@ export default function InstitutionTeamPage() {
     }
   }
 
+  async function handleProjectCreate(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!token || projectSlug.length < 3) return;
+    setPendingAction("create-project");
+    setError(null);
+    setMessage(null);
+    try {
+      await apiPost(institutionProjectsPath(slug), {
+        name: projectName,
+        slug: projectSlug,
+        visibility: projectVisibility,
+        connectionTier: "tier_1_showcase",
+      }, token);
+      setProjectName("");
+      setProjectSlug("");
+      await refresh(token);
+      setMessage("Institution Project created.");
+    } catch (actionError) {
+      setError(actionError instanceof Error ? actionError.message : "Could not create this Project.");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
   if (loading) {
     return (
       <main className="station-page institution-page">
@@ -340,6 +369,75 @@ export default function InstitutionTeamPage() {
         ) : (
           <MemberInstitutionSummary team={team} />
         )}
+
+        <section className="station-panel institution-stack" aria-labelledby="institution-projects-heading">
+          <div className="institution-section-heading">
+            <div>
+              <h2 id="institution-projects-heading">Projects</h2>
+              <p>Projects owned by {team.institution.name}.</p>
+            </div>
+            <span className="station-status-pill">{team.projects.length}</span>
+          </div>
+          {team.institution.access.role === "owner" ? (
+            <form className="institution-stack" onSubmit={handleProjectCreate}>
+              <div className="institution-invite-row">
+                <label className="institution-field">
+                  <span>Project name</span>
+                  <input
+                    className="input"
+                    value={projectName}
+                    onChange={(event) => {
+                      setProjectName(event.target.value);
+                      setProjectSlug(suggestInstitutionProjectSlug(event.target.value));
+                    }}
+                    required
+                  />
+                </label>
+                <label className="institution-field">
+                  <span>Slug</span>
+                  <input
+                    className="input"
+                    value={projectSlug}
+                    onChange={(event) => setProjectSlug(suggestInstitutionProjectSlug(event.target.value))}
+                    minLength={3}
+                    maxLength={80}
+                    pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                    required
+                  />
+                </label>
+              </div>
+              <div className="station-action-row">
+                <label className="institution-field">
+                  <span>Visibility</span>
+                  <select className="input" value={projectVisibility} onChange={(event) => setProjectVisibility(event.target.value as typeof projectVisibility)}>
+                    <option value="private">Private</option>
+                    <option value="unlisted">Unlisted</option>
+                    <option value="community">Community</option>
+                    <option value="public">Public</option>
+                  </select>
+                </label>
+                <button className="station-link-button" type="submit" disabled={pendingAction !== null || projectSlug.length < 3}>
+                  {pendingAction === "create-project" ? "Creating..." : "Create Project"}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="station-notice">Institution member access is read-only.</div>
+          )}
+          <div className="institution-member-list">
+            {team.projects.length === 0 ? (
+              <div className="institution-empty">No Institution Projects yet.</div>
+            ) : team.projects.map((project) => (
+              <div key={project.slug} className="institution-member-row">
+                <div>
+                  <strong>{project.name}</strong>
+                  <span>{project.visibility} / {project.access.readOnly ? "Institution member / read-only" : "Institution owner"}</span>
+                </div>
+                <Link className="station-muted-button" href={`/projects/${encodeURIComponent(project.slug)}`}>Open Project</Link>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="station-panel institution-stack" aria-labelledby="institution-team-roster-heading">
           <div className="institution-section-heading">

@@ -6,9 +6,11 @@ import {
   institutionInvitationActionPath,
   institutionMemberRevokePath,
   institutionPublicationPath,
+  institutionProjectsPath,
   institutionTeamRequestPlan,
   isValidInstitutionUsername,
   normaliseInstitutionUsername,
+  suggestInstitutionProjectSlug,
 } from "./institutions";
 
 test("institution routes encode slugs and usernames preserve exact case", () => {
@@ -21,6 +23,8 @@ test("institution routes encode slugs and usernames preserve exact case", () => 
   );
   assert.equal(institutionMemberRevokePath("station-labs"), "/institutions/station-labs/members/revoke");
   assert.equal(institutionPublicationPath("station-labs"), "/institutions/station-labs/publication");
+  assert.equal(institutionProjectsPath("station/labs"), "/institutions/station%2Flabs/projects");
+  assert.equal(suggestInstitutionProjectSlug("  Institutional Alpha!  "), "institutional-alpha");
 });
 
 test("owner and member team plans make only the bounded team request", () => {
@@ -87,4 +91,16 @@ test("private institution index does not overclaim verification", () => {
 
   assert.match(source, /Institution identities/);
   assert.doesNotMatch(source, /Verified organisations/);
+});
+
+test("Institution Project controls separate owner creation from member read-only access", () => {
+  const source = readFileSync(
+    resolve("apps/web/app/institutions/[slug]/team/page.tsx"),
+    "utf8"
+  );
+  assert.match(source, /Projects owned by \{team\.institution\.name\}/);
+  assert.match(source, /team\.institution\.access\.role === "owner"/);
+  assert.match(source, /Institution member access is read-only/);
+  assert.match(source, /institutionProjectsPath\(slug\)/);
+  assert.match(source, /Institution member \/ read-only/);
 });

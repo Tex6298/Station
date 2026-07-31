@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type {
+  InstitutionProjectDetailResponse,
   ProjectEvidenceItem,
   ProjectViewerMember,
   SharedProjectDetailResponse,
@@ -65,14 +66,18 @@ interface OwnerProjectDetailResponse {
   activity?: Partial<ProjectActivity>;
 }
 
-type ProjectDetailResponse = OwnerProjectDetailResponse | SharedProjectDetailResponse;
+type ProjectDetailResponse = OwnerProjectDetailResponse | SharedProjectDetailResponse | InstitutionProjectDetailResponse;
 
 function isViewerProjectDetail(detail: ProjectDetailResponse): detail is SharedProjectDetailResponse {
   return detail.access.role === "viewer";
 }
 
 function isOwnerProjectDetail(detail: ProjectDetailResponse): detail is OwnerProjectDetailResponse {
-  return !isViewerProjectDetail(detail);
+  return detail.access.role === "owner";
+}
+
+function isInstitutionProjectDetail(detail: ProjectDetailResponse): detail is InstitutionProjectDetailResponse {
+  return detail.access.role === "institution_owner" || detail.access.role === "institution_member";
 }
 
 type OwnerDeveloperSpace = AttachedDeveloperSpaceSummary & {
@@ -231,6 +236,72 @@ function SharedProjectView({ detail }: { detail: SharedProjectDetailResponse }) 
               ))}
             </div>
           )}
+        </section>
+      </div>
+    </main>
+  );
+}
+
+function InstitutionProjectView({
+  detail,
+  pending,
+  onVisibility,
+}: {
+  detail: InstitutionProjectDetailResponse;
+  pending: boolean;
+  onVisibility: (visibility: ProjectVisibility) => void;
+}) {
+  const ownerAccess = detail.access.role === "institution_owner";
+  return (
+    <main className="station-page project-collaboration-page">
+      <div className="station-page-inner station-grid">
+        <header className="station-page-header">
+          <div>
+            <div className="station-eyebrow">Institution Project</div>
+            <h1 className="station-page-title project-collaboration-wrap">{detail.project.name}</h1>
+            <p className="station-page-lede">{detail.project.description || "No description yet."}</p>
+          </div>
+          <Link href="/projects" className="station-muted-button">All Projects</Link>
+        </header>
+        <section className="station-panel project-collaboration-summary" aria-label="Institution Project access">
+          <div className="project-collaboration-heading">
+            <div>
+              <h2>Owned by {detail.institution.name}</h2>
+              <p>This Institution is the Project principal.</p>
+            </div>
+            <span className="station-status-pill">
+              {ownerAccess ? "Institution owner" : "Institution member / read-only"}
+            </span>
+          </div>
+          <dl className="fact-grid compact">
+            <div><dt>Visibility</dt><dd>{detail.project.visibility}</dd></div>
+            <div><dt>Updated</dt><dd>{projectCollaborationDate(detail.project.updatedAt)}</dd></div>
+            <div><dt>Access</dt><dd>{ownerAccess ? "Manage" : "Read-only"}</dd></div>
+          </dl>
+          <div className="station-action-row">
+            {detail.institution.href ? (
+              <Link className="station-muted-button" href={detail.institution.href}>Institution identity</Link>
+            ) : (
+              <Link className="station-muted-button" href={`/institutions/${encodeURIComponent(detail.institution.slug)}/team`}>Institution team</Link>
+            )}
+            {detail.project.publicHref ? <Link className="station-muted-button" href={detail.project.publicHref}>Public page</Link> : null}
+          </div>
+          {ownerAccess ? (
+            <label className="institution-field">
+              <span>Project visibility</span>
+              <select
+                className="input"
+                value={detail.project.visibility}
+                disabled={pending}
+                onChange={(event) => onVisibility(event.target.value as ProjectVisibility)}
+              >
+                <option value="private">Private</option>
+                <option value="unlisted">Unlisted</option>
+                <option value="community">Community</option>
+                <option value="public">Public</option>
+              </select>
+            </label>
+          ) : null}
         </section>
       </div>
     </main>
@@ -416,6 +487,20 @@ export default function ProjectDetailPage() {
     }
   }
 
+  async function handleInstitutionVisibility(visibility: ProjectVisibility) {
+    if (!token || !detail || !isInstitutionProjectDetail(detail) || detail.access.readOnly) return;
+    setPendingAction("visibility");
+    setActionError(null);
+    try {
+      await apiPatch(`/projects/${encodeURIComponent(idOrSlug)}`, { visibility }, token);
+      setDetail(await apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, token));
+    } catch (e) {
+      setActionError(e instanceof Error ? e.message : "Could not update Project visibility.");
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
   if (loading) {
     return (
       <main className="station-page">
@@ -464,6 +549,16 @@ export default function ProjectDetailPage() {
 
   if (isViewerProjectDetail(detail)) {
     return <SharedProjectView detail={detail} />;
+  }
+
+  if (isInstitutionProjectDetail(detail)) {
+    return (
+      <InstitutionProjectView
+        detail={detail}
+        pending={pendingAction === "visibility"}
+        onVisibility={handleInstitutionVisibility}
+      />
+    );
   }
 
   const { project, developerSpaces } = detail;

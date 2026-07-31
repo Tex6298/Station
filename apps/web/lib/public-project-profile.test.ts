@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import test from "node:test";
 import {
   publicProjectDeveloperSpaceCountLabel,
@@ -33,4 +35,12 @@ test("public Project href helper rejects unsafe slugs", () => {
   assert.equal(publicProjectHref("Bad Slug"), null);
   assert.equal(publicProjectHref("10000000-0000-4000-8000-000000000100"), null);
   assert.equal(publicProjectHref(null), null);
+});
+
+test("public Project page renders only bounded verified Institution attribution", () => {
+  const source = readFileSync(resolve("apps/web/app/projects/public/[slug]/page.tsx"), "utf8");
+  assert.match(source, /project\.institution/);
+  assert.match(source, /Institution-owned/);
+  assert.match(source, /Open verified institution/);
+  assert.doesNotMatch(source, /owner_user_id|institution_id|email|invitation/i);
 });

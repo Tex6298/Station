@@ -98,6 +98,18 @@ export default function PublicProjectProfilePage() {
           <span className="station-status-pill">Public</span>
         </header>
 
+        {project.institution ? (
+          <section className="station-panel" aria-label="Institution attribution" style={{ display: "grid", gap: "0.65rem" }}>
+            <div className="station-eyebrow">Institution-owned</div>
+            <h2 style={{ margin: 0, fontSize: "1.1rem", overflowWrap: "anywhere" }}>{project.institution.name}</h2>
+            {project.institution.href ? (
+              <Link className="station-muted-button" href={project.institution.href} style={{ width: "fit-content" }}>
+                Open verified institution
+              </Link>
+            ) : null}
+          </section>
+        ) : null}
+
         <section className="station-grid station-grid-2">
           <div className="station-panel" style={{ display: "grid", gap: "0.9rem" }}>
             <p style={{ margin: 0, color: "#687078", fontSize: "0.92rem", lineHeight: 1.5 }}>

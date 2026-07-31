@@ -38,6 +38,19 @@ export function institutionPublicationPath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/publication`;
 }
 
+export function institutionProjectsPath(slug: string) {
+  return `/institutions/${encodeURIComponent(slug)}/projects`;
+}
+
+export function suggestInstitutionProjectSlug(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
 export function institutionTeamRequestPlan(slug: string, _access: InstitutionAccess) {
   return [institutionTeamPath(slug)] as const;
 }

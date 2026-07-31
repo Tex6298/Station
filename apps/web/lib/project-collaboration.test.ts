@@ -53,6 +53,16 @@ test("viewer detail never starts the owner resource request", async () => {
   );
   assert.deepEqual(owner.ownerResources, { spaces: ["owner-space"] });
   assert.equal(ownerRequests, 1);
+
+  const institutionMember = await loadProjectThenOwnerResources(
+    async () => ({ access: { role: "institution_member" as const, readOnly: true as const } }),
+    async () => {
+      ownerRequests += 1;
+      return { spaces: ["must-not-load"] };
+    }
+  );
+  assert.equal(institutionMember.ownerResources, null);
+  assert.equal(ownerRequests, 1);
 });
 
 test("member actions remain viewer-only and truthful", () => {
@@ -73,6 +83,9 @@ test("Project detail source branches before owner-only controls and keeps collab
   assert.match(detailSource, /loadProjectThenOwnerResources/);
   assert.match(detailSource, /detail\.access\.role === "viewer"/);
   assert.match(detailSource, /Read-only viewer/);
+  assert.match(detailSource, /Institution Project/);
+  assert.match(detailSource, /Institution member \/ read-only/);
+  assert.match(detailSource, /detail\.access\.role === "institution_owner"/);
   assert.match(detailSource, /Collaborators/);
   assert.match(detailSource, /attached Developer Space, and evidence metadata/);
   assert.match(detailSource, /Available owner Developer Spaces could not be determined/);
@@ -84,5 +97,5 @@ test("Project detail source branches before owner-only controls and keeps collab
   assert.match(listSource, /Shared Projects are unavailable/);
   assert.match(listSource, /Owner Projects are unavailable/);
   assert.match(listSource, /!actionCompleted && e instanceof ApiRequestError/);
-  assert.doesNotMatch(`${detailSource}\n${listSource}`, /invite by email|seat count|institution team/i);
+  assert.doesNotMatch(`${detailSource}\n${listSource}`, /invite by email|seat count/i);
 });

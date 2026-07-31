@@ -1,11 +1,12 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
-import type { Database } from "@station/db";
+import type { Database, ProjectConnectionTier, ProjectVisibility } from "@station/db";
 import type {
   InstitutionAccess,
   InstitutionAdminSummary,
   InstitutionIdentity,
   InstitutionInvitation,
+  InstitutionProjectSummary,
   InstitutionSummary,
   InstitutionTeamMember,
   InstitutionTeamResponse,
@@ -16,6 +17,7 @@ import { requireAuth } from "../middleware/require-auth";
 
 type InstitutionRow = Database["public"]["Tables"]["institutions"]["Row"];
 type InstitutionMemberRow = Database["public"]["Tables"]["institution_members"]["Row"];
+type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 type ProfileIdentityRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
   "id" | "username" | "display_name"
@@ -33,6 +35,15 @@ const provisionSchema = z.object({
 }).strict();
 const verificationSchema = z.object({ verified: z.boolean() }).strict();
 const publicationSchema = z.object({ public: z.boolean() }).strict();
+const projectVisibilitySchema = z.enum(["private", "unlisted", "community", "public"]);
+const projectConnectionTierSchema = z.enum(["tier_1_showcase", "tier_2_hosted", "tier_3_lab"]);
+const createInstitutionProjectSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  slug: slugSchema,
+  description: z.string().trim().max(4000).nullable().optional(),
+  visibility: projectVisibilitySchema.default("private"),
+  connectionTier: projectConnectionTierSchema.default("tier_1_showcase"),
+}).strict();
 
 const OWNER_ACCESS = {
   role: "owner",
@@ -46,6 +57,8 @@ const MEMBER_ACCESS = {
   canManageTeam: false,
   canManagePublication: false,
 } as const;
+const INSTITUTION_PROJECT_OWNER_ACCESS = { role: "institution_owner", readOnly: false } as const;
+const INSTITUTION_PROJECT_MEMBER_ACCESS = { role: "institution_member", readOnly: true } as const;
 
 const INSTITUTION_NOT_FOUND = {
   error: "Institution not found.",
@@ -101,6 +114,33 @@ function serializeInstitutionBase(row: InstitutionRow): Omit<InstitutionSummary,
 function serializeInstitution(row: InstitutionRow, access: InstitutionAccess): InstitutionSummary {
   return {
     ...serializeInstitutionBase(row),
+    access,
+  };
+}
+
+function serializeInstitutionProject(
+  project: ProjectRow,
+  institution: InstitutionRow,
+  access: typeof INSTITUTION_PROJECT_OWNER_ACCESS | typeof INSTITUTION_PROJECT_MEMBER_ACCESS
+): InstitutionProjectSummary {
+  return {
+    name: project.name,
+    slug: project.slug,
+    description: project.description,
+    visibility: project.visibility,
+    connectionTier: project.connection_tier,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at,
+    publicHref: project.visibility === "public"
+      && institution.verification_status === "verified"
+      && institution.public_status === "public"
+      ? `/projects/public/${encodeURIComponent(project.slug)}`
+      : null,
+    institution: {
+      name: institution.name,
+      slug: institution.slug,
+      href: publicHref(institution),
+    },
     access,
   };
 }
@@ -444,6 +484,13 @@ institutionsRouter.get("/:slug/team", async (req, res) => {
   if (!accessResult.access) return res.status(404).json(INSTITUTION_NOT_FOUND);
 
   const sb = getSupabaseAdmin();
+  const { data: projectData, error: projectError } = await sb
+    .from("projects")
+    .select("*")
+    .eq("institution_id", resolved.institution.id)
+    .order("created_at", { ascending: false });
+  if (projectError) return res.status(500).json(INSTITUTION_READ_FAILED);
+
   let query = sb
     .from("institution_members")
     .select("user_id, role, status, invite_expires_at, responded_at, created_at")
@@ -498,8 +545,60 @@ institutionsRouter.get("/:slug/team", async (req, res) => {
       status: "active",
     },
     members,
+    projects: ((projectData ?? []) as ProjectRow[]).map((project) => (
+      serializeInstitutionProject(
+        project,
+        resolved.institution!,
+        accessResult.access!.role === "owner"
+          ? INSTITUTION_PROJECT_OWNER_ACCESS
+          : INSTITUTION_PROJECT_MEMBER_ACCESS
+      )
+    )),
   };
   return res.json(response);
+});
+
+institutionsRouter.post("/:slug/projects", async (req, res) => {
+  const parsed = createInstitutionProjectSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: "Enter valid Project details.",
+      code: "institution_project_details_invalid",
+    });
+  }
+
+  const resolved = await resolveInstitution(req.params.slug);
+  if (resolved.error) return res.status(500).json(INSTITUTION_READ_FAILED);
+  if (!resolved.institution || resolved.institution.owner_user_id !== req.user!.id) {
+    return res.status(404).json(INSTITUTION_NOT_FOUND);
+  }
+
+  const { data, error } = await getSupabaseAdmin().rpc("create_institution_project_v1", {
+    p_institution_id: resolved.institution.id,
+    p_actor_user_id: req.user!.id,
+    p_name: parsed.data.name,
+    p_slug: parsed.data.slug,
+    p_description: parsed.data.description ?? null,
+    p_visibility: parsed.data.visibility as ProjectVisibility,
+    p_connection_tier: parsed.data.connectionTier as ProjectConnectionTier,
+  });
+  if (error || !data) {
+    if (error?.code === "23505") {
+      return res.status(409).json({
+        error: "Project slug is already in use.",
+        code: "institution_project_slug_conflict",
+      });
+    }
+    return res.status(500).json(INSTITUTION_WRITE_FAILED);
+  }
+
+  return res.status(201).json({
+    project: serializeInstitutionProject(
+      data as ProjectRow,
+      resolved.institution,
+      INSTITUTION_PROJECT_OWNER_ACCESS
+    ),
+  });
 });
 
 institutionsRouter.post("/:slug/invitations", async (req, res) => {
