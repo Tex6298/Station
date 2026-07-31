@@ -243,6 +243,24 @@ function publicProjectSearchResults(rows: any[], limit = 6): PublicProjectSearch
     }));
 }
 
+async function filterPublicProjectsByPrincipal(sb: any, rows: any[]) {
+  const institutionIds = [...new Set(
+    rows.map((row) => row.institution_id).filter((value): value is string => typeof value === "string")
+  )];
+  if (institutionIds.length === 0) return rows;
+
+  const { data, error } = await sb
+    .from("institutions")
+    .select("id")
+    .in("id", institutionIds)
+    .eq("verification_status", "verified")
+    .eq("public_status", "public");
+  const visibleInstitutionIds = error
+    ? new Set<string>()
+    : new Set((data ?? []).map((row: any) => row.id));
+  return rows.filter((row) => !row.institution_id || visibleInstitutionIds.has(row.institution_id));
+}
+
 function publicDocumentSearchResults(rows: any[], limit = 8) {
   const uniqueRows = [];
   const seenIds = new Set<string>();
@@ -1214,21 +1232,21 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     Promise.all([
       sb
         .from("projects")
-        .select("name, slug, description, visibility, created_at, updated_at")
+        .select("name, slug, description, visibility, institution_id, created_at, updated_at")
         .eq("visibility", "public")
         .ilike("name", `%${q}%`)
         .order("updated_at", { ascending: false })
         .limit(6),
       sb
         .from("projects")
-        .select("name, slug, description, visibility, created_at, updated_at")
+        .select("name, slug, description, visibility, institution_id, created_at, updated_at")
         .eq("visibility", "public")
         .ilike("description", `%${q}%`)
         .order("updated_at", { ascending: false })
         .limit(6),
       sb
         .from("projects")
-        .select("name, slug, description, visibility, created_at, updated_at")
+        .select("name, slug, description, visibility, institution_id, created_at, updated_at")
         .eq("visibility", "public")
         .ilike("slug", `%${q}%`)
         .order("updated_at", { ascending: false })
@@ -1267,7 +1285,10 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
       presentation: normalizeSpacePresentation(space.theme),
     })),
     personas:  await publicPersonaSearchResults(sb, personas.data ?? []),
-    projects: publicProjectSearchResults(projectResults.flatMap((result) => result.data ?? [])),
+    projects: publicProjectSearchResults(await filterPublicProjectsByPrincipal(
+      sb,
+      projectResults.flatMap((result) => result.data ?? [])
+    )),
     developerSpaces: developerSpaceSearchResults(developerSpaceResults.flatMap((result) => result.data ?? [])),
     publicEncounterExhibits,
     crossOwnerPublicEncounterExhibits,

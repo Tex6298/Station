@@ -86,6 +86,10 @@ test("Project detail source branches before owner-only controls and keeps collab
   assert.match(detailSource, /Institution Project/);
   assert.match(detailSource, /Institution member \/ read-only/);
   assert.match(detailSource, /detail\.access\.role === "institution_owner"/);
+  assert.match(detailSource, /actionError=\{actionError\}/);
+  assert.match(detailSource, /actionMessage=\{actionMessage\}/);
+  assert.match(detailSource, /Project visibility updated\./);
+  assert.match(detailSource, /Could not update Project visibility\./);
   assert.match(detailSource, /Collaborators/);
   assert.match(detailSource, /attached Developer Space, and evidence metadata/);
   assert.match(detailSource, /Available owner Developer Spaces could not be determined/);

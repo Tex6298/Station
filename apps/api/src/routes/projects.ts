@@ -206,7 +206,13 @@ function serializeInstitutionProject(
   access: typeof INSTITUTION_OWNER_ACCESS | typeof INSTITUTION_MEMBER_ACCESS
 ): InstitutionProjectSummary {
   return {
-    ...serializeProject(project),
+    name: project.name,
+    slug: project.slug,
+    description: project.description,
+    visibility: project.visibility,
+    connectionTier: project.connection_tier,
+    createdAt: project.created_at,
+    updatedAt: project.updated_at,
     publicHref: institution.verification_status === "verified" && institution.public_status === "public"
       ? publicProjectHref(project)
       : null,

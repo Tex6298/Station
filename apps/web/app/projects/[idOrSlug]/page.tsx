@@ -245,10 +245,14 @@ function SharedProjectView({ detail }: { detail: SharedProjectDetailResponse }) 
 function InstitutionProjectView({
   detail,
   pending,
+  actionError,
+  actionMessage,
   onVisibility,
 }: {
   detail: InstitutionProjectDetailResponse;
   pending: boolean;
+  actionError: string | null;
+  actionMessage: string | null;
   onVisibility: (visibility: ProjectVisibility) => void;
 }) {
   const ownerAccess = detail.access.role === "institution_owner";
@@ -263,6 +267,8 @@ function InstitutionProjectView({
           </div>
           <Link href="/projects" className="station-muted-button">All Projects</Link>
         </header>
+        {actionError ? <div className="station-notice" data-tone="error">{actionError}</div> : null}
+        {actionMessage ? <div className="station-notice" data-tone="success">{actionMessage}</div> : null}
         <section className="station-panel project-collaboration-summary" aria-label="Institution Project access">
           <div className="project-collaboration-heading">
             <div>
@@ -491,9 +497,11 @@ export default function ProjectDetailPage() {
     if (!token || !detail || !isInstitutionProjectDetail(detail) || detail.access.readOnly) return;
     setPendingAction("visibility");
     setActionError(null);
+    setActionMessage(null);
     try {
       await apiPatch(`/projects/${encodeURIComponent(idOrSlug)}`, { visibility }, token);
       setDetail(await apiGet<ProjectDetailResponse>(`/projects/${encodeURIComponent(idOrSlug)}`, token));
+      setActionMessage("Project visibility updated.");
     } catch (e) {
       setActionError(e instanceof Error ? e.message : "Could not update Project visibility.");
     } finally {
@@ -556,6 +564,8 @@ export default function ProjectDetailPage() {
       <InstitutionProjectView
         detail={detail}
         pending={pendingAction === "visibility"}
+        actionError={actionError}
+        actionMessage={actionMessage}
         onVisibility={handleInstitutionVisibility}
       />
     );

@@ -1486,6 +1486,10 @@ test("Institution Project list, detail, visibility, and public attribution follo
     assert.equal(ownerList.status, 200);
     assert.equal(ownerList.body.institutionProjects.length, 1);
     assert.deepEqual(ownerList.body.institutionProjects[0].access, { role: "institution_owner", readOnly: false });
+    assert.deepEqual(Object.keys(ownerList.body.institutionProjects[0]).sort(), [
+      "access", "connectionTier", "createdAt", "description", "institution", "name",
+      "publicHref", "slug", "updatedAt", "visibility",
+    ].sort());
 
     const memberList = await requestJson(app, "GET", "/projects", { token: "viewer-token" });
     assert.equal(memberList.body.institutionProjects.length, 1);
@@ -1495,6 +1499,9 @@ test("Institution Project list, detail, visibility, and public attribution follo
     assert.equal(ownerDetail.status, 200);
     assert.deepEqual(ownerDetail.body.access, { role: "institution_owner", readOnly: false });
     assert.deepEqual(Object.keys(ownerDetail.body).sort(), ["access", "developerSpaces", "evidence", "institution", "project"]);
+    assert.deepEqual(Object.keys(ownerDetail.body.project).sort(), [
+      "connectionTier", "createdAt", "description", "name", "publicHref", "slug", "updatedAt", "visibility",
+    ].sort());
     assert.equal(JSON.stringify(ownerDetail.body).includes(institution.id), false);
 
     const memberDetail = await requestJson(app, "GET", "/projects/institution-project", { token: "viewer-token" });

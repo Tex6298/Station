@@ -202,6 +202,7 @@ class CommunitySupabase {
       profile(INSTITUTIONAL_ID, "institutional", "institutional"),
     ],
     projects: [],
+    institutions: [],
     spaces: [
       space(PUBLIC_SPACE_ID, "public-space", true),
       space(PRIVATE_SPACE_ID, "private-space", false),
@@ -5801,6 +5802,21 @@ test("Discover search surfaces only public Projects through safe public profile 
     db.insertRow("projects", project(COMMUNITY_PROJECT_ID, "Meridian Community Project", "meridian-community-project", "community"));
     db.insertRow("projects", project(UNLISTED_PROJECT_ID, "Meridian Unlisted Project", "meridian-unlisted-project", "unlisted"));
     db.insertRow("projects", project(UNSAFE_PROJECT_ID, "Meridian Unsafe Project", "550e8400-e29b-41d4-a716-446655440000", "public"));
+    db.insertRow("institutions", { id: "institution-verified", verification_status: "verified", public_status: "public" });
+    db.insertRow("institutions", { id: "institution-revoked", verification_status: "revoked", public_status: "private" });
+    db.insertRow("institutions", { id: "institution-private", verification_status: "verified", public_status: "private" });
+    db.insertRow("projects", project("institution-project-visible", "Meridian Institution Project", "meridian-institution-project", "public", {
+      owner_user_id: null,
+      institution_id: "institution-verified",
+    }));
+    db.insertRow("projects", project("institution-project-revoked", "Meridian Revoked Institution Project", "meridian-revoked-institution-project", "public", {
+      owner_user_id: null,
+      institution_id: "institution-revoked",
+    }));
+    db.insertRow("projects", project("institution-project-private", "Meridian Private Institution Project", "meridian-private-institution-project", "public", {
+      owner_user_id: null,
+      institution_id: "institution-private",
+    }));
 
     const visitor = await requestJson(app, "GET", "/discover/search?q=Meridian");
     assert.equal(visitor.status, 200);
@@ -5808,6 +5824,7 @@ test("Discover search surfaces only public Projects through safe public profile 
       visitor.body.projects.map((row: Row) => [row.name, row.href]).sort(),
       [
         ["Meridian Research Project", "/projects/public/meridian-research-project"],
+        ["Meridian Institution Project", "/projects/public/meridian-institution-project"],
         ["Quiet Public Project", "/projects/public/quiet-public-project"],
         ["Slug Matched Project", "/projects/public/meridian-slug-project"],
       ].sort()
@@ -5854,6 +5871,8 @@ test("Discover search surfaces only public Projects through safe public profile 
       "Meridian Community Project",
       "Meridian Unlisted Project",
       "Meridian Unsafe Project",
+      "Meridian Revoked Institution Project",
+      "Meridian Private Institution Project",
       "550e8400-e29b-41d4-a716-446655440000",
     ]) {
       assert.equal(visitorText.includes(forbidden), false, `${forbidden} leaked into Project search`);
