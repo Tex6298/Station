@@ -4,6 +4,34 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR540 ARGUS Review Blocked
+
+ARGUS completed the restored independent review on 2026-07-31:
+
+- `docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_ARGUS_REVIEW.md`
+
+```text
+BLOCK_PR540_NULL_AUTHORITY_AND_CONCURRENCY_GUARDS_FAIL_OPEN
+READY_PR540_FAIL_CLOSED_DATABASE_AND_PUBLISH_TRUTH_CORRECTION_FOR_DAEDALUS
+```
+
+The exact migration executes in disposable PostgreSQL, but nullable SQL guards
+allow null-actor create/edit/publish, null-version edit, and null-action/null-
+version unpublish. A second source finding exposes `canPublish: true` for an
+owner draft even when the Institution is unverified or private. The current API
+rejects null request values, browser effective table/RPC authority is `0/0`,
+and ARGUS makes no claim of an anonymous browser exploit; the blocker is the
+frozen fail-closed database and truthful-control contract.
+
+Read-only hosted proof otherwise passes exact source `02da4dbc`, exact migration
+ledger/hash, effective browser/trusted table privileges `0/7`, effective
+browser/trusted RPC execution `0/3`, RLS/policies `1/0`, strict public DTO keys,
+one Project/publication, retained Space/version/audit `1/5/5`, personal counts
+`3/29`, and fixture residue `0/0`. Focused `4/4`, Institution `16/16`,
+publication `4/4`, Project `33/33`, Spaces `11/11`, writing `35/35`, community
+`57/57`, auth `24/24`, profile `5/5`, Developer Spaces `61/61`, exports `15/15`,
+API/web typecheck, and web lint pass. ARIADNE rehearsal is paused at `5/5`.
+
 ## PR540 Branded Public Institutional Space Ready For Review
 
 DAEDALUS completed source and hosted proof on 2026-07-31:

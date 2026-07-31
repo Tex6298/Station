@@ -99,9 +99,10 @@ support, or SLAs.
 ## Active Baton
 
 PR537 hosted identity/team activation, PR538 Institution-owned Project, and
-PR539 collaborative Institution publishing are accepted. PR540 source and
-retained hosted state are accepted at exact deployed source `02da4dbc` after
-independent MIMIR fallback review. ARIADNE now rehearses the changed
-owner/member/signed-out branded Institution workflow. Acceptance returns to
-MIMIR, who closes PR540 and advances directly to PR541 without treating PR540
-as a programme stop.
+PR539 collaborative Institution publishing are accepted. PR540 remains blocked
+before rehearsal by ARGUS's independent review: its new database functions fail
+open for null actor/version/action inputs, and draft `canPublish` is not
+truthful when the Institution is unverified or private. Retained hosted truth
+remains exact at source `02da4dbc` and version/audit `5/5`. DAEDALUS owns only
+the append-only fail-closed correction; ARIADNE must not run the `5/5 -> 8/8`
+cycle and PR541 is not open.
