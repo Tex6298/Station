@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR539 collaborative publishing
+## Current gate - PR536 Institutional Alpha; PR540 branded public Institutional Space
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -109,6 +109,9 @@ CHANGES_REQUIRED_PR539_PUBLIC_ROUTE_AUTH_SCOPE_AND_LINK_TRUTH
 READY_PR539_PUBLIC_ROUTE_CORRECTION_FOR_MIMIR
 ACCEPT_PR539_PUBLIC_ROUTE_CORRECTION_FOR_REHEARSAL
 READY_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_FOR_ARIADNE
+PASS_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_HUMAN_REHEARSAL_WITH_SERIALIZED_RECOVERY
+CLOSE_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_ACCEPTED
+OPEN_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -190,6 +193,9 @@ PR539 implementation result: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLIS
 PR539 MIMIR review: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_MIMIR_REVIEW.md
 PR539 correction result: docs/roadmap/PR539_PUBLIC_ROUTE_CORRECTION_DAEDALUS_RESULT.md
 PR539 hosted rehearsal: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_REHEARSAL_ARIADNE.md
+PR539 hosted rehearsal result: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_REHEARSAL_MIMIR_RESULT.md
+PR539 closeout: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_CLOSEOUT_MIMIR.md
+PR540 branded public Institutional Space: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_DAEDALUS.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -223,8 +229,18 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE runs the exact hosted owner/member/signed-out human rehearsal at corrected source `34c91e07`, using the retained publication for one controlled retract/edit/republish cycle, then wakes MIMIR with the final version/audit/public/zero-residue verdict.
+Next: DAEDALUS implements PR540's first-class owner-authored Institutional Space, bounded mark/theme-safe accent, strict public publication/Project aggregation, private owner/member workspace, migration `095`, retained hosted proof, and no-config/no-drift boundary; then wakes ARGUS or MIMIR if that watcher remains unavailable.
 ```
+
+MIMIR accepts and closes PR539 after the corrected source and hosted human
+route pass. ARIADNE did not consume the rehearsal wake, so MIMIR performed the
+fallback. Two post-retract harness failures (`networkidle` against the live
+Developer Space stream, then an inexact multi-heading selector) each used a
+serialized member-edit/owner-republish recovery. The corrected third cycle ran
+fully through visible controls. All nine post-baseline transitions are
+explained; the retained publication ends public at version/audit `16/16`,
+fixture residue is `0/0`, and migration/ledger/deployment/catalog truth remains
+exact. PR540 is open with DAEDALUS; PR536 does not pause.
 
 MIMIR accepts DAEDALUS's bounded PR539 correction. The exact
 `caab6f06..34c91e07` diff scopes private auth/cache middleware to Institution

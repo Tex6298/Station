@@ -4,6 +4,27 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR539 Collaborative Institution Publishing Accepted
+
+MIMIR accepted PR539 on 2026-07-31 at exact deployed source `34c91e07`:
+
+- `docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_CLOSEOUT_MIMIR.md`
+- `docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_REHEARSAL_MIMIR_RESULT.md`
+
+```text
+CLOSE_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_ACCEPTED
+```
+
+Migration `094`, one exact ledger row, service-only transition authority,
+owner/member optimistic draft collaboration, durable attribution, owner-only
+publish/retract, strict Institution/Project public boundary, paired audit
+resources, personal-document compatibility, and corrected route composition
+pass. The unavailable-A4 human fallback transparently recorded two serialized
+harness-recovery cycles before one complete visible-control cycle. Final
+retained truth is one public publication at version/audit `16/16`, API/web
+source `34c91e07`, public neighbour reads `200`, anonymous private read `401`,
+and tagged Auth/member residue `0/0`. PR540 is the active baseline successor.
+
 ## PR539 Public Route Correction Ready For MIMIR
 
 DAEDALUS corrected the bounded review findings at deployed executable source
