@@ -99,9 +99,9 @@ support, or SLAs.
 ## Active Baton
 
 PR537 hosted identity/team activation, PR538 Institution-owned Project, and
-PR539 collaborative Institution publishing are accepted. PR540 is active with
-DAEDALUS for the owner-authored branded public Institutional Space and strict
-published-work/Project aggregation. After exact source and hosted proof,
-DAEDALUS wakes ARGUS, then ARIADNE rehearses the changed
-owner/member/signed-out workflow. Acceptance returns to MIMIR, who advances to
-PR541 without treating PR540 as a programme stop.
+PR539 collaborative Institution publishing are accepted. PR540 source and
+retained hosted state are accepted at exact deployed source `02da4dbc` after
+independent MIMIR fallback review. ARIADNE now rehearses the changed
+owner/member/signed-out branded Institution workflow. Acceptance returns to
+MIMIR, who closes PR540 and advances directly to PR541 without treating PR540
+as a programme stop.
