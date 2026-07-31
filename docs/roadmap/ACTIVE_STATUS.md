@@ -112,6 +112,7 @@ READY_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_FOR_ARIADNE
 PASS_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_HUMAN_REHEARSAL_WITH_SERIALIZED_RECOVERY
 CLOSE_PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_ACCEPTED
 OPEN_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE
+READY_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -196,6 +197,7 @@ PR539 hosted rehearsal: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_
 PR539 hosted rehearsal result: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_REHEARSAL_MIMIR_RESULT.md
 PR539 closeout: docs/roadmap/PR539_COLLABORATIVE_INSTITUTION_PUBLISHING_CLOSEOUT_MIMIR.md
 PR540 branded public Institutional Space: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_DAEDALUS.md
+PR540 implementation result: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_DAEDALUS_RESULT.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -229,7 +231,9 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS implements PR540's first-class owner-authored Institutional Space, bounded mark/theme-safe accent, strict public publication/Project aggregation, private owner/member workspace, migration `095`, retained hosted proof, and no-config/no-drift boundary; then wakes ARGUS or MIMIR if that watcher remains unavailable.
+Next: ARGUS independently reviews PR540 source `02da4dbc`, exact migration
+`095`, retained hosted Space version/audit `5/5`, strict public aggregation,
+owner/member boundaries, browser receipts, cleanup, and no-drift evidence.
 ```
 
 MIMIR accepts and closes PR539 after the corrected source and hosted human

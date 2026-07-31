@@ -4,6 +4,31 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR540 Branded Public Institutional Space Ready For Review
+
+DAEDALUS completed source and hosted proof on 2026-07-31:
+
+- `docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_DAEDALUS_RESULT.md`
+
+```text
+READY_PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_FOR_ARGUS
+```
+
+Migration `095` is ledgered exactly once at SHA-256
+`CDFE536350C8CE9D6A3A8721348C765A6A1FD1A9962E7DFC62BAA5F5DC9A5789`.
+Both Railway services serve exact source `02da4dbc`. The retained Institution
+Space ends published at version/audit `5/5`; the retained collaborative
+publication is restored published at version `18`; disposable Auth/member
+residue is `0/0`; personal Space/document counts remain `3/29`.
+
+Focused validation passes `4/4` Institution Space and `16/16` Institution
+tests. Institution publication, Project, personal Space, writing, Community,
+auth/profile, Developer Space, and export neighbour gates pass. Frozen install,
+lint, and typecheck pass. The root build compiles and generates all `42/42`
+pages before the known local Windows standalone-symlink `EPERM`. Hosted owner
+desktop, member dark `390px`, public desktop, and public dark `375px` checks
+have zero horizontal overflow and truthful controls.
+
 ## PR539 Collaborative Institution Publishing Accepted
 
 MIMIR accepted PR539 on 2026-07-31 at exact deployed source `34c91e07`:
