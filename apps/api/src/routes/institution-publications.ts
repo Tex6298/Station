@@ -28,7 +28,7 @@ export const institutionPublicationsRouter = Router();
 
 function first<T>(data: T | T[] | null) { return Array.isArray(data) ? data[0] ?? null : data; }
 function institutionHref(row: InstitutionRow) { return row.verification_status === "verified" && row.public_status === "public" ? `/institutions/${encodeURIComponent(row.slug)}` : null; }
-function publicHref(row: PublicationRow, institution: InstitutionRow) { return row.status === "published" && institutionHref(institution) ? `/institutions/${encodeURIComponent(institution.slug)}/publications/public/${encodeURIComponent(row.slug)}` : null; }
+function publicHref(row: PublicationRow, institution: InstitutionRow, project: ProjectRow) { return row.status === "published" && institutionHref(institution) && project.visibility === "public" ? `/institutions/${encodeURIComponent(institution.slug)}/publications/public/${encodeURIComponent(row.slug)}` : null; }
 function access(role: "institution_owner" | "institution_member", status: PublicationRow["status"]) {
   const owner = role === "institution_owner";
   return { role, readOnly: false, canPublish: owner && status === "draft", canRetract: owner && status === "published" } as const;
@@ -39,7 +39,7 @@ function serialize(row: PublicationRow, institution: InstitutionRow, project: Pr
     documentType: row.document_type, status: row.status, visibility: row.status === "published" ? "public" : "private",
     version: row.version, creatorLabel: row.creator_label, lastEditorLabel: row.last_editor_label,
     createdAt: row.created_at, updatedAt: row.updated_at, publishedAt: row.published_at,
-    publicHref: publicHref(row, institution),
+    publicHref: publicHref(row, institution, project),
     institution: { name: institution.name, slug: institution.slug, href: institutionHref(institution) },
     project: { name: project.name, slug: project.slug, href: `/projects/${encodeURIComponent(project.slug)}` },
     access: access(role, row.status),
@@ -96,8 +96,8 @@ institutionPublicationsRouter.get("/institutions/:institutionSlug/publications/p
   } catch { return res.status(500).json(READ_FAILED); }
 });
 
-institutionPublicationsRouter.use(requireAuth);
-institutionPublicationsRouter.use((_req, res, next) => { res.set("Cache-Control", "private, no-store"); next(); });
+institutionPublicationsRouter.use("/institutions/:institutionSlug/publications", requireAuth);
+institutionPublicationsRouter.use("/institutions/:institutionSlug/publications", (_req, res, next) => { res.set("Cache-Control", "private, no-store"); next(); });
 
 institutionPublicationsRouter.get("/institutions/:institutionSlug/publications", async (req, res) => {
   try {
