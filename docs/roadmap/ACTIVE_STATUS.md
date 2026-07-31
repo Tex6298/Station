@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR537 hosted review
+## Current gate - PR536 Institutional Alpha; PR538 Institution Project
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -95,6 +95,9 @@ RESUME_INSTITUTIONAL_ALPHA_END_TO_END
 OPEN_PR536_INSTITUTIONAL_ALPHA_END_TO_END_PROGRAMME
 OPEN_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION
 READY_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_FOR_ARGUS
+PASS_PR537_FRESH_HOSTED_VERIFY
+CLOSE_PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_ACCEPTED
+OPEN_PR538_INSTITUTION_OWNED_PROJECT_CONNECTION
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -166,6 +169,8 @@ PR535B source-only closeout: docs/roadmap/PR535B_INSTITUTION_PRINCIPAL_TEAM_PUBL
 PR536 Institutional Alpha programme: docs/roadmap/PR536_INSTITUTIONAL_ALPHA_PROGRAMME_MIMIR.md
 PR537 hosted identity/team activation: docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_DAEDALUS.md
 PR537 hosted result: docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_DAEDALUS_RESULT.md
+PR537 closeout: docs/roadmap/PR537_HOSTED_INSTITUTION_IDENTITY_TEAM_ACTIVATION_CLOSEOUT_MIMIR.md
+PR538 Institution-owned Project: docs/roadmap/PR538_INSTITUTION_OWNED_PROJECT_CONNECTION_DAEDALUS.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -199,10 +204,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS independently reviews PR537 exact migration/ledger identity, accepted Railway source, retained owner/member/public lifecycle, stale temporal fixture setup, profile-authority restoration, and zero-residue/no-drift proof.
+Next: DAEDALUS implements PR538's exact-one-principal Project model, retained hosted Institution Project lifecycle, role-truthful owner/member UI, public attribution, personal-Project compatibility, and zero-residue/no-drift proof; then wake ARGUS, or MIMIR if the reviewer watcher remains unavailable.
 ```
 
-DAEDALUS completed PR537 hosted activation and wakes ARGUS. MIMIR's exact
+MIMIR accepts and closes PR537 on explicit two-operator evidence after ARGUS
+and ARIADNE did not consume three review handoffs. ARGUS had independently
+accepted the exact source before activation; MIMIR applied and identified the
+zero-row checkpoint; DAEDALUS independently adopted it, completed the hosted
+lifecycle/hostile/cleanup proof, and ran all validation; MIMIR then restarted
+the fresh read-only verifier and confirmed the exact retained/deployment state.
+The absent reviewer response is recorded rather than invented. PR538 is open
+with DAEDALUS and the PR536 programme continues without an idle pause.
+
+DAEDALUS completed PR537 hosted activation. MIMIR's exact
 zero-row takeover apply was adopted after fresh proof rather than duplicated:
 migration `092` has one exact ledger row, three RLS relations, six service RPCs,
 zero browser raw authority, and accepted source `6f33f9d2` is healthy on both
@@ -221,8 +235,8 @@ Institutional Alpha as one end-to-end customer programme through globally
 numbered PR537-PR543 slices: hosted identity/team activation, institution-owned
 Project connection, collaborative publishing, branded public Institutional
 Space, community presence, activity/audit readback, and final cross-role hosted
-rehearsal. PR537 is active with DAEDALUS; intermediate acceptance is not a
-programme stop point.
+rehearsal. PR537 is accepted; PR538 is active with DAEDALUS. Intermediate
+acceptance is not a programme stop point.
 
 MIMIR closed PR535B at the accepted source-only boundary. At that closeout,
 migration `092` was unapplied and unledgered hosted, with no hosted Institution
