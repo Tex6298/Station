@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { resolve } from "node:path";
-import { institutionActivityPath } from "./institutions";
+import { institutionActivityPath, institutionDateTime } from "./institutions";
 
 test("Institution activity uses an encoded private owner route", () => {
   assert.equal(institutionActivityPath("field/lab"), "/institutions/field%2Flab/activity");
+  assert.match(institutionDateTime("2026-08-02T20:15:00.000Z"), /02 Aug 2026.*(?:20|21):15/);
   const page = readFileSync(resolve("apps/web/app/institutions/[slug]/activity/page.tsx"), "utf8");
   assert.match(page, /Bounded operational history/);
   assert.match(page, /Load older activity/);
