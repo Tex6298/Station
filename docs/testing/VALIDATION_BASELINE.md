@@ -4,6 +4,31 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Institution Community Presence Ready For ARGUS
+
+DAEDALUS completed source, hosted migration/lifecycle, and browser proof on
+2026-08-02:
+
+- `docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_DAEDALUS_RESULT.md`
+
+```text
+READY_PR541_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARGUS
+```
+
+Exact deployed correction source is `783a0ade`; migration 097 SHA-256 is
+`CFA04E4ACD528EEBFD7A3D8776DC20CB7E9A656F41D23FB3156025A47C06B825` with
+exact ledger `1`. Institution community and Institution suites pass `18/18`,
+community passes `58/58`, publications `4/4`, Institution Spaces `6/6`, reports
+and document discussions `9/9` each, auth `24/24`, Projects `33/33`, Spaces
+`11/11`, Developer Spaces `61/61`, writing `35/35`, profile boundary `5/5`,
+exports `15/15`, billing `16/16`, and AI settings `14/14`. Root typecheck and
+web lint pass.
+
+Root build compiles, checks types/lint, collects page data, and generates
+`42/42` pages before the established Windows standalone symlink `EPERM`.
+Hosted owner `1440px`, member dark `390px`, public desktop, and public dark
+`375px` browser journeys pass without overflow.
+
 ## PR540 Branded Public Institutional Space Accepted
 
 MIMIR closed corrected PR540 on 2026-07-31:
