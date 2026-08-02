@@ -630,7 +630,7 @@ async function loadSubcommunityBySlug(slug: string) {
   const sb = getSupabaseAdmin();
   const { data } = await (sb as any)
     .from("community_subcommunities")
-    .select("*")
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)")
     .eq("slug", slug)
     .maybeSingle();
   return data ?? null;

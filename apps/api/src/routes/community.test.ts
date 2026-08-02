@@ -11,7 +11,12 @@ import { documentsRouter } from "./documents";
 import { forumsRouter } from "./forums";
 import { notificationsRouter } from "./notifications";
 import { threadsRouter } from "./threads";
-import { canModerateSubcommunity } from "../services/community-subcommunities.service";
+import {
+  canManageSubcommunityModerators,
+  canModerateSubcommunity,
+  canReadSubcommunity,
+  isSubcommunityOwner,
+} from "../services/community-subcommunities.service";
 
 process.env.NODE_ENV = "test";
 process.env.SUPABASE_URL ??= "http://localhost";
@@ -19,6 +24,42 @@ process.env.SUPABASE_ANON_KEY ??= "test-anon-key";
 process.env.SUPABASE_SERVICE_ROLE_KEY ??= "test-service-key";
 
 type Row = Record<string, any>;
+
+test("Institution Salon authority derives only from its joined Institution owner", () => {
+  const salon = {
+    id: "institution-salon",
+    category_id: "institution-category",
+    owner_user_id: null,
+    institution_id: "institution-id",
+    slug: "institution-salon",
+    title: "Institution Salon",
+    description: null,
+    subcommunity_type: "salon",
+    visibility: "public",
+    status: "active",
+    linked_space_id: null,
+    linked_developer_space_id: null,
+    created_at: "2026-08-02T00:00:00.000Z",
+    updated_at: "2026-08-02T00:00:00.000Z",
+    institution: {
+      owner_user_id: OWNER_ID,
+      name: "Station Institutional Alpha",
+      slug: "station-institutional-alpha",
+      verification_status: "verified",
+      public_status: "public",
+    },
+  } as any;
+  const owner = { id: OWNER_ID, tier: "institutional", isAdmin: false } as any;
+  const member = { id: MEMBER_ID, tier: "private", isAdmin: false } as any;
+  assert.equal(isSubcommunityOwner(salon, OWNER_ID), true);
+  assert.equal(isSubcommunityOwner(salon, MEMBER_ID), false);
+  assert.equal(canManageSubcommunityModerators(salon, owner), true);
+  assert.equal(canManageSubcommunityModerators(salon, member), false);
+  assert.equal(canReadSubcommunity(salon), true);
+  salon.institution.public_status = "private";
+  assert.equal(canReadSubcommunity(salon), false);
+  assert.equal(canReadSubcommunity(salon, owner), true);
+});
 
 type QueryLogEntry = {
   table: string;
