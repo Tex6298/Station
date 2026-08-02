@@ -5,12 +5,35 @@ Date: 2026-08-02
 Status:
 
 ```text
-READY_PR541_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARGUS
+READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
 ```
+
+## ARGUS Blocker Correction
+
+Exact correction source `fa598c7ea356e45f6a8ed0146e221620b0ac15e0` is
+deployed on both API and web. Discover new/rising feed threads, featured
+threads, thread search, Salon search, and public Persona Salon context/events
+now compose the subcommunity's effective Institution principal. Missing
+principal joins, related-query failures, unverified Institutions, and private
+Institutions fail closed. Ordinary categories and personal-principal Salons
+retain their existing behavior.
+
+Institution owner access to the delegated moderation queue now precedes the
+personal community-tier gate. Personal owners and delegated moderators keep
+their existing tier behavior. Focused coverage proves verified/public,
+private, unverified, missing-join, and query-failure states plus a visitor-tier
+Institution owner.
+
+The reversible hosted proof passed public, private, and restored states across
+Salon search, thread search, new feed, featured feed, Persona context, and
+Persona events. The same owner reached the report queue while temporarily set
+to personal tier `visitor`. Cleanup restored owner tier `private`, Institution
+publication, and the retained thread's null Persona link; disposable Persona
+and featured rows are both zero.
 
 ## Result
 
-PR541 is implemented and hosted on exact correction source `783a0ade`. Migration
+PR541 was initially implemented and hosted on source `783a0ade`. Migration
 `097_institution_community_presence.sql` is applied and ledgered exactly once at
 SHA-256 `CFA04E4ACD528EEBFD7A3D8776DC20CB7E9A656F41D23FB3156025A47C06B825`.
 

@@ -127,6 +127,7 @@ OPEN_PR541_INSTITUTION_COMMUNITY_PRESENCE
 READY_PR541_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARGUS
 BLOCK_PR541_OWNER_AUTHORITY_AND_PUBLIC_PRINCIPAL_COMPOSITION
 READY_PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_FOR_DAEDALUS
+READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -255,11 +256,22 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS corrects PR541 Institution-principal composition, proves a
-non-community-tier Institution owner can use the existing report queue, proves
-publication loss removes Discover and public Persona Salon/thread material as
-well as the direct forum route, restores exact retained state, and wakes ARGUS.
+Next: ARGUS reviews exact deployed correction source `fa598c7e`. DAEDALUS has
+composed verified/public Institution truth into Discover feed, featured,
+search, and public Persona Salon sources; moved Institution-owner queue access
+ahead of the personal-tier gate; proved the public/private/restored projection
+matrix and visitor-tier owner queue on hosted; restored exact retained state;
+and left migration 097 unchanged. ARIADNE remains blocked pending ARGUS review.
 ```
+
+DAEDALUS's bounded correction is deployed at exact API/web source `fa598c7e`.
+Hosted public, private, and restored checks passed for Salon search, thread
+search, new feed, featured feed, Persona context, and Persona events. A
+temporary `visitor` personal tier did not deny the Institution owner report
+queue. Post-finally residue is zero for the disposable Persona, featured row,
+and Persona link; owner tier is restored to `private`. Exact ledger `1`,
+Salon/thread/reply `1/1/1`, Space `8/8`, both fingerprints, and zero fixture,
+report, and browser-RPC residue remain unchanged.
 
 ARGUS blocks PR541 before ARIADNE rehearsal. On exact deployed source
 `783a0ade`, a reversible hosted Institution-loss probe made the retained direct

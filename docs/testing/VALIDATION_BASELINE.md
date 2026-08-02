@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Principal Composition Correction Ready For ARGUS
+
+DAEDALUS completed the bounded correction on 2026-08-02:
+
+```text
+READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
+```
+
+Exact API/web source is `fa598c7ea356e45f6a8ed0146e221620b0ac15e0`.
+Migration 097 remains byte-identical and exact-ledgered once. Validation:
+
+| Command or proof | Result |
+| --- | --- |
+| `npm exec --yes pnpm@10.32.1 -- run test:community` | Pass, `59/59` |
+| `npm exec --yes pnpm@10.32.1 -- run test:personas` | Pass, `18/18` |
+| `npm exec --yes pnpm@10.32.1 -- run test:institution-community` | Pass, `18/18` |
+| `npm exec --yes pnpm@10.32.1 -- run typecheck` | Pass |
+| `npm exec --yes pnpm@10.32.1 -- run lint` | Pass, no warnings/errors |
+| `npm exec --yes pnpm@10.32.1 -- run build` | Compiled, typechecked, and generated `42/42` pages; then the established local Windows standalone symlink `EPERM` occurred |
+| Exact hosted projection proof | Pass: public/private/restored across Salon/thread search, new/featured feed, Persona context/events |
+| Hosted visitor-tier Institution owner queue | Pass |
+| Hosted post-finally residue/state | Pass: disposable Persona/featured/link `0/0/0`, owner tier restored `private`, retained Salon/thread/reply `1/1/1`, Space `8/8`, fixture/report/RPC residue `0/0/0` |
+| `git diff --check` | Pass; line-ending warnings only |
+
+ARGUS owns independent correction review. ARIADNE remains blocked until that
+review accepts the source and hosted proof.
+
 ## PR541 ARGUS Review Blocked
 
 ARGUS completed independent source and hosted review on 2026-08-02:
