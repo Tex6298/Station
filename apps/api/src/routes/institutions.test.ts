@@ -6,6 +6,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import express, { type Express } from "express";
 import { setSupabaseAdminForTests } from "../lib/supabase";
+import { institutionCommunityRouter } from "./institution-community";
 import { institutionsRouter } from "./institutions";
 
 process.env.NODE_ENV = "test";
@@ -25,6 +26,8 @@ class InstitutionSupabase {
     institution_audit_events: [],
     institution_spaces: [],
     institution_publications: [],
+    community_subcommunities: [],
+    forum_categories: [],
     projects: [],
   };
 
@@ -130,6 +133,18 @@ class InstitutionSupabase {
       row.updated_at ??= now;
     }
 
+    if (table === "community_subcommunities") {
+      row.owner_user_id ??= null;
+      row.description ??= null;
+      row.subcommunity_type ??= "salon";
+      row.visibility ??= "public";
+      row.status ??= "active";
+      row.linked_space_id ??= null;
+      row.linked_developer_space_id ??= null;
+      row.created_at ??= now;
+      row.updated_at ??= now;
+    }
+
     return row;
   }
 
@@ -193,6 +208,38 @@ class InstitutionSupabase {
         }),
         error: null,
       };
+    }
+
+    if (name === "create_institution_subcommunity_v1") {
+      const institution = this.institution(args.p_institution_id);
+      if (!institution || institution.owner_user_id !== args.p_actor_user_id) {
+        return { data: [{ outcome: "unavailable", subcommunity_id: null, category_id: null }], error: null };
+      }
+      if (this.rows("community_subcommunities").some((row) => row.institution_id === institution.id || row.slug === args.p_slug)) {
+        return { data: [{ outcome: "conflict", subcommunity_id: null, category_id: null }], error: null };
+      }
+      const category = this.insertRow("forum_categories", {
+        slug: args.p_slug,
+        title: args.p_title,
+        description: args.p_description,
+        sort_order: 100,
+      });
+      const subcommunity = this.insertRow("community_subcommunities", {
+        category_id: category.id,
+        institution_id: institution.id,
+        slug: args.p_slug,
+        title: args.p_title,
+        description: args.p_description,
+      });
+      this.insertRow("institution_audit_events", {
+        institution_id: institution.id,
+        actor_user_id: args.p_actor_user_id,
+        subject_user_id: args.p_actor_user_id,
+        action: "community_created",
+        resource_kind: "institution_subcommunity",
+        resource_id: subcommunity.id,
+      });
+      return { data: [{ outcome: "created", subcommunity_id: subcommunity.id, category_id: category.id }], error: null };
     }
 
     if (name === "transition_institution_verification_v1") {
@@ -357,10 +404,12 @@ class QueryBuilder {
   private greaterThanFilters: Array<[string, unknown]> = [];
   private orFilters: Array<Array<[string, "eq" | "gt", string]>> = [];
   private orderSpec: { field: string; ascending: boolean } | null = null;
+  private columns = "*";
 
   constructor(private db: InstitutionSupabase, private table: string) {}
 
-  select(_columns = "*") {
+  select(columns = "*") {
+    this.columns = columns;
     return this;
   }
 
@@ -443,7 +492,12 @@ class QueryBuilder {
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
-    const rows = clone(this.matchingRows());
+    const rows = clone(this.matchingRows()).map((row) => {
+      if (this.table === "community_subcommunities" && this.columns.includes("category:forum_categories")) {
+        return { ...row, category: this.db.rows("forum_categories").find((category) => category.id === row.category_id) ?? null };
+      }
+      return row;
+    });
     if (mode === "single") {
       return rows.length === 1
         ? { data: rows[0], error: null }
@@ -461,6 +515,7 @@ function clone<T>(value: T): T {
 function createInstitutionApp() {
   const app = express();
   app.use(express.json());
+  app.use(institutionCommunityRouter);
   app.use("/institutions", institutionsRouter);
   return app;
 }
@@ -729,7 +784,7 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
 
     assert.deepEqual(
       [...new Set(db.queriedTables)].sort(),
-      ["institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
+      ["community_subcommunities", "institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
     );
     assert.deepEqual(
       db.tables.institution_audit_events.map((row) => row.action),
@@ -802,6 +857,78 @@ test("database-clock stale invitation becomes removable and supports a fresh inv
   }
 });
 
+test("Institution Salon creation keeps owner, member, hostile, and public readback bounded", async () => {
+  const db = new InstitutionSupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createInstitutionApp();
+  try {
+    const institution = db.insertRow("institutions", {
+      owner_user_id: "owner-user", name: "Station Labs", slug: "station-labs", summary: "Verified research.",
+      verification_status: "verified", public_status: "public", published_at: db.now(),
+    });
+    db.insertRow("institution_members", {
+      institution_id: institution.id, user_id: "member-user", role: "member", status: "active",
+      invited_by_user_id: "owner-user", invited_at: db.now(), expires_at: "2027-01-01T00:00:00.000Z",
+    });
+    db.insertRow("institution_spaces", {
+      institution_id: institution.id, mark_text: "SL", headline: "Public research.", about: "Institution home.",
+      accent_key: "forest", status: "published", version: 8, creator_label: "Owner Exact",
+      last_editor_label: "Owner Exact", published_at: db.now(),
+    });
+
+    const hidden = { error: "Institution community not found.", code: "institution_community_not_found" };
+    assert.deepEqual((await requestJson(app, "GET", "/institutions/station-labs/community")).body, hidden);
+    assert.deepEqual((await requestJson(app, "POST", "/institutions/station-labs/community", { token: "member-token", body: {} })).body, hidden);
+    assert.deepEqual((await requestJson(app, "GET", "/institutions/station-labs/community", { token: "other-token" })).body, hidden);
+
+    const created = await requestJson(app, "POST", "/institutions/station-labs/community", {
+      token: "owner-token",
+      body: { slug: "station-research-salon", title: "Station Research Salon", description: "A useful public discussion." },
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.body.community.access.canModerate, true);
+    assert.equal(created.body.community.publicHref, "/forums/station-research-salon");
+    assert.equal(db.tables.forum_categories.length, 1);
+    assert.equal(db.tables.community_subcommunities[0].owner_user_id, null);
+    assert.equal(db.tables.community_subcommunities[0].institution_id, institution.id);
+    assert.deepEqual(db.tables.institution_audit_events.map((row) => [row.action, row.resource_kind]), [["community_created", "institution_subcommunity"]]);
+
+    const member = await requestJson(app, "GET", "/institutions/station-labs/community", { token: "member-token" });
+    assert.equal(member.body.institution.access.role, "institution_member");
+    assert.equal(member.body.community.access.canModerate, false);
+    assert.equal(member.body.community.access.canParticipateUnderForumPolicy, true);
+    assert.equal(member.body.community.moderationHref, null);
+
+    const aggregate = await requestJson(app, "GET", "/institutions/public/station-labs");
+    assert.deepEqual(aggregate.body.community, {
+      title: "Station Research Salon", slug: "station-research-salon", description: "A useful public discussion.",
+      type: "salon", href: "/forums/station-research-salon",
+    });
+    db.tables.forum_categories[0].slug = "mismatch";
+    assert.equal((await requestJson(app, "GET", "/institutions/public/station-labs")).body.community, undefined);
+    db.tables.forum_categories[0].slug = "station-research-salon";
+    db.tables.institution_spaces[0].status = "draft";
+    assert.equal((await requestJson(app, "GET", "/institutions/public/station-labs")).body.community, undefined);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("migration 097 freezes Institution Salon principal, atomic creation, ACL, and audit shape", () => {
+  const migration = readFileSync(resolve("infra/supabase/migrations/097_institution_community_presence.sql"), "utf8");
+  assert.match(migration, /community_subcommunities_exact_principal_check[\s\S]*=1/i);
+  assert.match(migration, /community_subcommunities_institution_salon_check[\s\S]*subcommunity_type='salon'[\s\S]*linked_space_id is null[\s\S]*linked_developer_space_id is null/i);
+  assert.match(migration, /create unique index community_subcommunities_one_institution/i);
+  assert.match(migration, /new\.owner_user_id is distinct from old\.owner_user_id[\s\S]*new\.institution_id is distinct from old\.institution_id/i);
+  assert.match(migration, /create or replace function public\.create_institution_subcommunity_v1[\s\S]*security definer/i);
+  assert.match(migration, /select \* into institution_row[\s\S]*for update/i);
+  assert.match(migration, /insert into public\.forum_categories[\s\S]*insert into public\.community_subcommunities[\s\S]*insert into public\.institution_audit_events/i);
+  assert.match(migration, /'community_created','institution_subcommunity'/i);
+  assert.match(migration, /revoke all on function public\.create_institution_subcommunity_v1[\s\S]*from public,anon,authenticated/i);
+  assert.match(migration, /grant execute on function public\.create_institution_subcommunity_v1[\s\S]*to service_role/i);
+  assert.doesNotMatch(migration, /grant (insert|update|delete).*to (anon|authenticated)/i);
+});
+
 test("migration 092 freezes raw access, authority, lifecycle, audit, and zero inheritance", () => {
   const migration = readFileSync(
     resolve("infra/supabase/migrations/092_institution_principal_team_public_identity.sql"),
@@ -855,7 +982,7 @@ test("migration 092 freezes raw access, authority, lifecycle, audit, and zero in
   const queriedTables = [...route.matchAll(/\.from\("([^"]+)"\)/g)].map((match) => match[1]);
   assert.deepEqual(
     [...new Set(queriedTables)].sort(),
-    ["institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
+    ["community_subcommunities", "institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
   );
   for (const forbidden of [
     "project_members",

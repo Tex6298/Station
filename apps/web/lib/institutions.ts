@@ -46,6 +46,10 @@ export function institutionSpacePath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/space`;
 }
 
+export function institutionCommunityPath(slug: string) {
+  return `/institutions/${encodeURIComponent(slug)}/community`;
+}
+
 export function institutionPublicationsPath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/publications`;
 }

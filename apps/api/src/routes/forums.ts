@@ -27,6 +27,7 @@ import {
   canListSubcommunity,
   canManageSubcommunityModerators,
   canModerateSubcommunity,
+  isSubcommunityOwner,
   canReadSubcommunity,
   assignSubcommunityModerator,
   loadSubcommunityForCategory,
@@ -205,7 +206,7 @@ forumsRouter.get("/categories", optionalAuth, async (req: Request, res: Response
 
   const { data: subcommunities, error: subcommunityError } = await (sb as any)
     .from("community_subcommunities")
-    .select("*");
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)");
   if (subcommunityError && !isMissingSubcommunitySchemaError(subcommunityError)) {
     return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunities);
   }
@@ -237,7 +238,7 @@ forumsRouter.get("/subcommunities", optionalAuth, async (req: Request, res: Resp
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)
     .from("community_subcommunities")
-    .select("*")
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)")
     .order("created_at", { ascending: false });
 
   if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunities);
@@ -253,20 +254,20 @@ forumsRouter.get("/subcommunities/mine", optionalAuth, async (req: Request, res:
   const sb = getSupabaseAdmin();
   let query = (sb as any)
     .from("community_subcommunities")
-    .select("*")
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)")
     .order("created_at", { ascending: false });
-  if (!req.user.isAdmin) query = query.eq("owner_user_id", req.user.id);
 
   const { data, error } = await query;
   if (error) return res.status(500).json(FORUM_ERROR_RESPONSES.subcommunitiesMine);
-  return res.json({ subcommunities: (data ?? []).map((row: any) => serializeSubcommunity(row, req.user)) });
+  const owned=req.user.isAdmin?(data??[]):(data??[]).filter((row:any)=>isSubcommunityOwner(row,req.user!.id));
+  return res.json({ subcommunities: owned.map((row: any) => serializeSubcommunity(row, req.user)) });
 });
 
 forumsRouter.get("/subcommunities/:slug", optionalAuth, async (req: Request, res: Response) => {
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)
     .from("community_subcommunities")
-    .select("*")
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)")
     .eq("slug", req.params.slug)
     .maybeSingle();
 

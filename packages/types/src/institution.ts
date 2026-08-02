@@ -90,6 +90,7 @@ export interface PublicInstitutionResponse {
   space?: PublicInstitutionSpace;
   projects?: PublicInstitutionProject[];
   publications?: PublicInstitutionPublicationSummary[];
+  community?: PublicInstitutionCommunitySummary;
 }
 
 export type InstitutionSpaceAccentKey = "cobalt" | "coral" | "forest" | "gold";
@@ -98,6 +99,8 @@ export interface InstitutionSpaceDetail { markText:string;headline:string;about:
 export interface PublicInstitutionSpace { markText:string;headline:string;about:string;accentKey:InstitutionSpaceAccentKey;publishedAt:string;creatorLabel:string;lastEditorLabel:string }
 export interface PublicInstitutionProject { name:string;slug:string;description:string|null;connectionTier:"tier_1_showcase"|"tier_2_hosted"|"tier_3_lab";href:string }
 export interface PublicInstitutionPublicationSummary { title:string;slug:string;summary:string;documentType:InstitutionPublicationDocumentType;publishedAt:string;creatorLabel:string;lastEditorLabel:string;href:string;project:{name:string;slug:string;href:string} }
+export interface PublicInstitutionCommunitySummary { title:string;slug:string;description:string|null;type:"salon";href:string }
+export interface InstitutionCommunityDetail { title:string;slug:string;description:string|null;type:"salon";visibility:"public"|"community"|"unlisted"|"private";status:"active"|"paused"|"archived";publicHref:string|null;moderationHref:string|null;institution:{name:string;slug:string};access:{role:"institution_owner"|"institution_member";readOnly:boolean;canCreate:boolean;canModerate:boolean;canParticipateUnderForumPolicy:boolean} }
 
 export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
 export type InstitutionPublicationStatus = "draft" | "published";

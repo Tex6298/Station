@@ -13,6 +13,7 @@ import {
   institutionPublicationPath,
   institutionProjectsPath,
   institutionSpacePath,
+  institutionCommunityPath,
   institutionPublicationsPath,
   institutionPublicationWorkPath,
   institutionTeamPath,
@@ -415,6 +416,7 @@ export default function InstitutionTeamPage() {
             {team.institution.access.role === "owner" ? "Open workspace" : "View configuration"}
           </Link>
         </section>
+        <section className="institution-space-entry" aria-labelledby="institution-community-entry-heading"><div><div className="station-eyebrow">Institution community</div><h2 id="institution-community-entry-heading">Public Salon</h2><p>Open the category-backed community and its existing moderation policy.</p></div><Link className="station-link-button" href={institutionCommunityPath(slug)}>{team.institution.access.role==="owner"?"Open community workspace":"View community"}</Link></section>
 
         {team.institution.access.role === "owner" ? (
           <OwnerInstitutionControls

@@ -18,11 +18,23 @@ export function canCreateSubcommunity(user?: AuthenticatedUser | null) {
 }
 
 export function canManageSubcommunityModerators(row: SubcommunityRow, user?: AuthenticatedUser | null) {
-  return Boolean(user && (user.isAdmin || row.owner_user_id === user.id));
+  return Boolean(user && (user.isAdmin || isSubcommunityOwner(row, user.id)));
+}
+
+export function isSubcommunityOwner(row: SubcommunityRow, userId: string) {
+  const institution = (row as any).institution;
+  return row.owner_user_id === userId || Boolean(row.institution_id && institution?.owner_user_id === userId);
+}
+
+function institutionPrincipalIsPublic(row: SubcommunityRow) {
+  if (!row.institution_id) return true;
+  const institution = (row as any).institution;
+  return institution?.verification_status === "verified" && institution?.public_status === "public";
 }
 
 export function canReadSubcommunity(row: SubcommunityRow, user?: AuthenticatedUser | null) {
-  if (row.owner_user_id === user?.id || user?.isAdmin) return true;
+  if ((user && isSubcommunityOwner(row, user.id)) || user?.isAdmin) return true;
+  if (!institutionPrincipalIsPublic(row)) return false;
   if (row.status !== "active") return false;
   if (row.visibility === "public") return true;
   if (row.visibility === "community") return canSeeCommunity(user);
@@ -30,7 +42,7 @@ export function canReadSubcommunity(row: SubcommunityRow, user?: AuthenticatedUs
 }
 
 export function canListSubcommunity(row: SubcommunityRow, user?: AuthenticatedUser | null) {
-  if (row.visibility === "unlisted") return row.owner_user_id === user?.id || Boolean(user?.isAdmin);
+  if (row.visibility === "unlisted") return Boolean((user && isSubcommunityOwner(row,user.id)) || user?.isAdmin);
   return canReadSubcommunity(row, user);
 }
 
@@ -51,11 +63,13 @@ export function serializeSubcommunity(
     updatedAt: row.updated_at,
   };
 
-  if (row.owner_user_id === user?.id || user?.isAdmin) {
-    record.ownerUserId = row.owner_user_id;
+  if ((user && isSubcommunityOwner(row,user.id)) || user?.isAdmin) {
+    if (row.owner_user_id) record.ownerUserId = row.owner_user_id;
     record.linkedSpaceId = row.linked_space_id;
     record.linkedDeveloperSpaceId = row.linked_developer_space_id;
   }
+  const institution=(row as any).institution;
+  if(row.institution_id&&institutionPrincipalIsPublic(row)&&institution){record.institution={name:institution.name,slug:institution.slug,verified:true,href:`/institutions/${encodeURIComponent(institution.slug)}`}}
 
   return record;
 }
@@ -87,7 +101,7 @@ export async function loadSubcommunityForCategory(categoryId: string) {
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)
     .from("community_subcommunities")
-    .select("*")
+    .select("*, institution:institutions!institution_id(owner_user_id, name, slug, verification_status, public_status)")
     .eq("category_id", categoryId)
     .limit(1);
   if (error) throw new Error(error.message ?? "Failed to load subcommunity.");
@@ -113,7 +127,7 @@ export async function assignSubcommunityModerator(input: {
   targetUserId: string;
   actorUserId: string;
 }) {
-  if (input.targetUserId === input.subcommunity.owner_user_id) {
+  if (isSubcommunityOwner(input.subcommunity,input.targetUserId)) {
     throw new Error("Subcommunity owner does not need a moderator assignment.");
   }
 
@@ -161,7 +175,7 @@ export async function canModerateSubcommunity(
   user?: AuthenticatedUser | null
 ) {
   if (!user) return false;
-  if (user.isAdmin || row.owner_user_id === user.id) return true;
+  if (user.isAdmin || isSubcommunityOwner(row,user.id)) return true;
 
   const sb = getSupabaseAdmin();
   const { data, error } = await (sb as any)

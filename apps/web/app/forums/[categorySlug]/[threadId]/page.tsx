@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import type { AuthUser, CommunityModerationSafetyAction, CommunityWitnessCounts, CommunityWitnessKind } from "@station/types";
+import type { AuthUser, CommunityModerationSafetyAction, CommunitySubcommunityRecord, CommunityWitnessCounts, CommunityWitnessKind } from "@station/types";
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
@@ -49,7 +49,7 @@ interface Thread {
   score: number; vote_count?: number; viewer_vote?: number; comment_count: number; created_at: string;
   witness_counts?: CommunityWitnessCounts; viewer_witnesses?: CommunityWitnessKind[];
   author_user_id: string; author: Author | null;
-  category: { id: string; slug: string; title: string } | null;
+  category: { id: string; slug: string; title: string; subcommunity?: CommunitySubcommunityRecord | null } | null;
   document?: { id: string; title: string; space: { slug: string } | null } | null;
 }
 interface Comment {
@@ -364,6 +364,11 @@ export default function ThreadPage() {
         {" / "}
         <span>{thread.title}</span>
       </div>
+      {thread.category?.subcommunity?.institution ? (
+        <div className="forum-thread-detail-meta" style={{ marginBottom: "1rem" }}>
+          Hosted by <Link href={thread.category.subcommunity.institution.href}>{thread.category.subcommunity.institution.name}</Link> / Verified Institution
+        </div>
+      ) : null}
 
       {/* Thread body */}
       <div className="card forum-thread-detail-card forum-thread-detail-primary" style={{ marginBottom: "1.5rem" }}>

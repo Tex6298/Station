@@ -153,6 +153,11 @@ export default function ForumCategoryPage() {
           {category.description && (
             <p style={{ margin: 0, color: "#687078", fontSize: "0.875rem" }}>{forumCategoryDescriptionCopy(category.description)}</p>
           )}
+          {category.subcommunity?.institution && (
+            <p style={{ margin: "0.5rem 0 0", color: "#687078", fontSize: "0.8rem" }}>
+              Hosted by <Link href={category.subcommunity.institution.href} style={{ color: "#534ab7", fontWeight: 800 }}>{category.subcommunity.institution.name}</Link> / Verified Institution
+            </p>
+          )}
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
           {category.subcommunity && canUseDelegatedModerationQueue(viewer, category.subcommunity) && (

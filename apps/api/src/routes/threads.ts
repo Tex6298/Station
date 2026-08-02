@@ -24,7 +24,7 @@ import {
   serializeThreadDiscussionProvenance,
   withCommunityAuthorshipProvenance,
 } from "../services/community-provenance.service";
-import { canReadSubcommunity, loadSubcommunityForCategory } from "../services/community-subcommunities.service";
+import { canReadSubcommunity, loadSubcommunityForCategory, serializeSubcommunity } from "../services/community-subcommunities.service";
 
 export const threadsRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -151,6 +151,10 @@ threadsRouter.get("/:id", optionalAuth, async (req: Request, res: Response) => {
   res.json({
     thread: {
       ...withCommunityAuthorshipProvenance(thread),
+      category: (thread as any).category ? {
+        ...(thread as any).category,
+        subcommunity: subcommunity ? serializeSubcommunity(subcommunity, req.user) : null,
+      } : null,
       document: serializeThreadDocumentLink(thread.document),
       viewer_vote: (viewerThreadVotes as Record<string, number>)[thread.id] ?? 0,
       viewer_moderation_actions: threadModerationActions,

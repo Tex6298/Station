@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import test from "node:test";
 import {
   institutionInvitationActionPath,
+  institutionCommunityPath,
   institutionMemberRevokePath,
   institutionPublicationPath,
   institutionProjectsPath,
@@ -23,6 +24,7 @@ test("institution routes encode slugs and usernames preserve exact case", () => 
   );
   assert.equal(institutionMemberRevokePath("station-labs"), "/institutions/station-labs/members/revoke");
   assert.equal(institutionPublicationPath("station-labs"), "/institutions/station-labs/publication");
+  assert.equal(institutionCommunityPath("station/labs"), "/institutions/station%2Flabs/community");
   assert.equal(institutionProjectsPath("station/labs"), "/institutions/station%2Flabs/projects");
   assert.equal(suggestInstitutionProjectSlug("  Institutional Alpha!  "), "institutional-alpha");
 });

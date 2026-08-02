@@ -20,6 +20,7 @@ type InstitutionMemberRow = Database["public"]["Tables"]["institution_members"][
 type ProjectRow = Database["public"]["Tables"]["projects"]["Row"];
 type InstitutionSpaceRow = Database["public"]["Tables"]["institution_spaces"]["Row"];
 type InstitutionPublicationRow = Database["public"]["Tables"]["institution_publications"]["Row"];
+type InstitutionSalonRow = Database["public"]["Tables"]["community_subcommunities"]["Row"] & { category?: { id:string;slug:string } | null };
 type ProfileIdentityRow = Pick<
   Database["public"]["Tables"]["profiles"]["Row"],
   "id" | "username" | "display_name"
@@ -260,12 +261,14 @@ institutionsRouter.get("/public/:slug", async (req, res) => {
   if (space?.status === "published" && space.published_at) {
     const { data: projectData, error: projectError } = await getSupabaseAdmin().from("projects").select("*").eq("institution_id", data.id).eq("visibility", "public").order("updated_at", { ascending: false });
     const { data: publicationData, error: publicationError } = await getSupabaseAdmin().from("institution_publications").select("*").eq("institution_id", data.id).eq("status", "published").order("published_at", { ascending: false });
-    if (projectError || publicationError) return res.status(500).json(INSTITUTION_READ_FAILED);
+    const { data: communityData, error: communityError } = await getSupabaseAdmin().from("community_subcommunities").select("*, category:forum_categories!category_id(id, slug)").eq("institution_id",data.id).maybeSingle();
+    if (projectError || publicationError || communityError) return res.status(500).json(INSTITUTION_READ_FAILED);
     const projects = (projectData ?? []) as ProjectRow[];
     const projectMap = new Map(projects.map((project) => [project.id, project]));
     response.space = { markText:space.mark_text,headline:space.headline,about:space.about,accentKey:space.accent_key,publishedAt:space.published_at,creatorLabel:space.creator_label,lastEditorLabel:space.last_editor_label };
     response.projects = projects.map((project)=>({name:project.name,slug:project.slug,description:project.description,connectionTier:project.connection_tier,href:`/projects/public/${encodeURIComponent(project.slug)}`}));
     response.publications = ((publicationData ?? []) as InstitutionPublicationRow[]).map((publication)=>{const project=projectMap.get(publication.project_id);if(!project||!publication.published_at)return null;return{title:publication.title,slug:publication.slug,summary:publication.summary,documentType:publication.document_type,publishedAt:publication.published_at,creatorLabel:publication.creator_label,lastEditorLabel:publication.last_editor_label,href:`/institutions/${encodeURIComponent(data.slug)}/publications/public/${encodeURIComponent(publication.slug)}`,project:{name:project.name,slug:project.slug,href:`/projects/public/${encodeURIComponent(project.slug)}`}}}).filter((item):item is NonNullable<typeof item>=>Boolean(item));
+    const community=communityData as unknown as InstitutionSalonRow|null;if(community?.status==="active"&&community.visibility==="public"&&community.subcommunity_type==="salon"&&community.category?.id===community.category_id&&community.category.slug===community.slug){response.community={title:community.title,slug:community.slug,description:community.description,type:"salon",href:`/forums/${encodeURIComponent(community.slug)}`}}
   }
   return res.json(response);
 });

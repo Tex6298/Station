@@ -1,6 +1,6 @@
 import type { AuthenticatedUser } from "../middleware/require-auth";
 import type { CommunityModerationAction } from "./community.service";
-import { canModerateSubcommunity, loadSubcommunityForCategory } from "./community-subcommunities.service";
+import { canModerateSubcommunity, isSubcommunityOwner, loadSubcommunityForCategory } from "./community-subcommunities.service";
 
 export type CommunityModerationSafetyAction = "hide" | "unhide" | "remove" | "restore";
 
@@ -49,7 +49,7 @@ export async function authorizeSubcommunityModeration(input: {
 
   if (!canModerate) return { ok: false, status: 403, error: "Admin access required." };
 
-  if (input.targetAuthorUserId === input.user.id && subcommunity.owner_user_id !== input.user.id) {
+  if (input.targetAuthorUserId === input.user.id && !isSubcommunityOwner(subcommunity,input.user.id)) {
     return {
       ok: false,
       status: 403,
@@ -78,7 +78,7 @@ export function moderationSafetyActionsForTarget(target: {
 
 export async function viewerModerationSafetyActions(input: {
   user?: AuthenticatedUser | null;
-  subcommunity: { id: string; owner_user_id: string } | null;
+  subcommunity: { id: string; owner_user_id: string | null; institution_id?: string | null; institution?: unknown } | null;
   targetAuthorUserId?: string | null;
   target: Parameters<typeof moderationSafetyActionsForTarget>[0];
 }): Promise<CommunityModerationSafetyAction[]> {
@@ -95,7 +95,7 @@ export async function viewerModerationSafetyActions(input: {
   }
 
   if (!canModerate) return [];
-  if (input.targetAuthorUserId === user.id && input.subcommunity.owner_user_id !== user.id) return [];
+  if (input.targetAuthorUserId === user.id && !isSubcommunityOwner(input.subcommunity as any,user.id)) return [];
 
   return moderationSafetyActionsForTarget(input.target);
 }

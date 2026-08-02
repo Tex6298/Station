@@ -59,6 +59,7 @@ export interface CommunitySubcommunityRecord {
   linkedSpaceId?: string | null;
   linkedDeveloperSpaceId?: string | null;
   ownerUserId?: string;
+  institution?: { name: string; slug: string; verified: true; href: string };
   viewerCanModerate?: boolean;
   createdAt: string;
   updatedAt: string;

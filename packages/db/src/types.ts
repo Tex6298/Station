@@ -233,7 +233,8 @@ export type InstitutionAuditAction =
   | "space_created"
   | "space_edited"
   | "space_published"
-  | "space_unpublished";
+  | "space_unpublished"
+  | "community_created";
 export type InstitutionPublicationStatus = "draft" | "published";
 export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
 export type InstitutionSpaceStatus = "draft" | "published";
@@ -545,7 +546,7 @@ export interface Database {
           actor_user_id: string | null;
           subject_user_id: string | null;
           action: InstitutionAuditAction;
-          resource_kind: "institution_publication" | "institution_space" | null;
+          resource_kind: "institution_publication" | "institution_space" | "institution_subcommunity" | null;
           resource_id: string | null;
           created_at: string;
         };
@@ -1721,7 +1722,8 @@ export interface Database {
         Row: {
           id: string;
           category_id: string;
-          owner_user_id: string;
+          owner_user_id: string | null;
+          institution_id: string | null;
           slug: string;
           title: string;
           description: string | null;
@@ -1733,13 +1735,14 @@ export interface Database {
           created_at: string;
           updated_at: string;
         };
-        Insert: Omit<Database["public"]["Tables"]["community_subcommunities"]["Row"], "id" | "description" | "visibility" | "status" | "linked_space_id" | "linked_developer_space_id" | "created_at" | "updated_at"> & {
+        Insert: Omit<Database["public"]["Tables"]["community_subcommunities"]["Row"], "id" | "description" | "visibility" | "status" | "linked_space_id" | "linked_developer_space_id" | "institution_id" | "created_at" | "updated_at"> & {
           id?: string;
           description?: string | null;
           visibility?: SubcommunityVisibility;
           status?: SubcommunityStatus;
           linked_space_id?: string | null;
           linked_developer_space_id?: string | null;
+          institution_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -2447,6 +2450,7 @@ export interface Database {
       create_institution_space_v1: { Args:{p_institution_id:string;p_actor_user_id:string;p_actor_label:string;p_mark_text:string;p_headline:string;p_about:string;p_accent_key:InstitutionSpaceAccentKey};Returns:Database["public"]["Tables"]["institution_spaces"]["Row"] };
       edit_institution_space_v1: { Args:{p_space_id:string;p_actor_user_id:string;p_actor_label:string;p_expected_version:number;p_mark_text:string;p_headline:string;p_about:string;p_accent_key:InstitutionSpaceAccentKey};Returns:Array<{outcome:"edited"|"conflict"|"unavailable";space_id:string|null;new_version:number|null}> };
       transition_institution_space_v1: { Args:{p_space_id:string;p_actor_user_id:string;p_expected_version:number;p_action:"publish"|"unpublish"};Returns:Array<{outcome:"published"|"unpublished"|"conflict"|"unavailable";space_id:string|null;new_version:number|null}> };
+      create_institution_subcommunity_v1: { Args:{p_institution_id:string;p_actor_user_id:string;p_slug:string;p_title:string;p_description:string|null};Returns:Array<{outcome:"created"|"conflict"|"invalid"|"unavailable";subcommunity_id:string|null;category_id:string|null}> };
       invite_project_viewer_v1: {
         Args: {
           p_project_id: string;

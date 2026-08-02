@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import type { InstitutionSpaceAccentKey, InstitutionSpaceDetail } from "@station/types";
 import { ApiRequestError, apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { institutionSpacePath, institutionTeamPath } from "@/lib/institutions";
+import { institutionCommunityPath, institutionSpacePath, institutionTeamPath } from "@/lib/institutions";
 
 const accents:{key:InstitutionSpaceAccentKey;label:string}[]=[{key:"cobalt",label:"Cobalt"},{key:"coral",label:"Coral"},{key:"forest",label:"Forest"},{key:"gold",label:"Gold"}];
 type Readback={space:InstitutionSpaceDetail|null;institution:{name:string;slug:string;access:{role:"institution_owner"|"institution_member";readOnly:boolean}}};
@@ -27,7 +27,7 @@ export default function InstitutionSpaceWorkspace(){
       <label className="institution-field"><span>Headline</span><input className="input" value={headline} onChange={e=>setHeadline(e.target.value)} maxLength={160} disabled={!owner||space?.status==="published"} required /></label>
       <label className="institution-field"><span>About</span><textarea className="input" value={about} onChange={e=>setAbout(e.target.value)} rows={8} maxLength={3000} disabled={!owner||space?.status==="published"} required /></label>
       <fieldset className="institution-accent-field" disabled={!owner||space?.status==="published"}><legend>Accent</legend><div className="institution-accent-options">{accents.map(accent=><label key={accent.key} className="institution-accent-option"><input type="radio" name="accent" value={accent.key} checked={accentKey===accent.key} onChange={()=>setAccent(accent.key)} /><span className={`institution-accent-swatch institution-accent-${accent.key}`} aria-hidden="true" />{accent.label}</label>)}</div></fieldset>
-      <div className="station-action-row">{owner&&space?.status!=="published"?<button className="station-link-button" type="submit" disabled={pending!==null}>{pending==="save"?"Saving...":space?"Save draft":"Create draft"}</button>:null}{space?.access.canPublish?<button className="station-link-button" type="button" disabled={pending!==null} onClick={()=>change("publish")}>{pending==="publish"?"Publishing...":"Publish"}</button>:null}{space?.access.canUnpublish?<button className="station-muted-button" type="button" disabled={pending!==null} onClick={()=>change("unpublish")}>{pending==="unpublish"?"Unpublishing...":"Unpublish"}</button>:null}{space?.publicHref?<Link className="station-muted-button" href={space.publicHref}>Open public page</Link>:null}</div>
+      <div className="station-action-row">{owner&&space?.status!=="published"?<button className="station-link-button" type="submit" disabled={pending!==null}>{pending==="save"?"Saving...":space?"Save draft":"Create draft"}</button>:null}{space?.access.canPublish?<button className="station-link-button" type="button" disabled={pending!==null} onClick={()=>change("publish")}>{pending==="publish"?"Publishing...":"Publish"}</button>:null}{space?.access.canUnpublish?<button className="station-muted-button" type="button" disabled={pending!==null} onClick={()=>change("unpublish")}>{pending==="unpublish"?"Unpublishing...":"Unpublish"}</button>:null}{space?.publicHref?<Link className="station-muted-button" href={space.publicHref}>Open public page</Link>:null}<Link className="station-muted-button" href={institutionCommunityPath(slug)}>Institution community</Link></div>
     </form></>:null}
   </div></main>
 }

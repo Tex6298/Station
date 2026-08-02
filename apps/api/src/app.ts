@@ -25,6 +25,7 @@ import { projectsRouter } from "./routes/projects";
 import { institutionsRouter } from "./routes/institutions";
 import { institutionPublicationsRouter } from "./routes/institution-publications";
 import { institutionSpacesRouter } from "./routes/institution-spaces";
+import { institutionCommunityRouter } from "./routes/institution-community";
 import { developerSpacesRouter } from "./routes/developer-spaces";
 import { exportsRouter } from "./routes/exports";
 import { storageRouter } from "./routes/storage";
@@ -88,6 +89,7 @@ export function createApp() {
   app.use("/projects", projectsRouter);
   app.use(institutionPublicationsRouter);
   app.use(institutionSpacesRouter);
+  app.use(institutionCommunityRouter);
   app.use("/institutions", institutionsRouter);
   app.use("/developer-spaces", developerSpacesRouter);
   app.use("/exports", exportsRouter);

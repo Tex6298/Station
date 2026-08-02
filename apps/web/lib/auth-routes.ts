@@ -18,6 +18,7 @@ export function isProtectedRoute(pathname: string): boolean {
     if (second === "admin") return true;
     if (third === "team") return true;
     if (third === "space") return true;
+    if (third === "community") return true;
     if (third === "publications" && fourth !== "public") return true;
     return false;
   }
