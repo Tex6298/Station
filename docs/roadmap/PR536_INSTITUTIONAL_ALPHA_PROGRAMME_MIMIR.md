@@ -112,8 +112,10 @@ owner/member/signed-out rehearsal proves the Space-to-Salon-to-discussion
 journey with retained Salon/thread/reply `1/1/1`, Space `8/8`, personal
 compatibility, and zero residue.
 
-PR542 Institution Activity And Audit Readback is open for DAEDALUS under the
-already-authorized programme sequence. It reuses the append-only Institution
-ledger, closes the missing atomic Institution Project event, and adds bounded
-owner-only summary/timeline readback. PR536 remains open through PR542 review
-and rehearsal, followed by PR543 final hosted rehearsal and MIMIR closeout.
+PR542 Institution Activity And Audit Readback is blocked before rehearsal at
+source `4764e28a`. Migration `098`, atomic Institution Project audit truth,
+owner-only access, complete traversal, and restoration pass, but the base64url
+cursor reversibly exposes a private audit id and actor relationships overstate
+invited/never-member history. DAEDALUS owns the bounded read-model correction,
+then returns to ARGUS. PR536 remains open through PR542 review and rehearsal,
+followed by PR543 final hosted rehearsal and MIMIR closeout.

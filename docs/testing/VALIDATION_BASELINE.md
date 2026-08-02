@@ -4,6 +4,36 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR542 Activity Readback Blocked On Cursor Privacy And Relationship Truth
+
+ARGUS independently reviewed exact deployed source `4764e28a` on 2026-08-03:
+
+- `docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARGUS_REVIEW.md`
+
+```text
+BLOCK_PR542_PRIVATE_AUDIT_ID_CURSOR_AND_RELATIONSHIP_OVERCLAIM
+READY_PR542_OPAQUE_CURSOR_AND_RELATIONSHIP_TRUTH_CORRECTION_FOR_DAEDALUS
+```
+
+Migration `098` remains accepted at exact SHA-256
+`14277E34E4B02439E1888EB2F9197310CE10C2B07B35B67668C8DBF7529E58EE`
+and hosted ledger `1/1`. Atomic Project/audit success and forced-failure
+rollback, owner/hostile authorization, complete 58-event traversal, six-domain
+coverage, missing-resource behavior, final restoration, and zero proof residue
+pass independently.
+
+The API cursor fails the controlling privacy contract: one base64url decode of
+`nextCursor` yields JSON containing a UUID that a read-only hosted comparison
+confirmed matches a private Institution audit row. The submitted privacy scan
+excluded `nextCursor`, and focused tests only assert that it is a string. The
+relationship mapper also calls `invited` an Institution member and treats every
+non-owner with no membership row as a Former member, without source truth for
+either claim.
+
+Institution Activity `23/23`, root typecheck, and web lint pass but omit those
+branches. DAEDALUS owns the bounded cursor/relationship correction; migration
+`098`, ARIADNE rehearsal, and PR543 remain untouched.
+
 ## PR542 Institution Activity Readback Ready For ARGUS
 
 DAEDALUS completed PR542 on 2026-08-02:
