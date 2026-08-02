@@ -81,18 +81,21 @@ Each timeline entry may expose only:
 - stable public event type and domain;
 - human copy derived from an exhaustive server-side action map;
 - event time;
-- actor role label such as `Institution owner`, `Institution member`,
+- an owner-safe actor/subject label using only the existing bounded Station
+  identity (`displayName` or `@username`) where that identity still resolves,
+  plus a relationship label such as `Institution owner`, `Institution member`,
   `Former member`, or `System`;
 - bounded resource label and an owner-safe route when the resource still
   resolves; and
 - non-sensitive state needed to explain the event.
 
 Never serialize audit ids, actor/subject user ids, resource ids, emails,
-avatars, profile metadata, raw rows, arbitrary action text, or arbitrary
-resource metadata. Deleted or no-longer-visible subjects/resources must degrade
-to honest generic labels without making the whole timeline fail. Unknown action
-or resource pairs fail closed from the DTO and raise a visible operational
-error in tests; they must not be echoed through generic serialization.
+avatars, profile metadata beyond that bounded identity label, raw rows,
+arbitrary action text, or arbitrary resource metadata. Deleted or
+no-longer-visible subjects/resources must degrade to honest generic labels
+without making the whole timeline fail. Unknown action or resource pairs fail
+closed from the DTO and raise a visible operational error in tests; they must
+not be echoed through generic serialization.
 
 Only the immutable Institution owner may read this route. Active, invited,
 removed, stale, unrelated, anonymous, and admin-without-owner-context callers
@@ -130,8 +133,9 @@ current Institutional Alpha resources while proving:
    Institution/personal row and prior audit fingerprint preserved;
 2. the retained Institution Project has exactly one trustworthy
    `project_created` event after the bounded backfill;
-3. one disposable Institution Project creation writes Project plus audit
-   atomically, and forced failure leaves neither row;
+3. one transaction-scoped actual-engine Institution Project fixture writes
+   Project plus audit atomically, and rollback/forced failure leaves neither
+   row in hosted retained state;
 4. owner readback contains typed team, Project, publication, Space, and
    community truth for the retained Institution in deterministic order;
 5. owner summary counts agree with the typed timeline/source rows and bounded
@@ -144,7 +148,7 @@ current Institutional Alpha resources while proving:
    failure returns no partial data;
 9. personal Project, community, Institution, publication, Space, Settings AI
    Activity, export, billing, and public routes remain unchanged; and
-10. disposable Projects, events, users, and browser state are removed while
+10. transaction-scoped fixtures and browser state leave zero residue while the
     retained Institution, member, Project, publication, Space `8/8`, Salon,
     thread, reply, and accepted audit truth remain exact.
 
