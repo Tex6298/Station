@@ -106,10 +106,10 @@ visible-control cycle ending published at version/audit `8/8`.
 
 PR541 adds one first-class Institution-principal Salon by extending the mature
 community model without a hidden personal owner, automatic member moderation,
-or a replacement discussion engine. ARGUS blocks rehearsal at exact source
-`783a0ade`: the report queue still depends on the owner's personal tier, while
-Institution publication loss closes the direct forum route but not service-role
-Discover or public Persona Salon/thread projections. DAEDALUS owns the bounded
-Institution-principal composition correction, then returns to ARGUS. PR536
-remains open through PR542 owner activity/audit readback and PR543 final hosted
-rehearsal.
+or a replacement discussion engine. Source `fa598c7e` fixes Institution
+publication composition and visitor-tier owner queue access. ARGUS still blocks
+rehearsal because the shared projection filter omits Salon status/visibility: a
+paused Salon closes its direct route and public aggregate but leaves its thread
+in anonymous Discover search/new/featured. DAEDALUS owns the final bounded
+effective-Salon correction, then returns to ARGUS. PR536 remains open through
+PR542 owner activity/audit readback and PR543 final hosted rehearsal.

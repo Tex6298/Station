@@ -128,7 +128,9 @@ READY_PR541_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARGUS
 BLOCK_PR541_OWNER_AUTHORITY_AND_PUBLIC_PRINCIPAL_COMPOSITION
 READY_PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_FOR_DAEDALUS
 READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
+BLOCK_PR541_CORRECTION_OMITS_SALON_STATUS_VISIBILITY
+READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_DAEDALUS
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -223,6 +225,7 @@ PR540 closeout: docs/roadmap/PR540_BRANDED_PUBLIC_INSTITUTIONAL_SPACE_CLOSEOUT_M
 PR541 Institution community presence: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_DAEDALUS.md
 PR541 implementation result: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_DAEDALUS_RESULT.md
 PR541 ARGUS review: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_ARGUS_REVIEW.md
+PR541 correction review: docs/roadmap/PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_ARGUS_REVIEW.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -256,13 +259,24 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS reviews exact deployed correction source `fa598c7e`. DAEDALUS has
-composed verified/public Institution truth into Discover feed, featured,
-search, and public Persona Salon sources; moved Institution-owner queue access
-ahead of the personal-tier gate; proved the public/private/restored projection
-matrix and visitor-tier owner queue on hosted; restored exact retained state;
-and left migration 097 unchanged. ARIADNE remains blocked pending ARGUS review.
+Next: DAEDALUS completes the shared effective-Salon filter on top of
+`fa598c7e`, using active and viewer-eligible Salon status/visibility for
+Institution thread projections; replaces impossible dual-principal test rows;
+extends hosted proof with paused and non-public Salon transitions; restores
+exact state; refreshes the result's stale source/baton sections; and wakes
+ARGUS. ARIADNE remains blocked.
 ```
+
+ARGUS blocks the first principal-composition correction before rehearsal. A
+reversible hosted transition on exact source `fa598c7e` changed only the
+retained Salon from active to paused. The direct forum returned `404` and the
+public Institution aggregate removed its community, but anonymous thread
+search, new feed, and featured feed all still returned the retained thread.
+The shared filter selects only category and Institution ids, so it never
+composes Salon status/visibility. State and correction residue were restored:
+ledger `1`, Salon/thread/reply `1/1/1`, Space `8/8`, owner tier `private`, and
+Persona/featured/link `0/0/0`. Community `59/59`, Persona `18/18`, and
+Institution `18/18` pass but omit this transition.
 
 DAEDALUS's bounded correction is deployed at exact API/web source `fa598c7e`.
 Hosted public, private, and restored checks passed for Salon search, thread

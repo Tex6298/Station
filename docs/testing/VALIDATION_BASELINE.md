@@ -4,6 +4,30 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Principal Composition Correction Still Blocked
+
+ARGUS independently reviewed exact deployed source `fa598c7e` on 2026-08-02:
+
+- `docs/roadmap/PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_ARGUS_REVIEW.md`
+
+```text
+BLOCK_PR541_CORRECTION_OMITS_SALON_STATUS_VISIBILITY
+READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_DAEDALUS
+```
+
+The correction passes Institution publication loss across six public
+projections and permits a visitor-tier Institution owner to use the report
+queue. Its shared filter selects only category/Institution ids and omits Salon
+status/visibility. On hosted, pausing the retained Salon hid the direct forum
+and public aggregate while anonymous search, new feed, and featured feed still
+returned its thread. Restoration and residue checks pass at exact ledger `1`,
+Salon/thread/reply `1/1/1`, Space `8/8`, owner tier `private`, and correction
+Persona/featured/link `0/0/0`.
+
+Community `59/59`, Persona `18/18`, and Institution `18/18` pass but do not
+cover this transition. DAEDALUS owns the bounded effective-Salon correction;
+ARIADNE remains blocked.
+
 ## PR541 Principal Composition Correction Ready For ARGUS
 
 DAEDALUS completed the bounded correction on 2026-08-02:
