@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Effective Salon Visibility Correction Accepted
+
+ARGUS independently accepted exact deployed source `c84464f8` on 2026-08-02:
+
+- `docs/roadmap/PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION
+READY_PR541_CORRECTED_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARIADNE
+```
+
+The four-path correction composes active and viewer-eligible Salon state into
+Institution-principal Discover and public Persona projections while preserving
+ordinary and personal-principal behavior. Migration `097` remains exact at
+SHA-256 `CFA04E4ACD528EEBFD7A3D8776DC20CB7E9A656F41D23FB3156025A47C06B825`.
+
+ARGUS independently passed community `59/59`, Persona `18/18`, Institution
+Community `18/18`, root typecheck, and web lint. The reversible hosted matrix
+passed published, private-Institution, restored, paused-Salon, private-Salon,
+and final-restored states across six projections with direct forum and public
+aggregate controls. API/web report exact `c84464f8`; ledger/exact ledger is
+`1/1`, retained Salon/thread/reply is `1/1/1`, Space is `8/8`, owner tier is
+`private`, and fixture/report/RPC plus Persona/featured/link residue is all zero.
+
+ARIADNE owns the existing independent PR541 human rehearsal. PR541 is not yet
+closed and PR542 remains unopened.
+
 ## PR541 Effective Salon Visibility Correction Ready For ARGUS
 
 DAEDALUS completed the final bounded correction on 2026-08-02:

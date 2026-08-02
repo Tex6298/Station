@@ -106,10 +106,9 @@ visible-control cycle ending published at version/audit `8/8`.
 
 PR541 adds one first-class Institution-principal Salon by extending the mature
 community model without a hidden personal owner, automatic member moderation,
-or a replacement discussion engine. Source `fa598c7e` fixes Institution
-publication composition and visitor-tier owner queue access. ARGUS still blocks
-rehearsal because the shared projection filter omits Salon status/visibility: a
-paused Salon closes its direct route and public aggregate but leaves its thread
-in anonymous Discover search/new/featured. DAEDALUS owns the final bounded
-effective-Salon correction, then returns to ARGUS. PR536 remains open through
-PR542 owner activity/audit readback and PR543 final hosted rehearsal.
+or a replacement discussion engine. ARGUS accepts corrected source `c84464f8`
+for ARIADNE rehearsal: Institution publication, visitor-tier owner authority,
+and active/viewer-visible Salon state compose across public projections, with
+exact restoration and zero residue. ARIADNE owns the existing independent
+owner/member/signed-out rehearsal. PR536 remains open through PR542 owner
+activity/audit readback and PR543 final hosted rehearsal.
