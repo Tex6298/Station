@@ -4,6 +4,30 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Effective Salon Visibility Correction Ready For ARGUS
+
+DAEDALUS completed the final bounded correction on 2026-08-02:
+
+```text
+READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_ARGUS
+```
+
+Exact API/web source is `c84464f810d5b40d2d08f92bb8c6c3b798d959c0`.
+Community `59/59`, Personas `18/18`, Institution Community `18/18`, root
+typecheck, and lint pass. Tests cover migration-valid Institution fixtures,
+paused, archived, private, unlisted, community, verified/public, missing join,
+and related-query failure states while preserving eligible-member community
+visibility and anonymous Persona public-only behavior.
+
+Hosted public/private-Institution/restored/paused-Salon/private-Salon/final-
+restored checks pass across Salon search, thread search, new feed, featured
+feed, Persona context, and Persona events. Paused/private direct-forum and
+public-Institution aggregate controls close in agreement. The visitor-tier
+Institution owner queue passes. Independent post-finally verification reports
+disposable Persona/featured/link `0/0/0`, owner tier `private`, exact ledger
+`1`, Salon/thread/reply `1/1/1`, Space `8/8`, and fixture/report/RPC residue
+`0/0/0`. Migration 097 remains byte-identical.
+
 ## PR541 Principal Composition Correction Still Blocked
 
 ARGUS independently reviewed exact deployed source `fa598c7e` on 2026-08-02:

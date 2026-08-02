@@ -5,29 +5,33 @@ Date: 2026-08-02
 Status:
 
 ```text
-READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
+READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_ARGUS
 ```
 
 ## ARGUS Blocker Correction
 
-Exact correction source `fa598c7ea356e45f6a8ed0146e221620b0ac15e0` is
+Exact correction source `c84464f810d5b40d2d08f92bb8c6c3b798d959c0` is
 deployed on both API and web. Discover new/rising feed threads, featured
 threads, thread search, Salon search, and public Persona Salon context/events
-now compose the subcommunity's effective Institution principal. Missing
-principal joins, related-query failures, unverified Institutions, and private
-Institutions fail closed. Ordinary categories and personal-principal Salons
-retain their existing behavior.
+now compose the effective Institution principal and controlling Salon state.
+Missing principal joins, related-query failures, unverified or private
+Institutions, inactive Salons, and viewer-ineligible Salon visibility fail
+closed. Ordinary categories and personal-principal Salons retain their existing
+behavior.
 
 Institution owner access to the delegated moderation queue now precedes the
 personal community-tier gate. Personal owners and delegated moderators keep
 their existing tier behavior. Focused coverage proves verified/public,
-private, unverified, missing-join, and query-failure states plus a visitor-tier
-Institution owner.
+private, unverified, missing-join, query-failure, paused, archived, private,
+unlisted, and community Salon states plus a visitor-tier Institution owner.
+Both Institution fixtures use the migration-valid exact-one-principal shape.
 
 The reversible hosted proof passed public, private, and restored states across
 Salon search, thread search, new feed, featured feed, Persona context, and
-Persona events. The same owner reached the report queue while temporarily set
-to personal tier `visitor`. Cleanup restored owner tier `private`, Institution
+Persona events. Paused and private Salon states also suppress all six while
+direct forum and public Institution aggregate controls close. The same owner
+reached the report queue while temporarily set to personal tier `visitor`.
+Cleanup restored owner tier `private`, Institution
 publication, and the retained thread's null Persona link; disposable Persona
 and featured rows are both zero.
 
@@ -61,7 +65,7 @@ reply.
 
 ## Hosted Proof
 
-Both Railway services report exact source `783a0adec220279cbe32568eb01a067e07a93845`.
+Both Railway services report exact source `c84464f810d5b40d2d08f92bb8c6c3b798d959c0`.
 Hosted checks prove:
 
 - migration ledger `1`, exact ledger/hash `1`, and browser RPC grants `0`;
@@ -74,8 +78,9 @@ Hosted checks prove:
 - owner report queue, hide, report resolution, and restore complete through the
   existing local moderation routes;
 - signed-out Institution -> Salon -> retained thread traversal succeeds;
-- Institution publication loss, Space draft state, and category mismatch each
-  remove their public link, and exact restoration returns it;
+- Institution publication loss, Salon pause, Salon private visibility, Space
+  draft state, and category mismatch remove their public surfaces, and exact
+  restoration returns them;
 - retained Salon/thread/reply counts are `1/1/1`, report and fixture residue are
   `0/0`, and the retained Institutional Space remains version/audit `8/8`.
 
@@ -89,14 +94,17 @@ verified Institution provenance.
 Initial source `1342a33a` deployed the schema, routes, DTOs, and UI. Hosted
 moderation rehearsal then found that one delegated-queue loader still selected
 the Salon without its Institution join, denying the Institution owner. The
-bounded correction `783a0ade` adds that join and a direct owner/member authority
-regression. No schema correction or second migration was needed.
+bounded correction `783a0ade` added that join. Source `fa598c7e` composed
+Institution publication and visitor-tier owner authority; final source
+`c84464f8` also composes active/viewer-visible Salon state and repairs the
+exact-one-principal fixtures. No schema correction or second migration was
+needed.
 
 ## Validation
 
 Frozen install passed. Focused suites passed: Institution community `18/18`,
 Institutions `18/18`, Institution publications `4/4`, Institution Spaces `6/6`,
-community `58/58` after the correction, reports `9/9`, document discussions
+community `59/59` after the correction, reports `9/9`, document discussions
 `9/9`, auth `24/24`, Projects `33/33`, Spaces `11/11`, Developer Spaces `61/61`,
 writing `35/35`, profile boundary `5/5`, exports `15/15`, billing `16/16`, and AI
 settings `14/14`. Root typecheck and web lint pass.
@@ -106,7 +114,7 @@ Root build compiled, linted/typechecked, collected page data, and generated
 
 ## Baton
 
-ARGUS should independently review exact source `783a0ade`, migration 097 and its
+ARGUS should independently review exact source `c84464f8`, migration 097 and its
 ledger/hash, Institution-owner authority across every loader, public fail-closed
 composition, retained hosted state, and the disclosed correction. If accepted,
 wake ARIADNE for independent owner/member/signed-out human rehearsal.

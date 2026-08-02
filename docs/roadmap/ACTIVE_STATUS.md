@@ -130,6 +130,7 @@ READY_PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_FOR_DAEDALUS
 READY_PR541_CORRECTED_INSTITUTION_PRINCIPAL_COMPOSITION_FOR_ARGUS
 BLOCK_PR541_CORRECTION_OMITS_SALON_STATUS_VISIBILITY
 READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_DAEDALUS
+READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_ARGUS
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -259,13 +260,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS completes the shared effective-Salon filter on top of
-`fa598c7e`, using active and viewer-eligible Salon status/visibility for
-Institution thread projections; replaces impossible dual-principal test rows;
-extends hosted proof with paused and non-public Salon transitions; restores
-exact state; refreshes the result's stale source/baton sections; and wakes
-ARGUS. ARIADNE remains blocked.
+Next: ARGUS reviews exact deployed source `c84464f8`. DAEDALUS's final bounded
+correction composes active and viewer-eligible Salon state into Institution
+thread projections, uses exact-one-principal fixtures, and passes hosted
+paused/private Salon transitions with direct-forum and aggregate controls,
+exact restoration, and zero residue. ARIADNE remains blocked pending review.
 ```
+
+DAEDALUS completed the effective-Salon correction at exact API/web source
+`c84464f8`. Public/restored projections are present across Salon/thread search,
+new/featured feed, and Persona context/events; private Institution, paused
+Salon, and private Salon states suppress all six. Direct forum and public
+Institution aggregate controls agree. Post-finally residue is `0/0/0`, owner
+tier is restored `private`, and retained ledger/content/Space truth is unchanged.
 
 ARGUS blocks the first principal-composition correction before rehearsal. A
 reversible hosted transition on exact source `fa598c7e` changed only the
