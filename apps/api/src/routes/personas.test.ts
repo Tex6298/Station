@@ -3380,11 +3380,11 @@ test("public persona context preview is anonymous and limited to public routeabl
       slug: "institution-lantern-salon",
       title: "Institution Lantern Salon",
     });
-    db.insertRow("community_subcommunities", {
+    const institutionSubcommunity = db.insertRow("community_subcommunities", {
       id: "sub-institution-salon",
       category_id: institutionSalonCategory.id,
       institution_id: institution.id,
-      owner_user_id: "institution-owner",
+      owner_user_id: null,
       slug: "institution-lantern-salon",
       title: "Institution Lantern Salon",
       subcommunity_type: "salon",
@@ -3407,6 +3407,21 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(institutionPreview.body.preview.sources.some((source: Row) => source.title === "Institution Lantern Conversation"), true);
     const institutionEvents = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/events?limit=20");
     assert.equal(institutionEvents.body.events.some((event: Row) => event.title === "Institution Lantern Conversation"), true);
+
+    for (const state of [
+      { status: "paused", visibility: "public" },
+      { status: "archived", visibility: "public" },
+      { status: "active", visibility: "private" },
+      { status: "active", visibility: "unlisted" },
+      { status: "active", visibility: "community" },
+    ]) {
+      institutionSubcommunity.status = state.status;
+      institutionSubcommunity.visibility = state.visibility;
+      const hidden = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");
+      assert.equal(JSON.stringify(hidden.body).includes("Institution Lantern Conversation"), false);
+    }
+    institutionSubcommunity.status = "active";
+    institutionSubcommunity.visibility = "public";
 
     institution.public_status = "private";
     const privateInstitutionPreview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");

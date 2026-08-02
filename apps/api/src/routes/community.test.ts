@@ -3113,7 +3113,7 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     id: "subcommunity-visitor-institution-queue",
     category_id: institutionCategory.id,
     institution_id: visitorInstitution.id,
-    owner_user_id: INSTITUTIONAL_ID,
+    owner_user_id: null,
     slug: "visitor-institution-queue",
     title: "Visitor Institution Queue",
     subcommunity_type: "salon",
@@ -5887,11 +5887,11 @@ test("Discover projections compose Institution principal visibility and fail clo
       slug: "institution-beacon-salon",
       title: "Institution Beacon Salon",
     });
-    db.insertRow("community_subcommunities", {
+    const subcommunity = db.insertRow("community_subcommunities", {
       id: "subcommunity-institution-beacon",
       category_id: category.id,
       institution_id: institution.id,
-      owner_user_id: INSTITUTIONAL_ID,
+      owner_user_id: null,
       slug: "institution-beacon-salon",
       title: "Institution Beacon Salon",
       subcommunity_type: "salon",
@@ -5916,22 +5916,37 @@ test("Discover projections compose Institution principal visibility and fail clo
       created_at: "2026-05-25T12:00:00.000Z",
     });
 
-    const assertProjected = async (expected: boolean) => {
-      const search = await requestJson(app, "GET", "/discover/search?q=Institution%20Beacon");
+    const assertProjected = async (expected: boolean, token?: string) => {
+      const requestOptions = token ? { token } : undefined;
+      const search = await requestJson(app, "GET", "/discover/search?q=Institution%20Beacon", requestOptions);
       assert.equal(search.status, 200);
       assert.equal(search.body.salons.some((row: Row) => row.title === "Institution Beacon Salon"), expected);
       assert.equal(search.body.threads.some((row: Row) => row.id === thread.id), expected);
 
-      const feed = await requestJson(app, "GET", "/discover/feed?tab=new");
+      const feed = await requestJson(app, "GET", "/discover/feed?tab=new", requestOptions);
       assert.equal(feed.status, 200);
       assert.equal(feed.body.items.some((row: Row) => row.id === thread.id), expected);
 
-      const featured = await requestJson(app, "GET", "/discover/feed?tab=featured");
+      const featured = await requestJson(app, "GET", "/discover/feed?tab=featured", requestOptions);
       assert.equal(featured.status, 200);
       assert.equal(featured.body.items.some((row: Row) => row.item_id === thread.id), expected);
     };
 
     await assertProjected(true);
+    subcommunity.status = "paused";
+    await assertProjected(false);
+    subcommunity.status = "archived";
+    await assertProjected(false);
+    subcommunity.status = "active";
+    subcommunity.visibility = "private";
+    await assertProjected(false);
+    subcommunity.visibility = "unlisted";
+    await assertProjected(false);
+    subcommunity.visibility = "community";
+    await assertProjected(false);
+    await assertProjected(true, "member-token");
+    subcommunity.visibility = "public";
+
     institution.public_status = "private";
     await assertProjected(false);
     institution.public_status = "public";

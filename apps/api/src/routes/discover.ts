@@ -189,11 +189,12 @@ function publicSalonSearchResults(rows: any[]) {
   });
 }
 
-async function filterPublicThreadRows(sb: ReturnType<typeof getSupabaseAdmin>, rows: any[]) {
+async function filterPublicThreadRows(sb: ReturnType<typeof getSupabaseAdmin>, rows: any[], req: Request) {
   return filterRowsByEffectiveSubcommunityPrincipal({
     sb: sb as any,
     rows,
     categoryId: (row) => row.category_id ?? row.category?.id,
+    visibleSubcommunityVisibilities: discoverableSubcommunityVisibilities(req),
   });
 }
 
@@ -800,7 +801,7 @@ async function canShowFeaturedItem(item: any, req: Request) {
       .single();
     ensureFeaturedVisibilityQuerySucceeded(error);
     if (!data || data.status !== "active" || data.is_hidden || data.linked_document_id) return false;
-    if ((await filterPublicThreadRows(sb, [data])).length !== 1) return false;
+    if ((await filterPublicThreadRows(sb, [data], req)).length !== 1) return false;
     if (data.visibility === "public") return true;
     return data.visibility === "community" && canSeeCommunityDocuments(req);
   }
@@ -1063,7 +1064,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       }];
     });
 
-    const threadRows = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []));
+    const threadRows = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []), req);
     const threadItems = threadRows.filter((t: any) => !t.linked_document_id).map((t: any) => ({
       id:         t.id,
       type:       "thread" as const,
@@ -1295,12 +1296,13 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
   let publicThreads: any[];
   let publicSalons: any[];
   try {
-    publicThreads = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []));
+    publicThreads = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []), req);
     publicSalons = await filterRowsByEffectiveSubcommunityPrincipal({
       sb: sb as any,
       rows: salonResults.flatMap((result) => result.data ?? []),
       categoryId: (row: any) => row.category_id,
       requireSubcommunity: true,
+      visibleSubcommunityVisibilities: discoverableSubcommunityVisibilities(req),
     });
   } catch {
     return res.status(500).json(DISCOVER_ERROR_RESPONSES.search);

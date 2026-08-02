@@ -5,6 +5,8 @@ type SupabaseLike = {
 type PrincipalRow = {
   category_id: string;
   institution_id?: string | null;
+  status?: string | null;
+  visibility?: string | null;
 };
 
 export async function filterRowsByEffectiveSubcommunityPrincipal<T>(input: {
@@ -12,13 +14,14 @@ export async function filterRowsByEffectiveSubcommunityPrincipal<T>(input: {
   rows: T[];
   categoryId: (row: T) => string | null | undefined;
   requireSubcommunity?: boolean;
+  visibleSubcommunityVisibilities?: readonly string[];
 }) {
   const categoryIds = [...new Set(input.rows.map(input.categoryId).filter((id): id is string => Boolean(id)))];
   if (categoryIds.length === 0) return input.requireSubcommunity ? [] : input.rows;
 
   const { data: subcommunities, error: subcommunityError } = await input.sb
     .from("community_subcommunities")
-    .select("category_id, institution_id")
+    .select("category_id, institution_id, status, visibility")
     .in("category_id", categoryIds);
   if (subcommunityError) throw new Error("Could not verify community principal visibility.");
 
@@ -29,6 +32,7 @@ export async function filterRowsByEffectiveSubcommunityPrincipal<T>(input: {
     (subcommunities ?? []).map((row: PrincipalRow) => row.institution_id).filter((id: unknown): id is string => typeof id === "string")
   )];
   const effectiveInstitutionIds = new Set<string>();
+  const visibleSubcommunityVisibilities = new Set(input.visibleSubcommunityVisibilities ?? ["public"]);
 
   if (institutionIds.length > 0) {
     const { data: institutions, error: institutionError } = await input.sb
@@ -48,6 +52,8 @@ export async function filterRowsByEffectiveSubcommunityPrincipal<T>(input: {
     const principal = categoryId ? principalByCategory.get(categoryId) : undefined;
     if (!principal) return !input.requireSubcommunity;
     if (!principal.institution_id) return true;
-    return effectiveInstitutionIds.has(principal.institution_id);
+    return principal.status === "active" &&
+      visibleSubcommunityVisibilities.has(String(principal.visibility)) &&
+      effectiveInstitutionIds.has(principal.institution_id);
   });
 }
