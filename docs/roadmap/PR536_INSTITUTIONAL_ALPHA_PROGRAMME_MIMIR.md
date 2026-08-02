@@ -112,5 +112,8 @@ owner/member/signed-out rehearsal proves the Space-to-Salon-to-discussion
 journey with retained Salon/thread/reply `1/1/1`, Space `8/8`, personal
 compatibility, and zero residue.
 
-PR536 remains open through PR542 owner activity/audit readback and PR543 final
-hosted rehearsal. This closeout does not open or assign PR542.
+PR542 Institution Activity And Audit Readback is open for DAEDALUS under the
+already-authorized programme sequence. It reuses the append-only Institution
+ledger, closes the missing atomic Institution Project event, and adds bounded
+owner-only summary/timeline readback. PR536 remains open through PR542 review
+and rehearsal, followed by PR543 final hosted rehearsal and MIMIR closeout.

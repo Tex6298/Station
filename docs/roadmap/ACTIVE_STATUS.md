@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR541 closed, PR542 unopened
+## Current gate - PR536 Institutional Alpha; PR542 owner activity/audit readback open
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -135,6 +135,7 @@ ACCEPT_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION
 READY_PR541_CORRECTED_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARIADNE
 PASS_PR541_INSTITUTION_COMMUNITY_PRESENCE_HUMAN_REHEARSAL
 CLOSE_PR541_INSTITUTION_COMMUNITY_PRESENCE_ACCEPTED
+OPEN_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -234,6 +235,7 @@ PR541 correction review: docs/roadmap/PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CO
 PR541 correction acceptance: docs/roadmap/PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_ARGUS_RESULT.md
 PR541 hosted rehearsal result: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_ARIADNE_RESULT.md
 PR541 closeout: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_CLOSEOUT_MIMIR.md
+PR542 Institution activity/audit readback: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -267,10 +269,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: no successor baton is open. PR541 is accepted and closed at exact
-application source `c84464f8`; PR542 remains unopened pending explicit
-direction.
+Next: DAEDALUS owns PR542 Institution Activity And Audit Readback. The lane
+reuses the append-only Institution ledger, closes the missing atomic Project
+event, and adds a bounded owner-only summary/timeline before ARGUS review,
+ARIADNE rehearsal, and MIMIR acceptance. PR543 remains reserved for MIMIR to
+open after PR542 is accepted.
 ```
+
+MIMIR opens PR542 under the already-authorized PR536 sequence. DAEDALUS owns
+the implementation and hosted proof; ARGUS then owns independent review and
+ARIADNE the human-eye owner/member/unrelated/signed-out rehearsal. The readback
+must remain owner-only, typed, bounded, and free of raw ids/private profile
+fields. Migration `098` closes the missing atomic Institution Project audit
+event without creating a parallel activity ledger.
 
 MIMIR closes PR541 on ARGUS's controlling effective-Salon correction review and
 ARIADNE's independent human rehearsal. The final public Space -> Salon ->
