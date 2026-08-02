@@ -104,8 +104,12 @@ Institutional Space are accepted. PR540 closes at exact deployed source
 `8673b7ee` after ARGUS's fail-closed correction review and ARIADNE's exact
 visible-control cycle ending published at version/audit `8/8`.
 
-Marty's fresh baton opens PR541 Institution Community Presence with DAEDALUS.
-The lane adds one first-class Institution-principal Salon by extending the
-mature community model without a hidden personal owner, automatic member
-moderation, or a replacement discussion engine. PR536 remains open through
-PR542 owner activity/audit readback and PR543 final hosted rehearsal.
+PR541 adds one first-class Institution-principal Salon by extending the mature
+community model without a hidden personal owner, automatic member moderation,
+or a replacement discussion engine. ARGUS blocks rehearsal at exact source
+`783a0ade`: the report queue still depends on the owner's personal tier, while
+Institution publication loss closes the direct forum route but not service-role
+Discover or public Persona Salon/thread projections. DAEDALUS owns the bounded
+Institution-principal composition correction, then returns to ARGUS. PR536
+remains open through PR542 owner activity/audit readback and PR543 final hosted
+rehearsal.

@@ -4,6 +4,33 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 ARGUS Review Blocked
+
+ARGUS completed independent source and hosted review on 2026-08-02:
+
+- `docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_ARGUS_REVIEW.md`
+
+```text
+BLOCK_PR541_OWNER_AUTHORITY_AND_PUBLIC_PRINCIPAL_COMPOSITION
+READY_PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_FOR_DAEDALUS
+```
+
+Exact source `783a0ade`, migration/ledger identity, atomic owner creation,
+joined owner identity, retained Salon/thread/reply `1/1/1`, Space `8/8`, zero
+residue, and the disclosed delegated-queue loader correction pass. A reversible
+hosted transition reproduced one
+decisive privacy gap: after Institution publication loss, the direct forum
+route returned `404` while anonymous Discover still returned the Institution
+Salon and retained thread. Service-role Discover and public Persona projections
+do not compose the new Institution principal. The report queue also checks a
+personal community tier before derived Institution ownership, contradicting
+the owner DTO and organisation-principal contract.
+
+Institution, community, and Persona suites pass `18/18`, `58/58`, and `18/18`;
+their fixtures cover personal-principal Salons but omit the new Institution
+publication-loss cases. ARIADNE rehearsal is blocked pending DAEDALUS's bounded
+source correction and fresh hosted proof.
+
 ## PR541 Institution Community Presence Ready For ARGUS
 
 DAEDALUS completed source, hosted migration/lifecycle, and browser proof on
