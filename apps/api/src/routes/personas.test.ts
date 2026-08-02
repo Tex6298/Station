@@ -84,6 +84,7 @@ class InMemorySupabase {
     documents: [],
     forum_categories: [],
     community_subcommunities: [],
+    institutions: [],
     threads: [],
     moderation_reports: [],
     public_persona_interaction_counters: [],
@@ -96,6 +97,7 @@ class InMemorySupabase {
 
   private idCounters: Record<string, number> = {};
   private hangingQueries: HangingQuery[] = [];
+  private forcedFailures: Array<{ table: string; operation: string; message: string }> = [];
   private clock = Date.parse("2026-06-23T10:00:00.000Z");
   private usersByToken = new Map([
     ["private-token", { id: "private-owner", email: "private@example.test" }],
@@ -136,6 +138,19 @@ class InMemorySupabase {
       (candidate.countRequested === undefined || candidate.countRequested === query.countRequested) &&
       (candidate.operation === undefined || candidate.operation === query.operation)
     );
+  }
+
+  failNext(table: string, operation: string, message = "Forced operation failure.") {
+    this.forcedFailures.push({ table, operation, message });
+  }
+
+  consumeFailure(table: string, operation: string) {
+    const index = this.forcedFailures.findIndex(
+      (failure) => failure.table === table && failure.operation === operation
+    );
+    if (index === -1) return null;
+    const [failure] = this.forcedFailures.splice(index, 1);
+    return failure;
   }
 
   insertRow(table: string, payload: Row) {
@@ -223,6 +238,7 @@ class InMemorySupabase {
 
     if (table === "community_subcommunities") {
       row.category_id ??= null;
+      row.institution_id ??= null;
       row.owner_user_id ??= "creator-owner";
       row.slug ??= row.id;
       row.title ??= row.slug;
@@ -512,6 +528,11 @@ class QueryBuilder {
       operation: this.operation,
     })) {
       return new Promise(() => undefined);
+    }
+
+    const forcedFailure = this.db.consumeFailure(this.table, this.operation);
+    if (forcedFailure) {
+      return { data: null, error: { message: forcedFailure.message }, count: null };
     }
 
     let rows: Row[];
@@ -3345,6 +3366,67 @@ test("public persona context preview is anonymous and limited to public routeabl
     assert.equal(eventJson.includes("linked_document_id"), false);
     assert.equal(eventJson.includes("linked_persona_id"), false);
     assert.equal(eventJson.includes("category_id"), false);
+
+    const institution = db.insertRow("institutions", {
+      id: "institution-persona-salon",
+      owner_user_id: "institution-owner",
+      name: "Lantern Institute",
+      slug: "lantern-institute",
+      verification_status: "verified",
+      public_status: "public",
+    });
+    const institutionSalonCategory = db.insertRow("forum_categories", {
+      id: "category-institution-salon",
+      slug: "institution-lantern-salon",
+      title: "Institution Lantern Salon",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "sub-institution-salon",
+      category_id: institutionSalonCategory.id,
+      institution_id: institution.id,
+      owner_user_id: "institution-owner",
+      slug: "institution-lantern-salon",
+      title: "Institution Lantern Salon",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "active",
+    });
+    db.insertRow("threads", {
+      id: "institution-salon-thread",
+      category_id: institutionSalonCategory.id,
+      linked_persona_id: publicPersona.id,
+      title: "Institution Lantern Conversation",
+      body: "Verified public Institution Salon source.",
+      status: "active",
+      visibility: "public",
+      is_hidden: false,
+    });
+
+    const institutionPreview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");
+    assert.equal(institutionPreview.status, 200);
+    assert.equal(institutionPreview.body.preview.sources.some((source: Row) => source.title === "Institution Lantern Conversation"), true);
+    const institutionEvents = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/events?limit=20");
+    assert.equal(institutionEvents.body.events.some((event: Row) => event.title === "Institution Lantern Conversation"), true);
+
+    institution.public_status = "private";
+    const privateInstitutionPreview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");
+    assert.equal(JSON.stringify(privateInstitutionPreview.body).includes("Institution Lantern Conversation"), false);
+
+    institution.public_status = "public";
+    institution.verification_status = "pending";
+    const unverifiedInstitutionEvents = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/events?limit=20");
+    assert.equal(JSON.stringify(unverifiedInstitutionEvents.body).includes("Institution Lantern Conversation"), false);
+
+    institution.verification_status = "verified";
+    db.tables.institutions = [];
+    const missingInstitutionPreview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");
+    assert.equal(JSON.stringify(missingInstitutionPreview.body).includes("Institution Lantern Conversation"), false);
+    db.tables.institutions = [institution];
+
+    db.failNext("institutions", "select", "hostile Institution principal failure");
+    const failedInstitutionPreview = await requestJson(app, "GET", "/personas/public/blue-lantern-guide/context-preview?query=lantern");
+    assert.equal(failedInstitutionPreview.status, 200);
+    assert.equal(JSON.stringify(failedInstitutionPreview.body).includes("Institution Lantern Conversation"), false);
 
     const privatePreview = await requestJson(app, "GET", "/personas/public/private-context-persona/context-preview?query=blue");
     assert.equal(privatePreview.status, 404);

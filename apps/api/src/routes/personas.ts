@@ -20,6 +20,7 @@ import {
   slugifyPublicPersonaName,
 } from "../lib/persona-serialization";
 import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import { filterRowsByEffectiveSubcommunityPrincipal } from "../services/community-principal-visibility.service";
 import { canCreatePersona, canCreatePublicPersona, tierLimits } from "@station/auth/permissions";
 import type {
   AuthUser,
@@ -638,24 +639,36 @@ async function loadPublicSalonThreadsForPersona(
   ));
   if (categoryIds.length === 0) return [];
 
-  const [{ data: categories }, { data: subcommunities, error: subcommunityError }] = await Promise.all([
+  const [{ data: categories, error: categoryError }, { data: subcommunities, error: subcommunityError }] = await Promise.all([
     sb
       .from("forum_categories")
       .select("id, slug, title")
       .in("id", categoryIds),
     (sb as any)
       .from("community_subcommunities")
-      .select("id, category_id, subcommunity_type, visibility, status")
+      .select("id, category_id, institution_id, subcommunity_type, visibility, status")
       .in("category_id", categoryIds)
       .eq("subcommunity_type", "salon")
       .eq("visibility", "public")
       .eq("status", "active"),
   ]);
 
-  if (subcommunityError) return [];
+  if (categoryError || subcommunityError) return [];
+
+  let effectiveSubcommunities: any[];
+  try {
+    effectiveSubcommunities = await filterRowsByEffectiveSubcommunityPrincipal({
+      sb: sb as any,
+      rows: subcommunities ?? [],
+      categoryId: (row: any) => row.category_id,
+      requireSubcommunity: true,
+    });
+  } catch {
+    return [];
+  }
 
   const categoriesById = byId(categories ?? []);
-  const publicSalonCategoryIds = new Set((subcommunities ?? []).map((row: any) => row.category_id).filter(Boolean));
+  const publicSalonCategoryIds = new Set(effectiveSubcommunities.map((row: any) => row.category_id).filter(Boolean));
 
   return routeableThreads
     .map((thread: any) => ({ ...thread, category: categoriesById.get(thread.category_id) ?? null }))

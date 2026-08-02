@@ -28,6 +28,7 @@ import {
   canManageSubcommunityModerators,
   canModerateSubcommunity,
   isSubcommunityOwner,
+  isInstitutionSubcommunityOwner,
   canReadSubcommunity,
   assignSubcommunityModerator,
   loadSubcommunityForCategory,
@@ -647,6 +648,7 @@ async function serializeSubcommunityForViewer(row: any, user?: AuthenticatedUser
 async function canReadDelegatedModerationQueue(subcommunity: any, user?: AuthenticatedUser | null) {
   if (!user) return false;
   if (user.isAdmin) return true;
+  if (isInstitutionSubcommunityOwner(subcommunity, user.id)) return true;
   if (!canSeeCommunity(user)) return false;
   try {
     return await canModerateSubcommunity(subcommunity, user);

@@ -530,7 +530,18 @@ class CommunitySupabase {
 
     if (table === "community_subcommunities" && columns.includes("category:forum_categories")) {
       const category = this.rows("forum_categories").find((candidate) => candidate.id === row.category_id);
-      copy.category = category ? { slug: category.slug, title: category.title } : null;
+      copy.category = category ? { id: category.id, slug: category.slug, title: category.title } : null;
+    }
+
+    if (table === "community_subcommunities" && columns.includes("institution:institutions")) {
+      const institution = this.rows("institutions").find((candidate) => candidate.id === row.institution_id);
+      copy.institution = institution ? {
+        owner_user_id: institution.owner_user_id,
+        name: institution.name,
+        slug: institution.slug,
+        verification_status: institution.verification_status,
+        public_status: institution.public_status,
+      } : null;
     }
 
     if (table === "threads" && columns.includes("document:documents")) {
@@ -629,6 +640,7 @@ class CommunitySupabase {
 
     if (table === "community_subcommunities") {
       row.description ??= null;
+      row.institution_id ??= null;
       row.visibility ??= "public";
       row.status ??= "active";
       row.linked_space_id ??= null;
@@ -3084,6 +3096,30 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
     target_id: spaceComment.id,
     reason: "space_comment",
   });
+  const visitorInstitution = db.insertRow("institutions", {
+    id: "institution-visitor-owner",
+    owner_user_id: VISITOR_ID,
+    name: "Visitor Owner Institute",
+    slug: "visitor-owner-institute",
+    verification_status: "verified",
+    public_status: "public",
+  });
+  const institutionCategory = db.insertRow("forum_categories", {
+    id: "category-visitor-institution-queue",
+    slug: "visitor-institution-queue",
+    title: "Visitor Institution Queue",
+  });
+  db.insertRow("community_subcommunities", {
+    id: "subcommunity-visitor-institution-queue",
+    category_id: institutionCategory.id,
+    institution_id: visitorInstitution.id,
+    owner_user_id: INSTITUTIONAL_ID,
+    slug: "visitor-institution-queue",
+    title: "Visitor Institution Queue",
+    subcommunity_type: "salon",
+    visibility: "community",
+    status: "active",
+  });
 
   setSupabaseAdminForTests(db.client as any);
   const app = createCommunityApp();
@@ -3167,6 +3203,12 @@ test("delegated subcommunity moderation queue is scoped and privacy-safe", async
       token: "visitor-token",
     });
     assert.equal(revokedModerator.status, 403);
+
+    const visitorInstitutionOwner = await requestJson(app, "GET", "/forums/subcommunities/visitor-institution-queue/moderation/reports", {
+      token: "visitor-token",
+    });
+    assert.equal(visitorInstitutionOwner.status, 200);
+    assert.deepEqual(visitorInstitutionOwner.body.reports, []);
 
     const missingSubcommunity = await requestJson(app, "GET", "/forums/subcommunities/missing-queue/moderation/reports", {
       token: "admin-token",
@@ -5821,6 +5863,101 @@ test("Discover search surfaces public Salons through safe forum category routes"
     assert.equal(memberText.includes("Private Salon"), false);
     assert.equal(memberText.includes("Paused Salon"), false);
     assert.equal(memberText.includes("Canon Salon Adjacent Lab"), false);
+  } finally {
+    setSupabaseAdminForTests(null);
+  }
+});
+
+test("Discover projections compose Institution principal visibility and fail closed", async () => {
+  const db = new CommunitySupabase();
+  setSupabaseAdminForTests(db.client as any);
+  const app = createCommunityApp();
+
+  try {
+    const institution = db.insertRow("institutions", {
+      id: "institution-discover-principal",
+      owner_user_id: INSTITUTIONAL_ID,
+      name: "Beacon Institute",
+      slug: "beacon-institute",
+      verification_status: "verified",
+      public_status: "public",
+    });
+    const category = db.insertRow("forum_categories", {
+      id: "category-institution-beacon",
+      slug: "institution-beacon-salon",
+      title: "Institution Beacon Salon",
+    });
+    db.insertRow("community_subcommunities", {
+      id: "subcommunity-institution-beacon",
+      category_id: category.id,
+      institution_id: institution.id,
+      owner_user_id: INSTITUTIONAL_ID,
+      slug: "institution-beacon-salon",
+      title: "Institution Beacon Salon",
+      subcommunity_type: "salon",
+      visibility: "public",
+      status: "active",
+    });
+    const thread = db.insertRow("threads", {
+      id: "thread-institution-beacon",
+      category_id: category.id,
+      author_user_id: INSTITUTIONAL_ID,
+      title: "Institution Beacon Discussion",
+      body: "A public Institution-principal discussion.",
+      visibility: "public",
+      status: "active",
+    });
+    db.insertRow("discover_feed", {
+      id: "feed-institution-beacon",
+      event_type: "featured",
+      item_type: "thread",
+      item_id: thread.id,
+      title: thread.title,
+      created_at: "2026-05-25T12:00:00.000Z",
+    });
+
+    const assertProjected = async (expected: boolean) => {
+      const search = await requestJson(app, "GET", "/discover/search?q=Institution%20Beacon");
+      assert.equal(search.status, 200);
+      assert.equal(search.body.salons.some((row: Row) => row.title === "Institution Beacon Salon"), expected);
+      assert.equal(search.body.threads.some((row: Row) => row.id === thread.id), expected);
+
+      const feed = await requestJson(app, "GET", "/discover/feed?tab=new");
+      assert.equal(feed.status, 200);
+      assert.equal(feed.body.items.some((row: Row) => row.id === thread.id), expected);
+
+      const featured = await requestJson(app, "GET", "/discover/feed?tab=featured");
+      assert.equal(featured.status, 200);
+      assert.equal(featured.body.items.some((row: Row) => row.item_id === thread.id), expected);
+    };
+
+    await assertProjected(true);
+    institution.public_status = "private";
+    await assertProjected(false);
+    institution.public_status = "public";
+    institution.verification_status = "pending";
+    await assertProjected(false);
+    institution.verification_status = "verified";
+
+    db.tables.institutions = [];
+    await assertProjected(false);
+    db.tables.institutions = [institution];
+
+    db.failNext("institutions", "select", "hostile principal lookup failure");
+    const failedSearch = await requestJson(app, "GET", "/discover/search?q=Institution%20Beacon");
+    assert.equal(failedSearch.status, 500);
+    assert.deepEqual(failedSearch.body, {
+      error: "Could not load discovery search.",
+      code: "discover_search_load_failed",
+    });
+
+    db.failNext("institutions", "select", "hostile principal lookup failure");
+    const failedFeed = await requestJson(app, "GET", "/discover/feed?tab=new");
+    assert.equal(failedFeed.status, 500);
+    assert.deepEqual(failedFeed.body, {
+      error: "Could not load discovery feed.",
+      code: "discover_feed_load_failed",
+    });
   } finally {
     setSupabaseAdminForTests(null);
   }

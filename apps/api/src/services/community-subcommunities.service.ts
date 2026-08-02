@@ -26,6 +26,10 @@ export function isSubcommunityOwner(row: SubcommunityRow, userId: string) {
   return row.owner_user_id === userId || Boolean(row.institution_id && institution?.owner_user_id === userId);
 }
 
+export function isInstitutionSubcommunityOwner(row: SubcommunityRow, userId: string) {
+  return Boolean(row.institution_id && isSubcommunityOwner(row, userId));
+}
+
 function institutionPrincipalIsPublic(row: SubcommunityRow) {
   if (!row.institution_id) return true;
   const institution = (row as any).institution;

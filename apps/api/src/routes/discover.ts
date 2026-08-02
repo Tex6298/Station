@@ -15,6 +15,7 @@ import {
   publicPersonaRouteHref,
 } from "../lib/persona-serialization";
 import { ownerCanExposeExistingPublicPersonas } from "../lib/public-persona-eligibility";
+import { filterRowsByEffectiveSubcommunityPrincipal } from "../services/community-principal-visibility.service";
 
 export const discoverRouter = Router();
 const COMMUNITY_TIERS = new Set(["private", "creator", "canon", "institutional"]);
@@ -43,6 +44,7 @@ const PUBLIC_DOCUMENT_SEARCH_SELECT =
 const DISCOVER_ERROR_RESPONSES = {
   feed: { error: "Could not load discovery feed.", code: "discover_feed_load_failed" },
   sidebar: { error: "Could not load discovery sidebar.", code: "discover_sidebar_load_failed" },
+  search: { error: "Could not load discovery search.", code: "discover_search_load_failed" },
 } as const;
 
 type PublicEncounterExhibitSearchRow = {
@@ -184,6 +186,14 @@ function publicSalonSearchResults(rows: any[]) {
       status: row.status,
       href,
     }];
+  });
+}
+
+async function filterPublicThreadRows(sb: ReturnType<typeof getSupabaseAdmin>, rows: any[]) {
+  return filterRowsByEffectiveSubcommunityPrincipal({
+    sb: sb as any,
+    rows,
+    categoryId: (row) => row.category_id ?? row.category?.id,
   });
 }
 
@@ -785,11 +795,12 @@ async function canShowFeaturedItem(item: any, req: Request) {
   if (item.item_type === "thread") {
     const { data, error } = await sb
       .from("threads")
-      .select("id, status, visibility, is_hidden, linked_document_id")
+      .select("id, category_id, status, visibility, is_hidden, linked_document_id")
       .eq("id", item.item_id)
       .single();
     ensureFeaturedVisibilityQuerySucceeded(error);
     if (!data || data.status !== "active" || data.is_hidden || data.linked_document_id) return false;
+    if ((await filterPublicThreadRows(sb, [data])).length !== 1) return false;
     if (data.visibility === "public") return true;
     return data.visibility === "community" && canSeeCommunityDocuments(req);
   }
@@ -1007,8 +1018,8 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
         sb
           .from("threads")
           .select(`
-            id, title, body, visibility, linked_document_id, score, comment_count, is_hidden, created_at,
-            category:forum_categories!category_id(slug, title),
+            id, category_id, title, body, visibility, linked_document_id, score, comment_count, is_hidden, created_at,
+            category:forum_categories!category_id(id, slug, title),
             author:profiles!author_user_id(username, display_name, avatar_url)
           `)
           .eq("status", "active")
@@ -1052,7 +1063,7 @@ discoverRouter.get("/feed", optionalAuth, async (req: Request, res: Response) =>
       }];
     });
 
-    const threadRows = threadResults.flatMap((result) => result.data ?? []);
+    const threadRows = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []));
     const threadItems = threadRows.filter((t: any) => !t.linked_document_id).map((t: any) => ({
       id:         t.id,
       type:       "thread" as const,
@@ -1220,7 +1231,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     Promise.all(publicDocumentTextSearchQueries(sb, req, q)),
     Promise.all(discoverableThreadVisibilities(req).map((visibility) =>
       sb.from("threads")
-        .select("id, title, body, visibility, linked_document_id, category:forum_categories!category_id(slug, title)")
+        .select("id, category_id, title, body, visibility, linked_document_id, category:forum_categories!category_id(id, slug, title)")
         .eq("status", "active")
         .eq("visibility", visibility)
         .eq("is_hidden", false)
@@ -1267,7 +1278,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     Promise.all(discoverableSubcommunityVisibilities(req).map((visibility) =>
       (sb as any)
         .from("community_subcommunities")
-        .select("slug, title, description, subcommunity_type, visibility, status, category:forum_categories!category_id(slug, title)")
+        .select("category_id, slug, title, description, subcommunity_type, visibility, status, category:forum_categories!category_id(id, slug, title)")
         .eq("subcommunity_type", "salon")
         .eq("status", "active")
         .eq("visibility", visibility)
@@ -1277,9 +1288,27 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     req.user ? ownerPrivateSearchResults(req.user.id, q) : Promise.resolve(undefined),
   ]);
 
+  if (threadResults.some(hasQueryError) || salonResults.some(hasQueryError)) {
+    return res.status(500).json(DISCOVER_ERROR_RESPONSES.search);
+  }
+
+  let publicThreads: any[];
+  let publicSalons: any[];
+  try {
+    publicThreads = await filterPublicThreadRows(sb, threadResults.flatMap((result) => result.data ?? []));
+    publicSalons = await filterRowsByEffectiveSubcommunityPrincipal({
+      sb: sb as any,
+      rows: salonResults.flatMap((result) => result.data ?? []),
+      categoryId: (row: any) => row.category_id,
+      requireSubcommunity: true,
+    });
+  } catch {
+    return res.status(500).json(DISCOVER_ERROR_RESPONSES.search);
+  }
+
   res.json({
     documents: publicDocumentSearchResults(docResults.flatMap((result) => result.data ?? [])),
-    threads:   threadResults.flatMap((result) => result.data ?? []).filter((thread: any) => !thread.linked_document_id).slice(0, 8),
+    threads:   publicThreads.filter((thread: any) => !thread.linked_document_id).slice(0, 8),
     spaces:    (spaces.data ?? []).map((space: any) => ({
       ...space,
       presentation: normalizeSpacePresentation(space.theme),
@@ -1292,7 +1321,7 @@ discoverRouter.get("/search", optionalAuth, async (req: Request, res: Response) 
     developerSpaces: developerSpaceSearchResults(developerSpaceResults.flatMap((result) => result.data ?? [])),
     publicEncounterExhibits,
     crossOwnerPublicEncounterExhibits,
-    salons: publicSalonSearchResults(salonResults.flatMap((result) => result.data ?? [])).slice(0, 6),
+    salons: publicSalonSearchResults(publicSalons).slice(0, 6),
     privateResults,
   });
 });
