@@ -4,6 +4,37 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR542 Institution Activity Readback Ready For ARGUS
+
+DAEDALUS completed PR542 on 2026-08-02:
+
+- `docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS_RESULT.md`
+
+```text
+READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARGUS
+```
+
+Migration `098` SHA-256
+`14277E34E4B02439E1888EB2F9197310CE10C2B07B35B67668C8DBF7529E58EE`
+is exact-ledgered `1/1`; exact API/web source is `4764e28a`. Hosted proof
+passes atomic Project/audit success and forced-failure rollback, append-only
+guard, idempotent retained backfill `1/1/1`, all owner/hostile route states,
+complete no-gap/no-duplicate cursor traversal, safe missing-resource readback,
+raw-id/private-field scans, and zero proof residue. Personal Projects `4`, prior
+audit `57`, retained events `58`, and Space `8` remain exact.
+
+Validation passes Institution Activity `23/23`, Institutions `20/20`, Projects
+`33/33`, Institution Publications `4/4`, Institution Spaces `6/6`, Institution
+Community `20/20`, Community `59/59`, Settings AI `14/14`, typecheck, lint, and
+`git diff --check`. Root build compiled, typechecked, and generated `42/42`
+pages before the established local Windows standalone symlink `EPERM`.
+
+Hosted Playwright passes owner desktop/light, owner `390px` dark, owner `375px`
+light, member `390px` dark, and signed-out `375px` light with no overflow or
+clipped controls. Owner pagination/domain/time/privacy truth passes; members
+receive no Activity shortcut and bounded `404`; signed-out users redirect to
+login with the exact return path.
+
 ## PR541 Institution Community Presence Closed
 
 MIMIR accepted and closed PR541 on 2026-08-02:
