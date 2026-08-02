@@ -98,10 +98,14 @@ support, or SLAs.
 
 ## Active Baton
 
-PR537 hosted identity/team activation, PR538 Institution-owned Project, and
-PR539 collaborative Institution publishing and corrected PR540 branded public
+PR537 hosted identity/team activation, PR538 Institution-owned Project, PR539
+collaborative Institution publishing, and corrected PR540 branded public
 Institutional Space are accepted. PR540 closes at exact deployed source
 `8673b7ee` after ARGUS's fail-closed correction review and ARIADNE's exact
-visible-control cycle ending published at version/audit `8/8`. PR536 remains
-open, but PR541 is not opened or assigned by this closeout; the programme waits
-for explicit successor direction.
+visible-control cycle ending published at version/audit `8/8`.
+
+Marty's fresh baton opens PR541 Institution Community Presence with DAEDALUS.
+The lane adds one first-class Institution-principal Salon by extending the
+mature community model without a hidden personal owner, automatic member
+moderation, or a replacement discussion engine. PR536 remains open through
+PR542 owner activity/audit readback and PR543 final hosted rehearsal.
