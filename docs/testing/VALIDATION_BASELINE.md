@@ -4,6 +4,26 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR541 Institution Community Presence Closed
+
+MIMIR accepted and closed PR541 on 2026-08-02:
+
+- `docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_CLOSEOUT_MIMIR.md`
+
+```text
+PASS_PR541_INSTITUTION_COMMUNITY_PRESENCE_HUMAN_REHEARSAL
+CLOSE_PR541_INSTITUTION_COMMUNITY_PRESENCE_ACCEPTED
+```
+
+The accepted application source is exact Railway API/web source `c84464f8`.
+Migration `097` remains exact-ledgered once; the first-class Institution Salon,
+owner local moderation, ordinary-policy member participation without
+moderation, strict Institution/Salon public composition, public Space -> Salon
+-> retained discussion route, Discover results, personal compatibility, and
+desktop/mobile light/dark human routes pass. Final retained Salon/thread/reply
+is `1/1/1`, Space is `8/8`, and all disclosed disposable/correction residue is
+zero. PR542 remains unopened.
+
 ## PR541 Effective Salon Visibility Correction Accepted
 
 ARGUS independently accepted exact deployed source `c84464f8` on 2026-08-02:

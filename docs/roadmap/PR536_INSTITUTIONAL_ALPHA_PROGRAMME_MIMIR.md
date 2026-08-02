@@ -104,11 +104,13 @@ Institutional Space are accepted. PR540 closes at exact deployed source
 `8673b7ee` after ARGUS's fail-closed correction review and ARIADNE's exact
 visible-control cycle ending published at version/audit `8/8`.
 
-PR541 adds one first-class Institution-principal Salon by extending the mature
-community model without a hidden personal owner, automatic member moderation,
-or a replacement discussion engine. ARGUS accepts corrected source `c84464f8`
-for ARIADNE rehearsal: Institution publication, visitor-tier owner authority,
-and active/viewer-visible Salon state compose across public projections, with
-exact restoration and zero residue. ARIADNE owns the existing independent
-owner/member/signed-out rehearsal. PR536 remains open through PR542 owner
-activity/audit readback and PR543 final hosted rehearsal.
+PR541 first-class Institution community presence is also accepted and closed at
+exact application source `c84464f8`. ARGUS's two correction cycles prove
+Institution publication, visitor-tier owner authority, and active/viewer-
+visible Salon state compose across public projections. ARIADNE's independent
+owner/member/signed-out rehearsal proves the Space-to-Salon-to-discussion
+journey with retained Salon/thread/reply `1/1/1`, Space `8/8`, personal
+compatibility, and zero residue.
+
+PR536 remains open through PR542 owner activity/audit readback and PR543 final
+hosted rehearsal. This closeout does not open or assign PR542.

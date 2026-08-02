@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR541 Institution Community Presence
+## Current gate - PR536 Institutional Alpha; PR541 closed, PR542 unopened
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -133,6 +133,8 @@ READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_DAEDALUS
 READY_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_FOR_ARGUS
 ACCEPT_PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION
 READY_PR541_CORRECTED_INSTITUTION_COMMUNITY_PRESENCE_FOR_ARIADNE
+PASS_PR541_INSTITUTION_COMMUNITY_PRESENCE_HUMAN_REHEARSAL
+CLOSE_PR541_INSTITUTION_COMMUNITY_PRESENCE_ACCEPTED
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
@@ -230,6 +232,8 @@ PR541 implementation result: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_D
 PR541 ARGUS review: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_ARGUS_REVIEW.md
 PR541 correction review: docs/roadmap/PR541_INSTITUTION_PRINCIPAL_COMPOSITION_CORRECTION_ARGUS_REVIEW.md
 PR541 correction acceptance: docs/roadmap/PR541_EFFECTIVE_SALON_VISIBILITY_CORRECTION_ARGUS_RESULT.md
+PR541 hosted rehearsal result: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_ARIADNE_RESULT.md
+PR541 closeout: docs/roadmap/PR541_INSTITUTION_COMMUNITY_PRESENCE_CLOSEOUT_MIMIR.md
 PR535A profile boundary repair result: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_DAEDALUS_RESULT.md
 PR535A profile boundary review: docs/roadmap/PR535A_PROFILE_AUTHORITY_PRIVATE_COLUMN_BOUNDARY_REPAIR_ARGUS_RESULT.md
 Closeout: docs/roadmap/PR528_IMPORTANT_ROUTES_PARTNER_PASS_CLOSEOUT_MIMIR.md
@@ -263,11 +267,19 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE performs the already specified independent PR541
-owner/member/signed-out human rehearsal at exact source `c84464f8`, preserves
-migration `097` and retained content, restores exact state, and wakes MIMIR with
-a public-safe pass or exact blocker. PR542 remains unopened.
+Next: no successor baton is open. PR541 is accepted and closed at exact
+application source `c84464f8`; PR542 remains unopened pending explicit
+direction.
 ```
+
+MIMIR closes PR541 on ARGUS's controlling effective-Salon correction review and
+ARIADNE's independent human rehearsal. The final public Space -> Salon ->
+retained discussion chain, owner local moderation, member ordinary-policy
+participation without moderation, Discover search, exact migration ledger,
+principal/status/visibility fail-closed composition, personal compatibility,
+responsive states, and zero residue pass. Retained Salon/thread/reply is
+`1/1/1`, Space remains `8/8`, and the accepted application source is
+`c84464f8`. PR542 is not opened here.
 
 ARGUS accepts the effective-Salon correction for ARIADNE rehearsal. Independent
 source review, community `59/59`, Persona `18/18`, Institution `18/18`, root
