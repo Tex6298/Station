@@ -8,6 +8,7 @@ import { ApiRequestError, apiGet, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
 import {
   institutionDate,
+  institutionActivityPath,
   institutionInvitationPath,
   institutionMemberRevokePath,
   institutionPublicationPath,
@@ -98,6 +99,7 @@ function OwnerInstitutionControls({
           <span className="station-status-pill">{team.institution.publicStatus}</span>
         </div>
         <div className="station-action-row">
+          <Link className="station-muted-button" href={institutionActivityPath(team.institution.slug)}>Activity</Link>
           {team.institution.publicStatus === "public" ? (
             <button
               type="button"

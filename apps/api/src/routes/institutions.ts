@@ -3,6 +3,10 @@ import { z } from "zod";
 import type { Database, ProjectConnectionTier, ProjectVisibility } from "@station/db";
 import type {
   InstitutionAccess,
+  InstitutionActivityDomain,
+  InstitutionActivityEntry,
+  InstitutionActivityRelationship,
+  InstitutionActivityResponse,
   InstitutionAdminSummary,
   InstitutionIdentity,
   InstitutionInvitation,
@@ -75,6 +79,43 @@ const INSTITUTION_WRITE_FAILED = {
   error: "Could not update institution access.",
   code: "institution_update_failed",
 } as const;
+
+const activityActions: Record<string, { domain: InstitutionActivityDomain; title: string; resourceKind: string | null }> = {
+  provisioned: { domain: "identity", title: "Institution provisioned", resourceKind: null },
+  verification_granted: { domain: "identity", title: "Verification granted", resourceKind: null },
+  verification_revoked: { domain: "identity", title: "Verification revoked", resourceKind: null },
+  published: { domain: "identity", title: "Public identity published", resourceKind: null },
+  unpublished: { domain: "identity", title: "Public identity unpublished", resourceKind: null },
+  member_invited: { domain: "team", title: "Member invited", resourceKind: null },
+  invitation_accepted: { domain: "team", title: "Invitation accepted", resourceKind: null },
+  invitation_declined: { domain: "team", title: "Invitation declined", resourceKind: null },
+  invitation_expired: { domain: "team", title: "Invitation expired", resourceKind: null },
+  member_revoked: { domain: "team", title: "Member access revoked", resourceKind: null },
+  project_created: { domain: "project", title: "Project created", resourceKind: "institution_project" },
+  publication_created: { domain: "publication", title: "Publication created", resourceKind: "institution_publication" },
+  publication_edited: { domain: "publication", title: "Publication edited", resourceKind: "institution_publication" },
+  publication_published: { domain: "publication", title: "Publication published", resourceKind: "institution_publication" },
+  publication_retracted: { domain: "publication", title: "Publication retracted", resourceKind: "institution_publication" },
+  space_created: { domain: "space", title: "Institutional Space created", resourceKind: "institution_space" },
+  space_edited: { domain: "space", title: "Institutional Space edited", resourceKind: "institution_space" },
+  space_published: { domain: "space", title: "Institutional Space published", resourceKind: "institution_space" },
+  space_unpublished: { domain: "space", title: "Institutional Space unpublished", resourceKind: "institution_space" },
+  community_created: { domain: "community", title: "Institution Salon created", resourceKind: "institution_subcommunity" },
+};
+
+function activityCursor(value: unknown) {
+  if (typeof value !== "string" || value.length > 500) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
+    const timestamp = z.string().datetime({ offset: true }).safeParse(parsed?.at);
+    const id = z.string().uuid().safeParse(parsed?.id);
+    return timestamp.success && id.success ? { at: timestamp.data, id: id.data } : null;
+  } catch { return null; }
+}
+
+function encodeActivityCursor(row: { created_at: string; id: string }) {
+  return Buffer.from(JSON.stringify({ at: row.created_at, id: row.id })).toString("base64url");
+}
 
 export const institutionsRouter = Router();
 
@@ -572,6 +613,129 @@ institutionsRouter.get("/:slug/team", async (req, res) => {
           : INSTITUTION_PROJECT_MEMBER_ACCESS
       )
     )),
+  };
+  return res.json(response);
+});
+
+institutionsRouter.get("/:slug/activity", async (req, res) => {
+  setPrivateNoStore(res);
+  const limit = Math.min(Math.max(Number.parseInt(String(req.query.limit ?? "25"), 10) || 25, 1), 50);
+  const cursor = req.query.cursor === undefined ? null : activityCursor(req.query.cursor);
+  if (req.query.cursor !== undefined && !cursor) {
+    return res.status(400).json({ error: "Invalid activity cursor.", code: "institution_activity_cursor_invalid" });
+  }
+
+  const resolved = await resolveInstitution(req.params.slug);
+  if (resolved.error) return res.status(500).json(INSTITUTION_READ_FAILED);
+  if (!resolved.institution || resolved.institution.owner_user_id !== req.user!.id) {
+    return res.status(404).json(INSTITUTION_NOT_FOUND);
+  }
+
+  const sb = getSupabaseAdmin();
+  let timelineQuery = (sb as any)
+    .from("institution_audit_events")
+    .select("id, actor_user_id, subject_user_id, action, resource_kind, resource_id, created_at")
+    .eq("institution_id", resolved.institution.id)
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(limit + 1);
+  if (cursor) {
+    timelineQuery = timelineQuery.or(`created_at.lt.${cursor.at},and(created_at.eq.${cursor.at},id.lt.${cursor.id})`);
+  }
+
+  const [timelineResult, auditCount, latestResult, membersResult, projectCount, publicationCount, spaceCount, communityCount] = await Promise.all([
+    timelineQuery,
+    (sb as any).from("institution_audit_events").select("id", { count: "exact", head: true }).eq("institution_id", resolved.institution.id),
+    (sb as any).from("institution_audit_events").select("created_at").eq("institution_id", resolved.institution.id).order("created_at", { ascending: false }).order("id", { ascending: false }).limit(1),
+    (sb as any).from("institution_members").select("user_id, status").eq("institution_id", resolved.institution.id),
+    (sb as any).from("projects").select("id", { count: "exact", head: true }).eq("institution_id", resolved.institution.id),
+    (sb as any).from("institution_publications").select("id", { count: "exact", head: true }).eq("institution_id", resolved.institution.id),
+    (sb as any).from("institution_spaces").select("id", { count: "exact", head: true }).eq("institution_id", resolved.institution.id),
+    (sb as any).from("community_subcommunities").select("id", { count: "exact", head: true }).eq("institution_id", resolved.institution.id),
+  ]);
+  const results = [timelineResult, auditCount, latestResult, membersResult, projectCount, publicationCount, spaceCount, communityCount];
+  if (results.some((result) => result.error)) return res.status(500).json(INSTITUTION_READ_FAILED);
+
+  const rawRows = (timelineResult.data ?? []) as any[];
+  const pageRows = rawRows.slice(0, limit);
+  for (const row of pageRows) {
+    const action = activityActions[row.action];
+    if (!action || action.resourceKind !== (row.resource_kind ?? null)) {
+      return res.status(500).json(INSTITUTION_READ_FAILED);
+    }
+  }
+
+  const resourceIds = (kind: string) => pageRows.filter((row) => row.resource_kind === kind).map((row) => row.resource_id);
+  const resourceQuery = (table: string, columns: string, ids: string[]) => ids.length
+    ? (sb as any).from(table).select(columns).eq("institution_id", resolved.institution!.id).in("id", ids)
+    : Promise.resolve({ data: [], error: null });
+  const [projectsResult, publicationsResult, spacesResult, communitiesResult] = await Promise.all([
+    resourceQuery("projects", "id, name, slug", resourceIds("institution_project")),
+    resourceQuery("institution_publications", "id, title, slug", resourceIds("institution_publication")),
+    resourceQuery("institution_spaces", "id, headline", resourceIds("institution_space")),
+    resourceQuery("community_subcommunities", "id, title, slug", resourceIds("institution_subcommunity")),
+  ]);
+  if ([projectsResult, publicationsResult, spacesResult, communitiesResult].some((result) => result.error)) {
+    return res.status(500).json(INSTITUTION_READ_FAILED);
+  }
+
+  const userIds = [...new Set(pageRows.flatMap((row) => [row.actor_user_id, row.subject_user_id]).filter(Boolean))] as string[];
+  const profilesResult = userIds.length
+    ? await (sb as any).from("profiles").select("id, username, display_name").in("id", userIds)
+    : { data: [], error: null };
+  if (profilesResult.error) return res.status(500).json(INSTITUTION_READ_FAILED);
+
+  const profiles = new Map((profilesResult.data ?? []).map((row: any) => [row.id, row]));
+  const memberships = new Map((membersResult.data ?? []).map((row: any) => [row.user_id, row.status]));
+  const relationship = (userId: string | null): InstitutionActivityRelationship => {
+    if (!userId) return "System";
+    if (userId === resolved.institution!.owner_user_id) return "Institution owner";
+    const status = memberships.get(userId);
+    return status === "active" || status === "invited" ? "Institution member" : "Former member";
+  };
+  const principal = (userId: string | null) => {
+    const profile = userId ? profiles.get(userId) as any : null;
+    return {
+      label: profile ? profile.display_name ?? `@${profile.username}` : userId ? "Former Station user" : "System",
+      relationship: relationship(userId),
+    };
+  };
+
+  const resources = new Map<string, { label: string; href?: string }>();
+  for (const row of projectsResult.data ?? []) resources.set(`institution_project:${row.id}`, { label: row.name, href: `/projects/${encodeURIComponent(row.slug)}` });
+  for (const row of publicationsResult.data ?? []) resources.set(`institution_publication:${row.id}`, { label: row.title, href: `/institutions/${encodeURIComponent(resolved.institution.slug)}/publications/${encodeURIComponent(row.slug)}` });
+  for (const row of spacesResult.data ?? []) resources.set(`institution_space:${row.id}`, { label: row.headline, href: `/institutions/${encodeURIComponent(resolved.institution.slug)}/space` });
+  for (const row of communitiesResult.data ?? []) resources.set(`institution_subcommunity:${row.id}`, { label: row.title, href: `/institutions/${encodeURIComponent(resolved.institution.slug)}/community` });
+
+  const timeline: InstitutionActivityEntry[] = pageRows.map((row) => {
+    const action = activityActions[row.action];
+    const entry: InstitutionActivityEntry = {
+      eventType: row.action,
+      domain: action.domain,
+      title: action.title,
+      occurredAt: row.created_at,
+      actor: principal(row.actor_user_id),
+    };
+    if (row.subject_user_id && row.subject_user_id !== row.actor_user_id) entry.subject = principal(row.subject_user_id);
+    if (action.resourceKind) {
+      entry.resource = resources.get(`${action.resourceKind}:${row.resource_id}`) ?? { label: "Unavailable resource" };
+    }
+    return entry;
+  });
+
+  const response: InstitutionActivityResponse = {
+    institution: { name: resolved.institution.name, slug: resolved.institution.slug },
+    summary: {
+      team: (membersResult.data ?? []).filter((row: any) => row.status === "active").length,
+      projects: projectCount.count ?? 0,
+      publications: publicationCount.count ?? 0,
+      spaces: spaceCount.count ?? 0,
+      communities: communityCount.count ?? 0,
+      totalEvents: auditCount.count ?? 0,
+      latestEventAt: latestResult.data?.[0]?.created_at ?? null,
+    },
+    timeline,
+    nextCursor: rawRows.length > limit ? encodeActivityCursor(pageRows[pageRows.length - 1]) : null,
   };
   return res.json(response);
 });

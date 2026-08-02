@@ -234,7 +234,8 @@ export type InstitutionAuditAction =
   | "space_edited"
   | "space_published"
   | "space_unpublished"
-  | "community_created";
+  | "community_created"
+  | "project_created";
 export type InstitutionPublicationStatus = "draft" | "published";
 export type InstitutionPublicationDocumentType = "article" | "research" | "report" | "note";
 export type InstitutionSpaceStatus = "draft" | "published";
@@ -546,7 +547,7 @@ export interface Database {
           actor_user_id: string | null;
           subject_user_id: string | null;
           action: InstitutionAuditAction;
-          resource_kind: "institution_publication" | "institution_space" | "institution_subcommunity" | null;
+          resource_kind: "institution_publication" | "institution_space" | "institution_subcommunity" | "institution_project" | null;
           resource_id: string | null;
           created_at: string;
         };

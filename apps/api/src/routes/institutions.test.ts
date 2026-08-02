@@ -35,6 +35,7 @@ class InstitutionSupabase {
   rpcCalls: Array<{ name: string; args: Row }> = [];
   private clock = Date.parse("2026-07-30T18:00:00.000Z");
   private ids = 0;
+  private failures: Array<{ table: string; operation: string }> = [];
   private usersByToken = new Map([
     ["admin-token", { id: "admin-user", email: "admin@example.test" }],
     ["owner-token", { id: "owner-user", email: "owner@example.test" }],
@@ -61,6 +62,14 @@ class InstitutionSupabase {
   rows(table: string) {
     if (!this.tables[table]) this.tables[table] = [];
     return this.tables[table];
+  }
+
+  failNext(table: string, operation = "select") { this.failures.push({ table, operation }); }
+  consumeFailure(table: string, operation: string) {
+    const index = this.failures.findIndex((failure) => failure.table === table && failure.operation === operation);
+    if (index < 0) return false;
+    this.failures.splice(index, 1);
+    return true;
   }
 
   now() {
@@ -196,8 +205,7 @@ class InstitutionSupabase {
       if (this.rows("projects").some((row) => row.slug === args.p_slug)) {
         return { data: null, error: { code: "23505" } };
       }
-      return {
-        data: this.insertRow("projects", {
+      const project = this.insertRow("projects", {
           owner_user_id: null,
           institution_id: institution.id,
           name: args.p_name.trim(),
@@ -205,9 +213,17 @@ class InstitutionSupabase {
           description: args.p_description,
           visibility: args.p_visibility,
           connection_tier: args.p_connection_tier,
-        }),
-        error: null,
-      };
+        });
+      this.insertRow("institution_audit_events", {
+        institution_id: institution.id,
+        actor_user_id: args.p_actor_user_id,
+        subject_user_id: args.p_actor_user_id,
+        action: "project_created",
+        resource_kind: "institution_project",
+        resource_id: project.id,
+        created_at: project.created_at,
+      });
+      return { data: project, error: null };
     }
 
     if (name === "create_institution_subcommunity_v1") {
@@ -403,13 +419,19 @@ class QueryBuilder {
   private inFilters: Array<[string, Set<unknown>]> = [];
   private greaterThanFilters: Array<[string, unknown]> = [];
   private orFilters: Array<Array<[string, "eq" | "gt", string]>> = [];
-  private orderSpec: { field: string; ascending: boolean } | null = null;
+  private orderSpecs: Array<{ field: string; ascending: boolean }> = [];
+  private cursor: { at: string; id: string } | null = null;
+  private limitCount: number | null = null;
+  private countRequested = false;
+  private head = false;
   private columns = "*";
 
   constructor(private db: InstitutionSupabase, private table: string) {}
 
-  select(columns = "*") {
+  select(columns = "*", options: { count?: string; head?: boolean } = {}) {
     this.columns = columns;
+    this.countRequested = options.count === "exact";
+    this.head = options.head === true;
     return this;
   }
 
@@ -429,6 +451,8 @@ class QueryBuilder {
   }
 
   or(expression: string) {
+    const cursor = expression.match(/^created_at\.lt\.(.+),and\(created_at\.eq\.(.+),id\.lt\.(.+)\)$/);
+    if (cursor) { this.cursor = { at: cursor[1], id: cursor[3] }; return this; }
     const clauses = expression.split(",").map((clause): [string, "eq" | "gt", string] => {
       const [field, operator, ...parts] = clause.split(".");
       if (!field || (operator !== "eq" && operator !== "gt") || parts.length === 0) {
@@ -441,9 +465,11 @@ class QueryBuilder {
   }
 
   order(field: string, options: { ascending?: boolean } = {}) {
-    this.orderSpec = { field, ascending: options.ascending ?? true };
+    this.orderSpecs.push({ field, ascending: options.ascending ?? true });
     return this;
   }
+
+  limit(value: number) { this.limitCount = value; return this; }
 
   single() {
     return this.execute("single");
@@ -481,18 +507,26 @@ class QueryBuilder {
         operator === "eq" ? row[field] === value : this.isGreaterThan(row[field], value)
       )));
     }
-    if (this.orderSpec) {
-      const { field, ascending } = this.orderSpec;
+    if (this.cursor) {
+      rows = rows.filter((row) => row.created_at < this.cursor!.at || (row.created_at === this.cursor!.at && row.id < this.cursor!.id));
+    }
+    if (this.orderSpecs.length) {
       rows.sort((a, b) => {
-        if (a[field] === b[field]) return 0;
-        return (a[field] > b[field] ? 1 : -1) * (ascending ? 1 : -1);
+        for (const { field, ascending } of this.orderSpecs) {
+          if (a[field] !== b[field]) return (a[field] > b[field] ? 1 : -1) * (ascending ? 1 : -1);
+        }
+        return 0;
       });
     }
     return rows;
   }
 
   private async execute(mode?: "single" | "maybeSingle") {
-    const rows = clone(this.matchingRows()).map((row) => {
+    if (this.db.consumeFailure(this.table, "select")) return { data: null, error: { message: "Forced query failure." }, count: null };
+    const matched = this.matchingRows();
+    const count = this.countRequested ? matched.length : null;
+    const limited = this.limitCount === null ? matched : matched.slice(0, this.limitCount);
+    const rows = clone(limited).map((row) => {
       if (this.table === "community_subcommunities" && this.columns.includes("category:forum_categories")) {
         return { ...row, category: this.db.rows("forum_categories").find((category) => category.id === row.category_id) ?? null };
       }
@@ -500,11 +534,11 @@ class QueryBuilder {
     });
     if (mode === "single") {
       return rows.length === 1
-        ? { data: rows[0], error: null }
-        : { data: null, error: { message: `Expected one ${this.table} row.` } };
+        ? { data: rows[0], error: null, count }
+        : { data: null, error: { message: `Expected one ${this.table} row.` }, count };
     }
-    if (mode === "maybeSingle") return { data: rows[0] ?? null, error: null };
-    return { data: rows, error: null };
+    if (mode === "maybeSingle") return { data: rows[0] ?? null, error: null, count };
+    return { data: this.head ? null : rows, error: null, count };
   }
 }
 
@@ -562,6 +596,88 @@ function close(server: Server): Promise<void> {
 function assertKeys(value: object, expected: string[]) {
   assert.deepEqual(Object.keys(value).sort(), [...expected].sort());
 }
+
+function seedInstitutionActivity(db: InstitutionSupabase) {
+  const institution = db.insertRow("institutions", { owner_user_id: "owner-user", name: "Station Labs", slug: "station-labs" });
+  db.insertRow("institution_members", { institution_id: institution.id, user_id: "member-user", role: "member", status: "active" });
+  const project = db.insertRow("projects", { institution_id: institution.id, name: "Signal Project", slug: "signal-project" });
+  const publication = db.insertRow("institution_publications", { institution_id: institution.id, title: "Field Note", slug: "field-note" });
+  const space = db.insertRow("institution_spaces", { institution_id: institution.id, headline: "Station Labs home" });
+  const community = db.insertRow("community_subcommunities", { institution_id: institution.id, title: "Research Salon", slug: "research-salon" });
+  const events = [
+    ["provisioned", null, null],
+    ["member_invited", null, null],
+    ["project_created", "institution_project", project.id],
+    ["publication_created", "institution_publication", publication.id],
+    ["space_created", "institution_space", space.id],
+    ["community_created", "institution_subcommunity", community.id],
+  ];
+  for (const [action, resourceKind, resourceId] of events) db.insertRow("institution_audit_events", {
+    institution_id: institution.id,
+    actor_user_id: "owner-user",
+    subject_user_id: action === "member_invited" ? "member-user" : "owner-user",
+    action,
+    resource_kind: resourceKind,
+    resource_id: resourceId,
+  });
+  return { institution, project };
+}
+
+test("owner activity readback is typed, paginated, private, and fail closed", async () => {
+  const db = new InstitutionSupabase();
+  const { institution, project } = seedInstitutionActivity(db);
+  setSupabaseAdminForTests(db.client as any);
+  const app = createInstitutionApp();
+  try {
+    assert.equal((await requestJson(app, "GET", "/institutions/station-labs/activity")).status, 401);
+    for (const token of ["member-token", "other-token", "admin-token"]) {
+      assert.equal((await requestJson(app, "GET", "/institutions/station-labs/activity", { token })).status, 404);
+    }
+    const first = await requestJson(app, "GET", "/institutions/station-labs/activity?limit=2", { token: "owner-token" });
+    assert.equal(first.status, 200);
+    assert.equal(first.cacheControl, "private, no-store");
+    assert.deepEqual(first.body.summary, { team: 1, projects: 1, publications: 1, spaces: 1, communities: 1, totalEvents: 6, latestEventAt: db.tables.institution_audit_events.at(-1).created_at });
+    assert.equal(first.body.timeline.length, 2);
+    assert.equal(typeof first.body.nextCursor, "string");
+    const second = await requestJson(app, "GET", `/institutions/station-labs/activity?limit=2&cursor=${encodeURIComponent(first.body.nextCursor)}`, { token: "owner-token" });
+    assert.equal(second.status, 200);
+    assert.equal(new Set([...first.body.timeline, ...second.body.timeline].map((row: Row) => `${row.eventType}:${row.occurredAt}`)).size, 4);
+    const serialized = JSON.stringify(first.body) + JSON.stringify(second.body);
+    for (const forbidden of [institution.id, project.id, "owner-user", "member-user", "@example.test", "actor_user_id", "resource_id"]) {
+      assert.equal(serialized.includes(forbidden), false, `${forbidden} leaked`);
+    }
+
+    db.tables.projects = [];
+    const unavailable = await requestJson(app, "GET", "/institutions/station-labs/activity?limit=10", { token: "owner-token" });
+    assert.equal(unavailable.status, 200);
+    assert.equal(unavailable.body.timeline.some((row: Row) => row.resource?.label === "Unavailable resource"), true);
+
+    db.insertRow("institution_audit_events", { institution_id: institution.id, actor_user_id: "owner-user", action: "unknown_action", resource_kind: null, resource_id: null });
+    const unknown = await requestJson(app, "GET", "/institutions/station-labs/activity?limit=50", { token: "owner-token" });
+    assert.equal(unknown.status, 500);
+    assert.equal(JSON.stringify(unknown.body).includes("unknown_action"), false);
+    db.tables.institution_audit_events.pop();
+
+    db.failNext("projects");
+    const failed = await requestJson(app, "GET", "/institutions/station-labs/activity", { token: "owner-token" });
+    assert.equal(failed.status, 500);
+    assert.deepEqual(failed.body, { error: "Could not load institutions.", code: "institution_load_failed" });
+  } finally { setSupabaseAdminForTests(null); }
+});
+
+test("migration 098 atomically audits Institution Projects and preserves the ledger boundary", () => {
+  const migration = readFileSync(resolve("infra/supabase/migrations/098_institution_activity_audit_readback.sql"), "utf8");
+  assert.match(migration, /station\.pr542\.institution_activity\.098/i);
+  assert.match(migration, /project_created[\s\S]*institution_project/i);
+  assert.match(migration, /create or replace function public\.create_institution_project_v1[\s\S]*insert into public\.projects[\s\S]*insert into public\.institution_audit_events/i);
+  assert.match(migration, /where p\.institution_id is not null[\s\S]*not exists/i);
+  assert.match(migration, /institution_audit_project_created_unique_idx/i);
+  assert.match(migration, /institution_audit_owner_timeline_idx[\s\S]*created_at desc,id desc/i);
+  assert.match(migration, /ambiguous Project principal/i);
+  assert.match(migration, /prior audit drift/i);
+  assert.match(migration, /has_table_privilege\('anon'[\s\S]*has_table_privilege\('authenticated'/i);
+  assert.match(migration, /revoke all on function public\.create_institution_project_v1[\s\S]*from public,anon,authenticated/i);
+});
 
 async function provision(app: Express, slug: string) {
   return requestJson(app, "POST", "/institutions/admin", {
@@ -793,6 +909,7 @@ test("admin-owner-member-public loop keeps authority bounded and serializers exa
         "verification_granted",
         "member_invited",
         "invitation_accepted",
+        "project_created",
         "published",
         "member_revoked",
         "verification_revoked",
@@ -982,7 +1099,7 @@ test("migration 092 freezes raw access, authority, lifecycle, audit, and zero in
   const queriedTables = [...route.matchAll(/\.from\("([^"]+)"\)/g)].map((match) => match[1]);
   assert.deepEqual(
     [...new Set(queriedTables)].sort(),
-    ["community_subcommunities", "institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
+    ["community_subcommunities", "institution_audit_events", "institution_members", "institution_publications", "institution_spaces", "institutions", "profiles", "projects"]
   );
   for (const forbidden of [
     "project_members",

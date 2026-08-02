@@ -137,3 +137,33 @@ export interface PublicInstitutionPublicationResponse {
     project: { name: string; slug: string; href: string };
   };
 }
+
+export type InstitutionActivityDomain = "identity" | "team" | "project" | "publication" | "space" | "community";
+export type InstitutionActivityRelationship = "Institution owner" | "Institution member" | "Former member" | "System";
+
+export interface InstitutionActivitySummary {
+  team: number;
+  projects: number;
+  publications: number;
+  spaces: number;
+  communities: number;
+  totalEvents: number;
+  latestEventAt: string | null;
+}
+
+export interface InstitutionActivityEntry {
+  eventType: string;
+  domain: InstitutionActivityDomain;
+  title: string;
+  occurredAt: string;
+  actor: { label: string; relationship: InstitutionActivityRelationship };
+  subject?: { label: string; relationship: InstitutionActivityRelationship };
+  resource?: { label: string; href?: string };
+}
+
+export interface InstitutionActivityResponse {
+  institution: { name: string; slug: string };
+  summary: InstitutionActivitySummary;
+  timeline: InstitutionActivityEntry[];
+  nextCursor: string | null;
+}

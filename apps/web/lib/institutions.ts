@@ -50,6 +50,10 @@ export function institutionCommunityPath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/community`;
 }
 
+export function institutionActivityPath(slug: string) {
+  return `/institutions/${encodeURIComponent(slug)}/activity`;
+}
+
 export function institutionPublicationsPath(slug: string) {
   return `/institutions/${encodeURIComponent(slug)}/publications`;
 }

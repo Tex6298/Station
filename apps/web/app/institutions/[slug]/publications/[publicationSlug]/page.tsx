@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import type { InstitutionPublicationDetail, InstitutionPublicationDocumentType } from "@station/types";
 import { ApiRequestError, apiGet, apiPatch, apiPost } from "@/lib/api-client";
 import { getSession } from "@/lib/auth";
-import { institutionPublicationWorkPath, institutionTeamPath } from "@/lib/institutions";
+import { institutionActivityPath, institutionPublicationWorkPath, institutionTeamPath } from "@/lib/institutions";
 
 export default function InstitutionPublicationWorkspacePage() {
   const params = useParams<{ slug: string; publicationSlug: string }>();
@@ -99,6 +99,7 @@ export default function InstitutionPublicationWorkspacePage() {
               {publication.access.canPublish ? <button className="station-link-button" type="button" disabled={pending !== null} onClick={() => transition("publish")}>{pending === "publish" ? "Publishing..." : "Publish"}</button> : null}
               {publication.access.canRetract ? <button className="station-muted-button" type="button" disabled={pending !== null} onClick={() => transition("retract")}>{pending === "retract" ? "Retracting..." : "Retract"}</button> : null}
               {publication.publicHref ? <Link className="station-muted-button" href={publication.publicHref}>Open public page</Link> : null}
+              {publication.access.role === "institution_owner" ? <Link className="station-muted-button" href={institutionActivityPath(institutionSlug)}>Activity</Link> : null}
             </div>
           </form>
         ) : null}
