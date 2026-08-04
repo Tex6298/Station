@@ -112,10 +112,10 @@ owner/member/signed-out rehearsal proves the Space-to-Salon-to-discussion
 journey with retained Salon/thread/reply `1/1/1`, Space `8/8`, personal
 compatibility, and zero residue.
 
-PR542 Institution Activity And Audit Readback is accepted for independent
-rehearsal at corrected source `47576f5b`. Migration `098`, atomic Institution
-Project audit truth, owner-only access, opaque equal-timestamp traversal,
-evidence-based actor relationships, private-id scans, and exact restoration
-pass ARGUS review. ARIADNE owns the existing owner/member/unrelated/signed-out
-rehearsal, then returns to MIMIR. PR536 remains open; PR543 is not opened by
-this acceptance.
+PR542 Institution Activity And Audit Readback is accepted and closed at exact
+deployed source `47576f5b`. Migration `098`, atomic Institution Project audit
+truth, owner-only access, opaque equal-timestamp traversal, evidence-based actor
+relationships, private-id scans, exact restoration, and ARIADNE's independent
+owner/member/unrelated/signed-out responsive rehearsal pass. PR536 remains open
+only through PR543's final coherent cross-role hosted rehearsal and programme
+closeout. PR543 is not opened or assigned by this PR542 closeout.
