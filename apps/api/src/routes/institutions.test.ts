@@ -20,6 +20,10 @@ class InstitutionSupabase {
       { id: "owner-user", username: "Owner_Exact", display_name: "Owner Exact", tier: "institutional", is_admin: false },
       { id: "member-user", username: "Member_Exact", display_name: "Member Exact", tier: "private", is_admin: false },
       { id: "other-user", username: "Other_Exact", display_name: "Other Exact", tier: "private", is_admin: false },
+      { id: "invitee-user", username: "Invitee_Exact", display_name: "Invitee Exact", tier: "private", is_admin: false },
+      { id: "past-user", username: "Past_Exact", display_name: "Past Exact", tier: "private", is_admin: false },
+      { id: "former-user", username: "Former_Exact", display_name: "Former Exact", tier: "private", is_admin: false },
+      { id: "station-user", username: "Station_Exact", display_name: "Station Exact", tier: "private", is_admin: false },
     ],
     institutions: [],
     institution_members: [],
@@ -418,10 +422,12 @@ class QueryBuilder {
   private filters: Array<[string, unknown]> = [];
   private inFilters: Array<[string, Set<unknown>]> = [];
   private greaterThanFilters: Array<[string, unknown]> = [];
+  private lessThanOrEqualFilters: Array<[string, unknown]> = [];
   private orFilters: Array<Array<[string, "eq" | "gt", string]>> = [];
   private orderSpecs: Array<{ field: string; ascending: boolean }> = [];
   private cursor: { at: string; id: string } | null = null;
   private limitCount: number | null = null;
+  private rangeStart = 0;
   private countRequested = false;
   private head = false;
   private columns = "*";
@@ -450,6 +456,11 @@ class QueryBuilder {
     return this;
   }
 
+  lte(field: string, value: unknown) {
+    this.lessThanOrEqualFilters.push([field, value]);
+    return this;
+  }
+
   or(expression: string) {
     const cursor = expression.match(/^created_at\.lt\.(.+),and\(created_at\.eq\.(.+),id\.lt\.(.+)\)$/);
     if (cursor) { this.cursor = { at: cursor[1], id: cursor[3] }; return this; }
@@ -470,6 +481,7 @@ class QueryBuilder {
   }
 
   limit(value: number) { this.limitCount = value; return this; }
+  range(from: number, to: number) { this.rangeStart = from; this.limitCount = to - from + 1; return this; }
 
   single() {
     return this.execute("single");
@@ -502,6 +514,9 @@ class QueryBuilder {
     for (const [field, value] of this.greaterThanFilters) {
       rows = rows.filter((row) => this.isGreaterThan(row[field], value));
     }
+    for (const [field, value] of this.lessThanOrEqualFilters) {
+      rows = rows.filter((row) => row[field] <= value);
+    }
     for (const clauses of this.orFilters) {
       rows = rows.filter((row) => clauses.some(([field, operator, value]) => (
         operator === "eq" ? row[field] === value : this.isGreaterThan(row[field], value)
@@ -525,7 +540,7 @@ class QueryBuilder {
     if (this.db.consumeFailure(this.table, "select")) return { data: null, error: { message: "Forced query failure." }, count: null };
     const matched = this.matchingRows();
     const count = this.countRequested ? matched.length : null;
-    const limited = this.limitCount === null ? matched : matched.slice(0, this.limitCount);
+    const limited = this.limitCount === null ? matched : matched.slice(this.rangeStart, this.rangeStart + this.limitCount);
     const rows = clone(limited).map((row) => {
       if (this.table === "community_subcommunities" && this.columns.includes("category:forum_categories")) {
         return { ...row, category: this.db.rows("forum_categories").find((category) => category.id === row.category_id) ?? null };
@@ -600,6 +615,9 @@ function assertKeys(value: object, expected: string[]) {
 function seedInstitutionActivity(db: InstitutionSupabase) {
   const institution = db.insertRow("institutions", { owner_user_id: "owner-user", name: "Station Labs", slug: "station-labs" });
   db.insertRow("institution_members", { institution_id: institution.id, user_id: "member-user", role: "member", status: "active" });
+  db.insertRow("institution_members", { institution_id: institution.id, user_id: "invitee-user", role: "member", status: "invited" });
+  db.insertRow("institution_members", { institution_id: institution.id, user_id: "past-user", role: "member", status: "removed" });
+  db.insertRow("institution_members", { institution_id: institution.id, user_id: "former-user", role: "member", status: "removed" });
   const project = db.insertRow("projects", { institution_id: institution.id, name: "Signal Project", slug: "signal-project" });
   const publication = db.insertRow("institution_publications", { institution_id: institution.id, title: "Field Note", slug: "field-note" });
   const space = db.insertRow("institution_spaces", { institution_id: institution.id, headline: "Station Labs home" });
@@ -620,6 +638,20 @@ function seedInstitutionActivity(db: InstitutionSupabase) {
     resource_kind: resourceKind,
     resource_id: resourceId,
   });
+  for (const event of [
+    { actor_user_id: "station-user", subject_user_id: "owner-user", action: "verification_granted" },
+    { actor_user_id: "owner-user", subject_user_id: "invitee-user", action: "member_invited" },
+    { actor_user_id: "past-user", subject_user_id: "past-user", action: "invitation_declined" },
+    { actor_user_id: "former-user", subject_user_id: "former-user", action: "invitation_accepted" },
+    { actor_user_id: "owner-user", subject_user_id: "former-user", action: "member_revoked" },
+  ]) db.insertRow("institution_audit_events", {
+    institution_id: institution.id,
+    resource_kind: null,
+    resource_id: null,
+    ...event,
+  });
+  const sharedTimestamp = "2026-07-30T20:00:00.000Z";
+  for (const event of db.tables.institution_audit_events) event.created_at = sharedTimestamp;
   return { institution, project };
 }
 
@@ -636,15 +668,41 @@ test("owner activity readback is typed, paginated, private, and fail closed", as
     const first = await requestJson(app, "GET", "/institutions/station-labs/activity?limit=2", { token: "owner-token" });
     assert.equal(first.status, 200);
     assert.equal(first.cacheControl, "private, no-store");
-    assert.deepEqual(first.body.summary, { team: 1, projects: 1, publications: 1, spaces: 1, communities: 1, totalEvents: 6, latestEventAt: db.tables.institution_audit_events.at(-1).created_at });
+    assert.deepEqual(first.body.summary, { team: 1, projects: 1, publications: 1, spaces: 1, communities: 1, totalEvents: 11, latestEventAt: db.tables.institution_audit_events.at(-1).created_at });
     assert.equal(first.body.timeline.length, 2);
     assert.equal(typeof first.body.nextCursor, "string");
-    const second = await requestJson(app, "GET", `/institutions/station-labs/activity?limit=2&cursor=${encodeURIComponent(first.body.nextCursor)}`, { token: "owner-token" });
-    assert.equal(second.status, 200);
-    assert.equal(new Set([...first.body.timeline, ...second.body.timeline].map((row: Row) => `${row.eventType}:${row.occurredAt}`)).size, 4);
-    const serialized = JSON.stringify(first.body) + JSON.stringify(second.body);
-    for (const forbidden of [institution.id, project.id, "owner-user", "member-user", "@example.test", "actor_user_id", "resource_id"]) {
+    const pages = [first.body];
+    while (pages.at(-1).nextCursor) {
+      const previous = pages.at(-1);
+      const decoded = JSON.parse(Buffer.from(previous.nextCursor, "base64url").toString("utf8"));
+      assert.deepEqual(Object.keys(decoded).sort(), ["at", "ordinal"]);
+      assert.equal(decoded.at, "2026-07-30T20:00:00.000Z");
+      assert.equal(Number.isInteger(decoded.ordinal) && decoded.ordinal > 0, true);
+      const next = await requestJson(app, "GET", `/institutions/station-labs/activity?limit=2&cursor=${encodeURIComponent(previous.nextCursor)}`, { token: "owner-token" });
+      assert.equal(next.status, 200);
+      pages.push(next.body);
+    }
+    const timeline = pages.flatMap((page) => page.timeline);
+    assert.equal(timeline.length, 11);
+    assert.equal(new Set(timeline.map((row: Row) => JSON.stringify(row))).size, 11);
+    assert.deepEqual(new Set(timeline.flatMap((row: Row) => [row.actor.relationship, row.subject?.relationship].filter(Boolean))), new Set([
+      "Institution owner", "Institution member", "Institution invitee", "Former member", "Past Institution contact", "Station user",
+    ]));
+    const serialized = JSON.stringify(pages);
+    for (const forbidden of [institution.id, project.id, ...db.tables.institution_audit_events.map((row) => row.id), "owner-user", "member-user", "invitee-user", "past-user", "former-user", "station-user", "@example.test", "actor_user_id", "resource_id"]) {
       assert.equal(serialized.includes(forbidden), false, `${forbidden} leaked`);
+    }
+    for (const cursor of pages.map((page) => page.nextCursor).filter(Boolean)) {
+      const decoded = Buffer.from(cursor, "base64url").toString("utf8");
+      for (const event of db.tables.institution_audit_events) assert.equal(decoded.includes(event.id), false, "audit id leaked through cursor");
+    }
+    for (const cursor of [
+      Buffer.from(JSON.stringify({ at: "2026-07-30T20:00:00.000Z", id: db.tables.institution_audit_events[0].id })).toString("base64url"),
+      Buffer.from(JSON.stringify({ at: "2026-07-30T20:00:00.000Z", ordinal: 0 })).toString("base64url"),
+      Buffer.from(JSON.stringify({ at: "2026-07-30T20:00:00.000Z", ordinal: 12 })).toString("base64url"),
+      "not-a-cursor",
+    ]) {
+      assert.equal((await requestJson(app, "GET", `/institutions/station-labs/activity?cursor=${encodeURIComponent(cursor)}`, { token: "owner-token" })).status, 400);
     }
 
     db.tables.projects = [];

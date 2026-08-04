@@ -108,13 +108,15 @@ function activityCursor(value: unknown) {
   try {
     const parsed = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
     const timestamp = z.string().datetime({ offset: true }).safeParse(parsed?.at);
-    const id = z.string().uuid().safeParse(parsed?.id);
-    return timestamp.success && id.success ? { at: timestamp.data, id: id.data } : null;
+    const ordinal = z.number().int().min(1).max(1_000_000).safeParse(parsed?.ordinal);
+    return timestamp.success && ordinal.success && Object.keys(parsed).length === 2
+      ? { at: timestamp.data, ordinal: ordinal.data }
+      : null;
   } catch { return null; }
 }
 
-function encodeActivityCursor(row: { created_at: string; id: string }) {
-  return Buffer.from(JSON.stringify({ at: row.created_at, id: row.id })).toString("base64url");
+function encodeActivityCursor(at: string, ordinal: number) {
+  return Buffer.from(JSON.stringify({ at, ordinal })).toString("base64url");
 }
 
 export const institutionsRouter = Router();
@@ -632,15 +634,27 @@ institutionsRouter.get("/:slug/activity", async (req, res) => {
   }
 
   const sb = getSupabaseAdmin();
+  if (cursor) {
+    const cursorBoundary = await (sb as any)
+      .from("institution_audit_events")
+      .select("id", { count: "exact", head: true })
+      .eq("institution_id", resolved.institution.id)
+      .eq("created_at", cursor.at);
+    if (cursorBoundary.error) return res.status(500).json(INSTITUTION_READ_FAILED);
+    if (!cursorBoundary.count || cursor.ordinal > cursorBoundary.count) {
+      return res.status(400).json({ error: "Invalid activity cursor.", code: "institution_activity_cursor_invalid" });
+    }
+  }
   let timelineQuery = (sb as any)
     .from("institution_audit_events")
     .select("id, actor_user_id, subject_user_id, action, resource_kind, resource_id, created_at")
     .eq("institution_id", resolved.institution.id)
     .order("created_at", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(limit + 1);
+    .order("id", { ascending: false });
   if (cursor) {
-    timelineQuery = timelineQuery.or(`created_at.lt.${cursor.at},and(created_at.eq.${cursor.at},id.lt.${cursor.id})`);
+    timelineQuery = timelineQuery.lte("created_at", cursor.at).range(cursor.ordinal, cursor.ordinal + limit);
+  } else {
+    timelineQuery = timelineQuery.limit(limit + 1);
   }
 
   const [timelineResult, auditCount, latestResult, membersResult, projectCount, publicationCount, spaceCount, communityCount] = await Promise.all([
@@ -680,18 +694,28 @@ institutionsRouter.get("/:slug/activity", async (req, res) => {
   }
 
   const userIds = [...new Set(pageRows.flatMap((row) => [row.actor_user_id, row.subject_user_id]).filter(Boolean))] as string[];
-  const profilesResult = userIds.length
-    ? await (sb as any).from("profiles").select("id, username, display_name").in("id", userIds)
-    : { data: [], error: null };
-  if (profilesResult.error) return res.status(500).json(INSTITUTION_READ_FAILED);
+  const [profilesResult, acceptedHistoryResult] = userIds.length
+    ? await Promise.all([
+      (sb as any).from("profiles").select("id, username, display_name").in("id", userIds),
+      (sb as any).from("institution_audit_events").select("subject_user_id")
+        .eq("institution_id", resolved.institution.id)
+        .eq("action", "invitation_accepted")
+        .in("subject_user_id", userIds),
+    ])
+    : [{ data: [], error: null }, { data: [], error: null }];
+  if (profilesResult.error || acceptedHistoryResult.error) return res.status(500).json(INSTITUTION_READ_FAILED);
 
   const profiles = new Map((profilesResult.data ?? []).map((row: any) => [row.id, row]));
   const memberships = new Map((membersResult.data ?? []).map((row: any) => [row.user_id, row.status]));
+  const acceptedUsers = new Set((acceptedHistoryResult.data ?? []).map((row: any) => row.subject_user_id));
   const relationship = (userId: string | null): InstitutionActivityRelationship => {
     if (!userId) return "System";
     if (userId === resolved.institution!.owner_user_id) return "Institution owner";
     const status = memberships.get(userId);
-    return status === "active" || status === "invited" ? "Institution member" : "Former member";
+    if (status === "active") return "Institution member";
+    if (status === "invited") return "Institution invitee";
+    if (status === "removed") return acceptedUsers.has(userId) ? "Former member" : "Past Institution contact";
+    return "Station user";
   };
   const principal = (userId: string | null) => {
     const profile = userId ? profiles.get(userId) as any : null;
@@ -735,7 +759,12 @@ institutionsRouter.get("/:slug/activity", async (req, res) => {
       latestEventAt: latestResult.data?.[0]?.created_at ?? null,
     },
     timeline,
-    nextCursor: rawRows.length > limit ? encodeActivityCursor(pageRows[pageRows.length - 1]) : null,
+    nextCursor: rawRows.length > limit ? (() => {
+      const lastAt = pageRows[pageRows.length - 1].created_at;
+      const priorAtOrdinal = cursor?.at === lastAt ? cursor.ordinal : 0;
+      const pageAtOrdinal = pageRows.filter((row) => row.created_at === lastAt).length;
+      return encodeActivityCursor(lastAt, priorAtOrdinal + pageAtOrdinal);
+    })() : null,
   };
   return res.json(response);
 });

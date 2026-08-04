@@ -139,7 +139,14 @@ export interface PublicInstitutionPublicationResponse {
 }
 
 export type InstitutionActivityDomain = "identity" | "team" | "project" | "publication" | "space" | "community";
-export type InstitutionActivityRelationship = "Institution owner" | "Institution member" | "Former member" | "System";
+export type InstitutionActivityRelationship =
+  | "Institution owner"
+  | "Institution member"
+  | "Institution invitee"
+  | "Former member"
+  | "Past Institution contact"
+  | "Station user"
+  | "System";
 
 export interface InstitutionActivitySummary {
   team: number;
