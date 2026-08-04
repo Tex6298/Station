@@ -116,6 +116,10 @@ PR542 Institution Activity And Audit Readback is accepted and closed at exact
 deployed source `47576f5b`. Migration `098`, atomic Institution Project audit
 truth, owner-only access, opaque equal-timestamp traversal, evidence-based actor
 relationships, private-id scans, exact restoration, and ARIADNE's independent
-owner/member/unrelated/signed-out responsive rehearsal pass. PR536 remains open
-only through PR543's final coherent cross-role hosted rehearsal and programme
-closeout. PR543 is not opened or assigned by this PR542 closeout.
+owner/member/unrelated/signed-out responsive rehearsal pass.
+
+MIMIR opens PR543 for ARIADNE's read-only final cross-role rehearsal, followed
+by ARGUS's independent deployment/schema/privacy review and MIMIR's programme
+decision. PR536 remains open until that complete proof passes. Any material
+product defect pauses PR543 and receives the next global number as a bounded
+correction; it is not quietly repaired inside the rehearsal.
