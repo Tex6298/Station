@@ -118,8 +118,9 @@ truth, owner-only access, opaque equal-timestamp traversal, evidence-based actor
 relationships, private-id scans, exact restoration, and ARIADNE's independent
 owner/member/unrelated/signed-out responsive rehearsal pass.
 
-MIMIR opens PR543 for ARIADNE's read-only final cross-role rehearsal, followed
-by ARGUS's independent deployment/schema/privacy review and MIMIR's programme
-decision. PR536 remains open until that complete proof passes. Any material
-product defect pauses PR543 and receives the next global number as a bounded
-correction; it is not quietly repaired inside the rehearsal.
+ARIADNE's read-only final PR543 cross-role rehearsal and ARGUS's independent
+deployment/schema/privacy/retained-state review pass at exact source
+`47576f5b`. All seven migration identities, owner/member/unrelated/signed-out
+boundaries, public journey, responsive themes, session persistence, Activity
+privacy, evidence hygiene, and byte-equivalent retained state agree. MIMIR owns
+the PR543 and PR536 closeout decision; this review does not open a successor.

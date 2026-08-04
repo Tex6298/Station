@@ -4,6 +4,32 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR543 Institutional Alpha Rehearsal Accepted For MIMIR
+
+ARGUS independently accepted ARIADNE's read-only final rehearsal on 2026-08-04:
+
+- `docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL
+READY_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_FOR_MIMIR
+```
+
+API/web are ready at exact source `47576f5b`; all seven local migration hashes
+and hosted exact-once ledger/hash identities pass. A fresh read-only verifier
+passes every owner/member/unrelated/anonymous private-route boundary, three
+anonymous public routes, private/public payload scans, and all `58` unique
+Activity events over four pages with six domains and opaque decoded cursors.
+Retained Institution `1/1`, active member `1`, Project owner rows `0`,
+publication `18/18`, Space `8/8`, Salon/thread/reply `1/1/1`, Project audit `1`,
+Activity `58`, and PR543 residue `0` remain byte-equivalent before/after.
+
+ARIADNE's committed result contains no raw identifier or secret material. Its
+ignored receipt parses, all diagnostics are classified as disclosed, all `17`
+declared captures exist, and representative captures support the public-safe
+privacy/boundary/responsive claims. MIMIR owns PR543/PR536 closeout; no
+successor is authorized by this acceptance.
+
 ## PR542 Privacy Correction Accepted For ARIADNE
 
 ARGUS independently accepted corrected source `47576f5b` on 2026-08-04:

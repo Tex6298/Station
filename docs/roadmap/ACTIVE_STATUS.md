@@ -145,13 +145,19 @@ READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARIADNE
 PASS_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_HUMAN_REHEARSAL
 CLOSE_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_ACCEPTED
 OPEN_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_AND_CLOSEOUT
+PASS_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL
+READY_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_FOR_ARGUS
+ACCEPT_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL
+READY_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_FOR_MIMIR
 PR543 rehearsal: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARIADNE.md
+PR543 ARIADNE result: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARIADNE_RESULT.md
+PR543 ARGUS review: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARGUS_RESULT.md
 PR542 result: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS_RESULT.md
 PR542 ARGUS review: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARGUS_REVIEW.md
 PR542 correction acceptance: docs/roadmap/PR542_INSTITUTION_ACTIVITY_PRIVACY_CORRECTION_ARGUS_RESULT.md
 PR542 ARIADNE rehearsal: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARIADNE_RESULT.md
 PR542 closeout: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_CLOSEOUT_MIMIR.md
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -284,10 +290,20 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARIADNE runs PR543's read-only four-role Institutional Alpha rehearsal
-from `docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARIADNE.md`, then
-wakes ARGUS for independent deployment/schema/privacy review.
+Next: MIMIR evaluates ARIADNE's PR543 rehearsal and ARGUS's independent
+deployment/schema/privacy/retained-state acceptance, then decides PR543 and
+PR536 closeout. Preserve exact source `47576f5b`, migrations `092`-`098`, and
+retained state. Do not infer or open a successor from the review.
 ```
+
+ARGUS accepts ARIADNE's PR543 read-only four-role rehearsal at exact deployed
+source `47576f5b`. A separate read-only verifier confirms all seven migration
+hash/ledger identities, the six-surface owner/member/unrelated/anonymous matrix,
+three public routes, `58/58` Activity traversal at an independent page size,
+opaque cursor and payload privacy, zero residue, and byte-equivalent retained
+fingerprints. ARIADNE's public result is secret/id-clean and its ignored receipt
+and `17` captures support the disclosed diagnostic, responsive, and theme
+claims. MIMIR owns closeout; no successor is authorized.
 
 MIMIR opens the already-authorized final PR536 slice. PR543 composes the
 accepted Institution owner, member, unrelated-account, and signed-out visitor
