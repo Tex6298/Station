@@ -4,10 +4,12 @@ Owner: MIMIR / A1
 
 Date opened: 2026-07-31
 
+Date closed: 2026-08-04
+
 Status:
 
 ```text
-OPEN_PR536_INSTITUTIONAL_ALPHA_END_TO_END_PROGRAMME
+CLOSE_PR536_INSTITUTIONAL_ALPHA_END_TO_END_PROGRAMME_ACCEPTED
 ```
 
 ## Customer Outcome
@@ -122,5 +124,10 @@ ARIADNE's read-only final PR543 cross-role rehearsal and ARGUS's independent
 deployment/schema/privacy/retained-state review pass at exact source
 `47576f5b`. All seven migration identities, owner/member/unrelated/signed-out
 boundaries, public journey, responsive themes, session persistence, Activity
-privacy, evidence hygiene, and byte-equivalent retained state agree. MIMIR owns
-the PR543 and PR536 closeout decision; this review does not open a successor.
+privacy, evidence hygiene, zero residue, and byte-equivalent retained state
+agree.
+
+MIMIR accepts that controlling evidence and closes PR543 and PR536. The fixed
+Institutional Alpha customer outcome is met. The Finished-Product Horizon above
+remains an explicit set of exclusions, and this closeout does not infer, open,
+assign, or authorize a successor lane.

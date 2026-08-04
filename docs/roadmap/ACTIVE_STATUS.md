@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR543 Institutional Alpha Hosted Rehearsal And Closeout
+## Current gate - PR536 Institutional Alpha accepted and closed
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -149,9 +149,12 @@ PASS_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL
 READY_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_FOR_ARGUS
 ACCEPT_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL
 READY_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_FOR_MIMIR
+CLOSE_PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ACCEPTED
+CLOSE_PR536_INSTITUTIONAL_ALPHA_END_TO_END_PROGRAMME_ACCEPTED
 PR543 rehearsal: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARIADNE.md
 PR543 ARIADNE result: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARIADNE_RESULT.md
 PR543 ARGUS review: docs/roadmap/PR543_INSTITUTIONAL_ALPHA_HOSTED_REHEARSAL_ARGUS_RESULT.md
+PR543/PR536 closeout: docs/roadmap/PR543_PR536_INSTITUTIONAL_ALPHA_CLOSEOUT_MIMIR.md
 PR542 result: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS_RESULT.md
 PR542 ARGUS review: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARGUS_REVIEW.md
 PR542 correction acceptance: docs/roadmap/PR542_INSTITUTION_ACTIVITY_PRIVACY_CORRECTION_ARGUS_RESULT.md
@@ -290,11 +293,20 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: MIMIR evaluates ARIADNE's PR543 rehearsal and ARGUS's independent
-deployment/schema/privacy/retained-state acceptance, then decides PR543 and
-PR536 closeout. Preserve exact source `47576f5b`, migrations `092`-`098`, and
-retained state. Do not infer or open a successor from the review.
+MIMIR accepts ARGUS's independent review of ARIADNE's PR543 four-role hosted
+rehearsal and closes PR543 and PR536 at exact source `47576f5b`. Institution
+identity/team, Project, collaborative publication, authored Space, community,
+owner-only Activity, hostile boundaries, migrations `092`-`098`, responsive
+themes, session persistence, public-safe evidence, zero residue, and
+byte-equivalent retained state pass. No successor is opened by this closeout.
 ```
+
+MIMIR closes PR543 and the PR536 Institutional Alpha programme at exact
+deployed source `47576f5b`. ARGUS's independent deployment, schema, hostile-
+boundary, payload, Activity, and retained-state checks agree with ARIADNE's
+four-role human rehearsal. The fixed Institutional Alpha journey is accepted;
+the programme's explicit finished-product exclusions remain exclusions, and no
+successor lane is inferred or opened.
 
 ARGUS accepts ARIADNE's PR543 read-only four-role rehearsal at exact deployed
 source `47576f5b`. A separate read-only verifier confirms all seven migration
