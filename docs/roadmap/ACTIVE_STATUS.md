@@ -4,7 +4,7 @@ This file is the short operational status companion to
 `docs/roadmap/STATION_PR_PLAN_V3.md`. Update it when the active roadmap changes,
 when a PR lands, or when validation truth changes.
 
-## Current gate - PR536 Institutional Alpha; PR542 ready for ARGUS
+## Current gate - PR536 Institutional Alpha; PR542 ready for ARIADNE
 
 ```text
 CLOSE_DISCERN_MAINLINE_SYNCHRONIZATION_CI_GREEN
@@ -140,9 +140,12 @@ READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARGUS
 BLOCK_PR542_PRIVATE_AUDIT_ID_CURSOR_AND_RELATIONSHIP_OVERCLAIM
 READY_PR542_OPAQUE_CURSOR_AND_RELATIONSHIP_TRUTH_CORRECTION_FOR_DAEDALUS
 READY_PR542_CORRECTED_ACTIVITY_PRIVACY_TRUTH_FOR_ARGUS
+ACCEPT_PR542_OPAQUE_CURSOR_AND_RELATIONSHIP_TRUTH_CORRECTION
+READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARIADNE
 PR542 result: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS_RESULT.md
 PR542 ARGUS review: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARGUS_REVIEW.md
-Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS
+PR542 correction acceptance: docs/roadmap/PR542_INSTITUTION_ACTIVITY_PRIVACY_CORRECTION_ARGUS_RESULT.md
+Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE
 Synchronization closeout: docs/roadmap/DISCERN_MAINLINE_SYNCHRONIZATION_CI_CLOSEOUT_MIMIR.md
 PR530 preflight: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_ARGUS.md
 PR530 result: docs/roadmap/PR530_CROSS_OWNER_GENERATED_SCOPE_SCHEMA_UNBLOCK_PREFLIGHT_RESULT.md
@@ -275,13 +278,21 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: ARGUS reviews exact corrected source `47576f5b`. The cursor now carries
-only event time plus a validated same-timestamp ordinal; relationship labels
-follow active/invited/accepted-history/past-contact/no-membership evidence.
-Focused and hosted equal-timestamp traversal, whole-response decoded-cursor
-privacy, responsive browser proof, and exact restoration pass. Migration `098`
-remains unchanged. ARIADNE and PR543 stay blocked pending ARGUS's verdict.
+Next: ARIADNE performs the existing independent PR542 owner/member/unrelated/
+signed-out rehearsal at exact corrected source `47576f5b`. Preserve migration
+`098`, retained data, owner-only readback, cursor privacy, and exact restoration;
+then wake MIMIR with a public-safe pass or concrete blocker. PR543 remains
+unopened.
 ```
+
+ARGUS accepts the bounded PR542 privacy/truth correction at exact deployed
+source `47576f5b`. Independent source review, focused `23/23`, typecheck, lint,
+decoded-cursor probing, hosted owner/hostile routes, equal-timestamp traversal,
+atomic rollback, six-domain coverage, and final restoration agree with
+DAEDALUS's refreshed result. The cursor contains only timestamp plus validated
+ordinal, and relationships distinguish active, invited, accepted-history,
+past-contact, and no-membership evidence. ARIADNE owns rehearsal; this verdict
+does not close PR542 or open PR543.
 
 ARGUS blocks PR542 before rehearsal at exact deployed source `4764e28a`.
 `nextCursor` is base64url JSON containing the private audit-event id; a

@@ -4,6 +4,28 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR542 Privacy Correction Accepted For ARIADNE
+
+ARGUS independently accepted corrected source `47576f5b` on 2026-08-04:
+
+- `docs/roadmap/PR542_INSTITUTION_ACTIVITY_PRIVACY_CORRECTION_ARGUS_RESULT.md`
+
+```text
+ACCEPT_PR542_OPAQUE_CURSOR_AND_RELATIONSHIP_TRUTH_CORRECTION
+READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARIADNE
+```
+
+Independent source review and `23/23` focused tests confirm opaque
+timestamp/ordinal cursors, complete equal-timestamp traversal, bounded invalid
+cursor handling, whole-response private-id absence, and evidence-based actor
+relationship labels. Root typecheck and web lint pass. A separate hosted cursor
+probe decodes no UUID and does not match a private audit id; the full hosted
+operator proof passes deployment/migration identity, owner and hostile states,
+atomic rollback, all six domains, and exact final restoration to retained
+events `58`, Institution Project/audit `1/1`, Space `8`, and proof residue
+`0/0`. Migration `098` remains unchanged. ARIADNE owns the existing rehearsal;
+PR543 remains unopened.
+
 ## PR542 Cursor Privacy And Relationship Truth Corrected
 
 DAEDALUS completed the bounded ARGUS correction on 2026-08-04:
