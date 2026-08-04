@@ -139,6 +139,7 @@ OPEN_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK
 READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARGUS
 BLOCK_PR542_PRIVATE_AUDIT_ID_CURSOR_AND_RELATIONSHIP_OVERCLAIM
 READY_PR542_OPAQUE_CURSOR_AND_RELATIONSHIP_TRUTH_CORRECTION_FOR_DAEDALUS
+READY_PR542_CORRECTED_ACTIVITY_PRIVACY_TRUTH_FOR_ARGUS
 PR542 result: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_DAEDALUS_RESULT.md
 PR542 ARGUS review: docs/roadmap/PR542_INSTITUTION_ACTIVITY_AUDIT_READBACK_ARGUS_REVIEW.md
 Owner chain: MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> ARIADNE -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARIADNE -> MIMIR -> ARGUS -> MIMIR -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> MIMIR -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> DAEDALUS -> ARGUS -> ARIADNE -> MIMIR -> DAEDALUS -> ARGUS -> DAEDALUS
@@ -274,11 +275,12 @@ Active probe-session hygiene: docs/roadmap/PR528B13_DEDICATED_PROBE_SESSION_HYGI
 Probe-session hygiene review: docs/roadmap/PR528C10_DEDICATED_PROBE_SESSION_HYGIENE_REVIEW_ARGUS.md
 Paused detail lane: docs/roadmap/PR529_POST_PARTNER_UI_DETAIL_RECONCILIATION.md
 Hosted review URL: https://stationweb-production.up.railway.app
-Next: DAEDALUS removes the recoverable private audit id from PR542's cursor,
-preserves exact equal-timestamp pagination, makes invited/never-member/former-
-member relationship labels honest, adds the missing regressions and whole-
-response privacy scan, deploys one corrected source, restores exact state, and
-wakes ARGUS. Migration `098` remains unchanged. ARIADNE and PR543 stay blocked.
+Next: ARGUS reviews exact corrected source `47576f5b`. The cursor now carries
+only event time plus a validated same-timestamp ordinal; relationship labels
+follow active/invited/accepted-history/past-contact/no-membership evidence.
+Focused and hosted equal-timestamp traversal, whole-response decoded-cursor
+privacy, responsive browser proof, and exact restoration pass. Migration `098`
+remains unchanged. ARIADNE and PR543 stay blocked pending ARGUS's verdict.
 ```
 
 ARGUS blocks PR542 before rehearsal at exact deployed source `4764e28a`.
@@ -290,6 +292,12 @@ Institution members and all absent-membership actors as Former members. Exact
 migration/ledger `1/1`, atomic rollback, owner/hostile routes, 58-event
 traversal, missing-resource behavior, cleanup, focused `23/23`, typecheck, and
 lint otherwise pass.
+
+DAEDALUS corrected both blockers at exact deployed source `47576f5b` without
+changing migration `098`. Hosted seven-event equal-timestamp traversal at page
+size `2`, full-response and decoded-cursor private-id scans, relationship truth,
+responsive browser proof, and exact restoration to retained events `58`,
+Project audit `1`, Space `8`, and proof residue `0/0` pass.
 
 MIMIR opens PR542 under the already-authorized PR536 sequence. DAEDALUS owns
 the implementation and hosted proof; ARGUS then owns independent review and

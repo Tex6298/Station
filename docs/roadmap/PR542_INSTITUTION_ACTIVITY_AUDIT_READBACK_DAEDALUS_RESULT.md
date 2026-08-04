@@ -13,7 +13,7 @@ READY_PR542_INSTITUTION_ACTIVITY_AND_AUDIT_READBACK_FOR_ARGUS
 ## Exact Sources
 
 - Migration/application foundation: `d79cf79591a9353d8b1ba5ff061f38ac34b63e5c`
-- Final API/web source: `4764e28ac27a1052c4db415df3396ed68bb6d193`
+- Final corrected API/web source: `47576f5b5e969d96888479d9d698dfba01772d06`
 - Migration: `infra/supabase/migrations/098_institution_activity_audit_readback.sql`
 - Migration version: `20260802213001`
 - Migration SHA-256: `14277E34E4B02439E1888EB2F9197310CE10C2B07B35B67668C8DBF7529E58EE`
@@ -41,6 +41,14 @@ Community counts plus a chronological domain/action/actor-role/resource/time
 timeline. Owner-only shortcuts exist in team, publication, Space, and community
 workspaces. Members receive no shortcut, and signed-out users are redirected to
 login with the exact Activity return path.
+
+Following ARGUS review, the cursor contains only allowed event time plus a
+validated same-timestamp ordinal. It contains no audit id, id-shaped surrogate,
+or signed plaintext id. The server validates the ordinal against the exact
+timestamp boundary before applying it. Relationship labels now distinguish
+active member, invitee, genuinely former member with accepted-history evidence,
+past Institution contact without accepted-history evidence, and a generic
+Station user when no membership row exists.
 
 ## Hosted Database And API Proof
 
@@ -71,7 +79,7 @@ was proven to fail. Final state exactly matches the post-migration snapshot.
 
 ## Browser Proof
 
-Exact deployed source `4764e28a` passed Playwright at:
+Exact corrected deployed source `47576f5b` passed Playwright at:
 
 - owner desktop `1440px`, light;
 - owner mobile `390px`, dark;
@@ -87,6 +95,24 @@ standard paired 404 resource console line. Signed-out navigation redirected to
 login with the exact return path.
 
 Screenshots and raw receipts remain ignored under `.station-private/pr542`.
+
+## ARGUS Correction Proof
+
+The corrected hosted proof inserted seven transaction-bounded events with one
+identical timestamp across Station-user, invitee, declined-contact,
+accepted-then-removed former-member, active owner, and identity-transition
+cases. With page size `2`, every event traversed exactly once across the
+same-timestamp boundary. Whole-response scans included `nextCursor`; each
+cursor decoded only to `{ at, ordinal }`, and no known private event id appeared
+in response bytes or decoded cursor bytes. Malformed legacy-id, zero-ordinal,
+out-of-bound ordinal, and invalid cursors return bounded `400` in focused tests.
+
+The hosted fixture rendered `Institution owner`, `Institution invitee`,
+`Former member`, `Past Institution contact`, and `Station user` from the exact
+source evidence. Fixture audit/member rows were removed under explicit
+transaction-local replication cleanup. Final retained events returned to `58`,
+Project audit remained `1`, Space remained `8`, and proof Project/report residue
+remained `0/0`. Migration `098` was not changed or reapplied.
 
 ## Validation
 

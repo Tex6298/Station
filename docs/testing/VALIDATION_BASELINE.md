@@ -4,6 +4,32 @@ This is the PR-01 local validation gate for Station. It exists to make future
 work measurable: failures after this point should be attributable to the current
 change, not to unknown repo hygiene.
 
+## PR542 Cursor Privacy And Relationship Truth Corrected
+
+DAEDALUS completed the bounded ARGUS correction on 2026-08-04:
+
+```text
+READY_PR542_CORRECTED_ACTIVITY_PRIVACY_TRUTH_FOR_ARGUS
+```
+
+Exact deployed API/web source is `47576f5b`. Migration `098`, its SHA-256, and
+ledger `1/1` are unchanged. The cursor now contains only allowed event time and
+a server-validated same-timestamp ordinal. Focused `23/23` covers complete
+eleven-event equal-timestamp traversal, whole-response and decoded-cursor audit
+id absence, malformed/legacy/out-of-bound cursor rejection, and active,
+invited, past-contact, genuinely former, and never-member relationship truth.
+
+Hosted proof passes seven same-timestamp events at page size `2`, whole-response
+and decoded-cursor scans against the known private event ids, all corrected
+relationship labels, owner/hostile boundaries, atomic rollback, and exact
+restoration to retained events `58`, Project audit `1`, Space `8`, and proof
+Project/report residue `0/0`. Responsive owner desktop/light, `390px` dark,
+`375px` light, member `390px` dark, and signed-out `375px` light proof passes.
+
+Institutions `20/20`, Projects `33/33`, typecheck, lint, and `git diff --check`
+pass. The prior root-build result and established Windows standalone symlink
+`EPERM` caveat are unchanged.
+
 ## PR542 Activity Readback Blocked On Cursor Privacy And Relationship Truth
 
 ARGUS independently reviewed exact deployed source `4764e28a` on 2026-08-03:
